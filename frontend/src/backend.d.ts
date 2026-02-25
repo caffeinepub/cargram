@@ -30,6 +30,7 @@ export interface User {
     displayName: string;
     followersCount: bigint;
     createdAt: bigint;
+    profilePicData?: string;
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
@@ -40,6 +41,7 @@ export interface PostRecord {
     authorId: UserId;
     createdAt: bigint;
     tags: Array<string>;
+    reelCategory?: string;
     caption: string;
     image?: ExternalBlob;
 }
@@ -93,6 +95,7 @@ export interface UserProfile {
     displayName: string;
     followersCount: bigint;
     createdAt: bigint;
+    profilePicData?: string;
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
@@ -137,7 +140,7 @@ export interface backendInterface {
     /**
      * / Create a post; authorId is derived from the caller's stored profile
      */
-    createPost(caption: string, tags: Array<string>, postType: PostType): Promise<PostId>;
+    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null): Promise<PostId>;
     /**
      * / Create a user record (authenticated users only)
      */
@@ -146,6 +149,9 @@ export interface backendInterface {
      * / Delete a listing (author only)
      */
     deleteListing(listingId: MarketplaceListingId): Promise<void>;
+    /**
+     * / Delete post (author only)
+     */
     deletePost(postId: PostId): Promise<void>;
     /**
      * / Follow another user; followerId is derived from the caller's profile
@@ -222,6 +228,10 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     /**
+     * / Check if caller follows a specific user
+     */
+    isFollowing(userId: UserId): Promise<boolean>;
+    /**
      * / Like a post; userId is derived from the caller's profile
      */
     likePost(postId: PostId): Promise<void>;
@@ -234,9 +244,13 @@ export interface backendInterface {
      */
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     /**
-     * / Search listings by title, description, or category
+     * / Search listings by title, description, or category (public read)
      */
     searchListings(searchQuery: string): Promise<Array<MarketplaceListing>>;
+    /**
+     * / Search reels by category or username (authenticated users only)
+     */
+    searchReels(searchQuery: string): Promise<Array<PostRecord>>;
     /**
      * / Search users by username or display name (public read)
      */
@@ -257,4 +271,8 @@ export interface backendInterface {
      * / Update a listing (author only)
      */
     updateListing(listingId: MarketplaceListingId, title: string, description: string, price: string, condition: Variant_new_used, category: string, imageUrl: string): Promise<void>;
+    /**
+     * / Update the caller's profile picture (base64-encoded image data)
+     */
+    updateProfilePic(imageBase64: string): Promise<void>;
 }

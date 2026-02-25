@@ -69,6 +69,7 @@ export interface PostRecord {
   'authorId' : UserId,
   'createdAt' : bigint,
   'tags' : Array<string>,
+  'reelCategory' : [] | [string],
   'caption' : string,
   'image' : [] | [ExternalBlob],
 }
@@ -83,6 +84,7 @@ export interface User {
   'displayName' : string,
   'followersCount' : bigint,
   'createdAt' : bigint,
+  'profilePicData' : [] | [string],
   'carInfo' : string,
   'followingCount' : bigint,
   'profilePic' : [] | [ExternalBlob],
@@ -95,6 +97,7 @@ export interface UserProfile {
   'displayName' : string,
   'followersCount' : bigint,
   'createdAt' : bigint,
+  'profilePicData' : [] | [string],
   'carInfo' : string,
   'followingCount' : bigint,
   'profilePic' : [] | [ExternalBlob],
@@ -165,7 +168,10 @@ export interface _SERVICE {
   /**
    * / Create a post; authorId is derived from the caller's stored profile
    */
-  'createPost' : ActorMethod<[string, Array<string>, PostType], PostId>,
+  'createPost' : ActorMethod<
+    [string, Array<string>, PostType, [] | [string]],
+    PostId
+  >,
   /**
    * / Create a user record (authenticated users only)
    */
@@ -174,6 +180,9 @@ export interface _SERVICE {
    * / Delete a listing (author only)
    */
   'deleteListing' : ActorMethod<[MarketplaceListingId], undefined>,
+  /**
+   * / Delete post (author only)
+   */
   'deletePost' : ActorMethod<[PostId], undefined>,
   /**
    * / Follow another user; followerId is derived from the caller's profile
@@ -250,6 +259,10 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   /**
+   * / Check if caller follows a specific user
+   */
+  'isFollowing' : ActorMethod<[UserId], boolean>,
+  /**
    * / Like a post; userId is derived from the caller's profile
    */
   'likePost' : ActorMethod<[PostId], undefined>,
@@ -262,9 +275,13 @@ export interface _SERVICE {
    */
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   /**
-   * / Search listings by title, description, or category
+   * / Search listings by title, description, or category (public read)
    */
   'searchListings' : ActorMethod<[string], Array<MarketplaceListing>>,
+  /**
+   * / Search reels by category or username (authenticated users only)
+   */
+  'searchReels' : ActorMethod<[string], Array<PostRecord>>,
   /**
    * / Search users by username or display name (public read)
    */
@@ -297,6 +314,10 @@ export interface _SERVICE {
     ],
     undefined
   >,
+  /**
+   * / Update the caller's profile picture (base64-encoded image data)
+   */
+  'updateProfilePic' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

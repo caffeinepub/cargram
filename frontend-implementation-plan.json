@@ -1,146 +1,54 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Marketplace, enhance Mechanics & Builds pages, and add post/reel deletion",
+  "title": "Profile picture upload",
   "requirements": [
     {
-      "id": "REQ-20",
-      "summary": "Add a Marketplace page where users can create, browse, and view listings for car parts and vehicles for sale",
+      "id": "REQ-47",
+      "summary": "Add profile picture upload to EditProfileModal with circular preview, base64 encoding, and display throughout the app",
       "acceptanceCriteria": [
-        "A Marketplace page exists and is navigable from the app",
-        "Users can view all marketplace listings in a scrollable list or grid",
-        "Each listing card displays title, price, condition, image, and seller info",
-        "Authenticated users can create a new listing via a form with all required fields",
-        "Listings are saved to and loaded from the backend",
-        "A contact/inquiry button is present on each listing detail view"
+        "EditProfileModal contains a circular avatar preview that updates when a file is selected",
+        "A native file input (accept='image/*') is present to select an image from device",
+        "The selected image is encoded as base64 before submission",
+        "On save, the base64 image data is submitted to the `updateProfilePic` backend function",
+        "After saving, the new profile picture is immediately reflected in the ProfilePage header",
+        "All other surfaces that display the user's avatar (PostCard, CommentsSheet, UserListItem, ReelsPage overlay) also show the updated profile picture"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/MarketplacePage.tsx",
-          "operation": "create",
-          "description": "Create a Marketplace page component that fetches and displays all marketplace listings using useGetAllListings hook. Display listings in a grid with ListingCard components showing seller avatar (via getUserProfile), username, item title, price, condition, description, and image. Include a 'Create Listing' button that navigates to /marketplace/create. Use the marketplace-hero.dim_1200x400.jpg image from frontend/public/assets/generated/ as a hero banner. Apply the dark asphalt/amber automotive theme. Verify the authorization component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/CreateListingPage.tsx",
-          "operation": "create",
-          "description": "Create a form page for creating marketplace listings with fields: title (text), description (textarea), price (text), condition (select: new/used), category (select: parts/wheels/audio/exterior/interior/other), and imageUrl (text input). Submit via useCreateListing mutation and navigate to /marketplace on success. Use authenticated user context from useInternetIdentity. Apply consistent form styling matching CreateFeedPostPage patterns. Verify the authorization component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/ListingDetailPage.tsx",
-          "operation": "create",
-          "description": "Create a listing detail page component that fetches a single listing by ID using useGetListing hook and displays all fields prominently. Show seller information by fetching the author profile via useGetUserProfile. Include a 'Contact Seller' button that opens a toast notification with contact instructions (placeholder for future messaging integration). If the current user is the listing author, show a delete button that calls useDeleteListing with confirmation dialog. Apply consistent detail page styling matching BuildDetailPage patterns. Verify the authorization component's usage instructions before implementing."
+          "path": "frontend/src/components/EditProfileModal.tsx",
+          "operation": "modify",
+          "description": "Add a profile picture upload section with a native file input (accept='image/*'), display a circular avatar preview showing either the selected image or the current profile picture from userProfile.profilePicData (decoded from base64 as a data URL), encode the selected file as base64, and call the mutation hook for updateProfilePic with the base64 string on save. Ensure the modal layout accommodates the new upload field above the existing display name, ride info, and bio fields."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add React Query hooks for marketplace operations: useGetAllListings (query that calls actor.getAllListings), useGetListing (query that calls actor.getListing with listingId parameter), useCreateListing (mutation that calls actor.createListing with listing fields and invalidates 'allListings' query), useDeleteListing (mutation that calls actor.deleteListing with listingId, invalidates 'allListings' and removes the specific listing from cache), useUpdateListing (mutation that calls actor.updateListing), useSearchListings (query that calls actor.searchListings with search query parameter), and useMarkListingAsSold (mutation that calls actor.markListingAsSold). Follow existing query patterns from the file."
-        }
-      ]
-    },
-    {
-      "id": "REQ-22",
-      "summary": "Add delete functionality to posts and reels visible only to the post's author",
-      "acceptanceCriteria": [
-        "A delete option is visible on post cards and reels only when the current user is the author",
-        "Tapping delete shows a confirmation prompt before proceeding",
-        "Confirmed deletion calls the backend and removes the item from the feed/reel list without a full page reload",
-        "Delete option is also available on the user's own profile page for posts, reels, and builds",
-        "Non-authors do not see the delete option"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/PostCard.tsx",
-          "operation": "modify",
-          "description": "Add a delete button (trash icon or three-dot menu with delete option) that is only visible when the current user's principal (from useInternetIdentity) matches the post's authorId. When clicked, show a confirmation dialog using a shadcn/ui AlertDialog component, then call useDeletePost mutation on confirmation. Optimistically remove the post from the UI after successful deletion. Position the delete button in the post card header near the author info."
-        },
-        {
-          "path": "frontend/src/pages/ReelsPage.tsx",
-          "operation": "modify",
-          "description": "Add a delete button overlay to each reel card that is only visible when the current user's principal matches the reel's authorId. When tapped, show a confirmation dialog, then call useDeletePost mutation. Update the reels array state to remove the deleted reel immediately after successful deletion without requiring a page reload. Position the delete button in the top-right corner of each reel overlay."
+          "description": "Add a new mutation hook useUpdateProfilePic that calls actor.updateProfilePic(imageBase64: string), invalidates the 'currentUserProfile' query on success, and includes onError handling to display a user-friendly error message if the upload fails."
         },
         {
           "path": "frontend/src/pages/ProfilePage.tsx",
           "operation": "modify",
-          "description": "Add delete buttons to post cards, reel cards, and build cards in the respective tabs when viewing the current user's own profile. Reuse the delete confirmation pattern from PostCard. For builds, implement a useDeleteBuild hook if not present, then call it with confirmation. Update the local state or invalidate queries after successful deletion to refresh the tab content."
+          "description": "Update the profile header avatar display to render the user's profile picture from userProfile.profilePicData (if present, decoded from base64 as a data URL) instead of the default avatar placeholder. Ensure the circular avatar image uses proper styling and fallback gracefully to the generated default-avatar.dim_128x128.png when profilePicData is null or undefined."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/PostCard.tsx",
           "operation": "modify",
-          "description": "Add useDeletePost mutation hook that calls actor.deletePost with postId parameter, invalidates 'allPosts', 'feed', and 'userPosts' query keys, and removes the deleted post from the cache. Add useDeleteBuild mutation hook that calls a backend deleteBuild function (if exposed) with buildId, invalidates 'allBuilds' query, and removes the deleted build from cache. Follow existing mutation patterns with optimistic updates and error handling."
-        }
-      ]
-    },
-    {
-      "id": "REQ-24",
-      "summary": "Enhance the existing Mechanics Help page to support image attachments and car model/year on questions",
-      "acceptanceCriteria": [
-        "The mechanic question creation form includes optional image URL and car model/year fields",
-        "Submitted images are displayed prominently on the mechanic thread detail page",
-        "Existing mechanic questions without images render correctly without broken image placeholders"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/CreateMechanicQuestionPage.tsx",
-          "operation": "modify",
-          "description": "Add two new form fields to the existing mechanic question creation form: an optional 'Image URL' text input field and an optional 'Car Model/Year' text input field. Update the form submission to include these fields when calling the createPost mutation. If the backend post creation does not support these fields directly, consider storing them in the caption or tags as a temporary workaround (e.g., prefixing caption with car model/year info and appending image URL to tags). Maintain consistent form styling."
+          "description": "Update the author avatar display to render the author's profile picture from the user.profilePicData field (decoded from base64 as a data URL) if available. Fetch the author user data via the existing user query hook and display their profilePicData. Fallback to the default avatar image frontend/public/assets/generated/default-avatar.dim_128x128.png when profilePicData is null or undefined."
         },
         {
-          "path": "frontend/src/pages/MechanicThreadPage.tsx",
+          "path": "frontend/src/components/CommentsSheet.tsx",
           "operation": "modify",
-          "description": "Modify the mechanic thread detail page to display the question's attached image (if present) prominently below the question text. Parse the image URL from the post's image field (or from tags if stored there temporarily). Display the car model/year info if present. Use conditional rendering to avoid showing broken image placeholders when no image is attached. Apply consistent styling with proper image aspect ratio and responsive sizing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-25",
-      "summary": "Enhance the existing Build Showcase section to support multiple image URLs and swipeable carousel display",
-      "acceptanceCriteria": [
-        "The build creation form allows entering between 1 and 6 image URLs",
-        "BuildDetailPage displays all submitted images in a swipeable/scrollable gallery carousel",
-        "The author sees a delete button on their build cards in BuildsPage and their profile",
-        "Deleting a build triggers confirmation and removes it from the builds grid"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/CreateBuildPage.tsx",
-          "operation": "modify",
-          "description": "Replace the single image URL field with a dynamic multi-image URL input system. Allow users to add up to 6 image URL inputs dynamically with '+' and 'x' buttons to add/remove fields. Enforce a minimum of 1 image URL. Update form state to track an array of image URLs. Modify the form submission to pass the array of image URLs to the backend (note: the backend createBuild function currently does not accept images parameter; this will require backend changes in REQ-21, but for now prepare the frontend to send an images array). Use shadcn/ui Button components for add/remove actions."
+          "description": "Update the comment author avatar display to render each comment author's profile picture from their user.profilePicData field (decoded from base64 as a data URL) if available. Fetch each comment author's user data via the existing user query hook and display their profilePicData. Fallback to the default avatar image frontend/public/assets/generated/default-avatar.dim_128x128.png when profilePicData is null or undefined."
         },
         {
-          "path": "frontend/src/pages/BuildDetailPage.tsx",
+          "path": "frontend/src/components/UserListItem.tsx",
           "operation": "modify",
-          "description": "Replace the single image display with a swipeable image carousel component that displays all images from the build's images array. Use a shadcn/ui Carousel component or implement a custom carousel with prev/next buttons and swipe gesture support. Show image indicators (dots) to indicate the current image position. Ensure the carousel is responsive and works on both desktop and mobile. If a build has only one image, display it without carousel controls."
+          "description": "Update the user avatar display to render the user's profile picture from user.profilePicData (decoded from base64 as a data URL) if available. Fallback to the default avatar image frontend/public/assets/generated/default-avatar.dim_128x128.png when profilePicData is null or undefined. Ensure the circular avatar styling is consistent with other avatar displays throughout the app."
         },
         {
-          "path": "frontend/src/pages/BuildsPage.tsx",
+          "path": "frontend/src/pages/ReelsPage.tsx",
           "operation": "modify",
-          "description": "Add a delete button to each build card that is only visible when the current user's principal matches the build's authorId. When clicked, show a confirmation dialog using shadcn/ui AlertDialog, then call useDeleteBuild mutation. Optimistically remove the build from the grid after successful deletion. Position the delete button as an overlay icon in the top-right corner of each build card thumbnail."
-        }
-      ]
-    },
-    {
-      "id": "REQ-26",
-      "summary": "Add Marketplace navigation entry to BottomNav or CreatePostSheet and register the /marketplace route",
-      "acceptanceCriteria": [
-        "The Marketplace page is reachable via a navigation element (BottomNav tab, Discover page link, or dedicated nav entry)",
-        "App.tsx includes a /marketplace route",
-        "CreatePostSheet includes a 'List Item for Sale' option that navigates to the marketplace listing creation form"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/CreatePostSheet.tsx",
-          "operation": "modify",
-          "description": "Add a fifth content creation option 'List Item for Sale' to the existing four options (Feed Post, Reel, Build Showcase, Mechanic Question). Use a shopping bag or storefront icon. When selected, navigate to /marketplace/create route. Maintain consistent styling and layout for the new option within the bottom sheet."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Register three new routes in the TanStack Router configuration: '/marketplace' (renders MarketplacePage), '/marketplace/create' (renders CreateListingPage), and '/marketplace/:listingId' (renders ListingDetailPage). Wrap these routes with the existing AuthGate and Layout components to maintain consistent app shell and authentication flow. Follow the existing route registration patterns."
-        },
-        {
-          "path": "frontend/src/pages/DiscoverPage.tsx",
-          "operation": "modify",
-          "description": "Add a 'Marketplace' tab or prominent link/button in the Discover page that navigates to /marketplace. Position it alongside the existing tabs (Posts, Builds, Reels, Questions, Events) or as a featured section at the top of the page. Use a shopping bag icon and label it 'Marketplace'. Apply consistent tab styling."
+          "description": "Update the ReelItem component (or the overlay author info section) to render the reel author's profile picture from the author's user.profilePicData field (decoded from base64 as a data URL) if available. Fetch the author user data via the existing user query hook and display their profilePicData. Fallback to the default avatar image frontend/public/assets/generated/default-avatar.dim_128x128.png when profilePicData is null or undefined."
         }
       ]
     }

@@ -1,83 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T15:46:20.111Z",
+  "generatedAt": "2026-02-25T17:44:18.588Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 7,
-    "implemented": 0,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-20",
-        "summary": "Add a Marketplace page where users can create, browse, and view listings for car parts and vehicles for sale. Each listing card shows: seller avatar, username, item title, price, condition, description, at least one image (via URL input), and a contact/inquiry button. Include a 'Create Listing' button that opens a form with fields for title, description, price, condition (new/used), category (parts/wheels/audio/exterior/interior/other), and image URL. Listings are persisted in the backend. Add a 'Marketplace' tab or entry point accessible from the bottom navigation or Discover page.",
-        "status": "missing",
+        "id": "REQ-47",
+        "summary": "Update the EditProfileModal (frontend/src/components/EditProfileModal.tsx) to include a profile picture upload field. Allow the user to select an image file from their device, show a circular preview of the selected image, encode it as base64, and call the `updateProfilePic` backend function on save. Display the uploaded profile picture throughout the app wherever the user's avatar is shown (ProfilePage, PostCard, CommentsSheet, UserListItem, ReelsPage, etc.).",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/MarketplacePage.tsx",
-          "frontend/src/pages/CreateListingPage.tsx",
-          "frontend/src/pages/ListingDetailPage.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-21",
-        "summary": "Extend the backend data model to support marketplace listings with fields: id, authorId, title, description, price (text), condition ('new' | 'used'), category (text), imageUrl, createdAt, and a sold flag. Expose CRUD operations: createListing, getListing, getAllListings, updateListing, deleteListing (owner only).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-22",
-        "summary": "Add delete functionality to posts and reels: on each post card in the Home Feed, and on each reel in the Reels page, show a delete button (e.g., a trash icon or a three-dot menu option) that is only visible to the post's author. When tapped, prompt for confirmation, then call the backend delete function and remove the post from the UI. Also surface this delete option on the user's own profile page tabs (Posts, Reels, Builds).",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/components/PostCard.tsx",
-          "frontend/src/pages/ReelsPage.tsx",
+          "frontend/src/components/EditProfileModal.tsx",
+          "frontend/src/hooks/useQueries.ts",
           "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/PostCard.tsx",
+          "frontend/src/components/CommentsSheet.tsx",
+          "frontend/src/components/UserListItem.tsx",
+          "frontend/src/pages/ReelsPage.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/EditProfileModal.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/ProfilePage.tsx",
+          "frontend/src/components/PostCard.tsx",
+          "frontend/src/components/CommentsSheet.tsx",
+          "frontend/src/components/UserListItem.tsx",
+          "frontend/src/pages/ReelsPage.tsx"
+        ]
       },
       {
-        "id": "REQ-23",
-        "summary": "Expose a deletePost function in the backend that accepts a post ID, verifies the caller is the post's author, and permanently removes the post record (and associated likes/comments if applicable).",
+        "id": "REQ-48",
+        "summary": "Extend the backend UserProfile data model in backend/main.mo to include a `profilePicData` field (as ?Text) for storing base64-encoded profile picture data. Add an `updateProfilePic` function that accepts the base64 image string and updates the caller's profile record. Ensure that all profile query functions return the `profilePicData` field so the frontend can render it as the user's avatar.",
         "status": "unknown",
         "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-24",
-        "summary": "Enhance the existing Mechanics Help page (MechanicsPage.tsx and MechanicThreadPage.tsx) to support image attachments on questions: add an optional image URL field to the CreateMechanicQuestionPage form, display the image on the question thread page when present, and show a car model/year field on the creation form.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/pages/CreateMechanicQuestionPage.tsx",
-          "frontend/src/pages/MechanicThreadPage.tsx"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-25",
-        "summary": "Enhance the existing Build Showcase section: update the CreateBuildPage form to support multiple image URLs (allow adding/removing image URL inputs dynamically, minimum 1, up to 6). Display all images in a swipeable carousel on the BuildDetailPage. Add a delete button on build cards visible only to the build's author.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/pages/CreateBuildPage.tsx",
-          "frontend/src/pages/BuildDetailPage.tsx",
-          "frontend/src/pages/BuildsPage.tsx"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-26",
-        "summary": "Add a 'Marketplace' navigation entry to the BottomNav or the CreatePostSheet so users can easily access the Marketplace page. Update the route in App.tsx to include the /marketplace route. Add a 'List Item for Sale' option in the CreatePostSheet bottom sheet alongside the existing four content types.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/components/CreatePostSheet.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/pages/DiscoverPage.tsx"
-        ],
         "matchedFiles": []
       }
     ]
@@ -87,12 +47,20 @@
     "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
+    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/marketplace-hero.dim_1200x400.jpg",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
+    "frontend/src/components/CommentsSheet.tsx",
+    "frontend/src/components/EditProfileModal.tsx",
+    "frontend/src/components/PostCard.tsx",
+    "frontend/src/components/UserListItem.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
+    "frontend/src/pages/ReelsPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

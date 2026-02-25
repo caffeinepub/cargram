@@ -1,13 +1,12 @@
 import { useRef, useCallback } from 'react';
-import { useGetAllPosts, useGetUser } from '../hooks/useQueries';
+import { useGetAllPosts } from '../hooks/useQueries';
 import PostCard from '../components/PostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Car } from 'lucide-react';
 import { type PostRecord } from '../backend';
 
 function PostCardWrapper({ post }: { post: PostRecord }) {
-  const { data: author } = useGetUser(post.authorId);
-  return <PostCard post={post} author={author} />;
+  return <PostCard post={post} />;
 }
 
 export default function HomePage() {

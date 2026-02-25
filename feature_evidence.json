@@ -1,4 +1,31 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-update-the-editprofilemodal-frontend-src-components-editprofilemodal-tsx-to-include-a-profile-picture-upload-field-allow-the-user-to-select-an-image-file-from-their-device-show-a-circular-preview-of-the-selected-image-encode-it-as-base64-and-call-the-updateprofilepic-backend-function-on-save-display-the-uploaded-profile-picture-throughout-the-app-wherever-the-user-s-avatar-is-shown-profilepage-postcard-commentssheet-userlistitem-reelspage-etc",
+      "featureTitle": "Update the EditProfileModal (frontend/src/components/EditProfileModal.tsx) to include a profile picture upload field. Allow the user to select an image file from their device, show a circular preview of the selected image, encode it as base64, and call the `updateProfilePic` backend function on save. Display the uploaded profile picture throughout the app wherever the user's avatar is shown (ProfilePage, PostCard, CommentsSheet, UserListItem, ReelsPage, etc.).",
+      "files": [
+        "frontend/src/components/CommentsSheet.tsx",
+        "frontend/src/components/EditProfileModal.tsx",
+        "frontend/src/components/PostCard.tsx",
+        "frontend/src/components/UserListItem.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ProfilePage.tsx",
+        "frontend/src/pages/ReelsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-47"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

@@ -1,61 +1,23 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T15:46:20.107Z",
-  "summary": "The diff shows backend changes (migration.mo added, main.mo modified) that implement the MarketplaceListing data model and likely CRUD operations. However, the diff is heavily truncated and contains no frontend file changes at all. The vast majority of requirements — especially all frontend-facing ones (REQ-20, REQ-22, REQ-24, REQ-25, REQ-26) and some backend ones (REQ-23) — cannot be confirmed as implemented from the available diff evidence.",
-  "missing_requirements": [
-    {
-      "id": "REQ-20",
-      "requirement": "Add a Marketplace page where users can create, browse, and view listings for car parts and vehicles for sale with listing cards, create listing form, and navigation entry point.",
-      "reason": "No frontend files (MarketplacePage.tsx, listing components, etc.) appear in the diff. Only backend migration.mo and main.mo were changed/added.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-22",
-      "requirement": "Add delete functionality to posts and reels visible only to the author with confirmation prompt, backend call, and UI removal. Also available on profile page.",
-      "reason": "No frontend files for Home Feed, Reels page, or Profile page were modified in the diff.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-23",
-      "requirement": "Expose a deletePost function in the backend that verifies caller is the post author and removes the post record.",
-      "reason": "The main.mo diff is truncated and does not show a deletePost function implementation.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-24",
-      "requirement": "Enhance MechanicsPage with optional image URL and car model/year fields on creation form, and display image on thread detail page.",
-      "reason": "No frontend files (MechanicsPage.tsx, CreateMechanicQuestionPage.tsx, MechanicThreadPage.tsx) appear in the diff.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-25",
-      "requirement": "Enhance Build Showcase: multiple image URLs (1-6) in CreateBuildPage, swipeable carousel on BuildDetailPage, delete button on build cards for authors.",
-      "reason": "No frontend files (CreateBuildPage.tsx, BuildDetailPage.tsx, BuildsPage.tsx) appear in the diff.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-26",
-      "requirement": "Add Marketplace navigation entry to BottomNav or CreatePostSheet, add /marketplace route in App.tsx, and add 'List Item for Sale' option in CreatePostSheet.",
-      "reason": "No frontend files (BottomNav, App.tsx, CreatePostSheet) appear in the diff.",
-      "evidence": []
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "A migration.mo module file was added to handle canister state migration from old actor shape to new actor shape including marketplaceListings.",
-      "reason": "The build request did not explicitly request a separate migration module file; it only required backend persistence across upgrades and CRUD operations in main.mo.",
-      "evidence": [
-        "backend/migration.mo"
-      ]
-    }
-  ],
-  "confidence": 0.55,
+  "generatedAt": "2026-02-25T17:44:18.585Z",
+  "summary": "Both REQ-47 and REQ-48 are largely implemented. The backend gains a `profilePicData : ?Text` field on UserProfile, an `updateProfilePic` function, a migration module, and existing query functions return the new field. The frontend EditProfileModal gains a circular avatar preview, a file input (accept='image/*'), base64 encoding, and calls `updateProfilePic` on save. All major avatar surfaces (ProfilePage, PostCard, CommentsSheet, UserListItem, ReelsPage) are updated to render `profilePicData` as a base64 data URL. One minor acceptance criterion — cache invalidation so the new profile picture is immediately reflected in ProfilePage after saving — cannot be fully confirmed due to diff truncation, but the hooks file summary mentions useUpdateProfilePic is present and query invalidation patterns are used elsewhere.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.88,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/components/CommentsSheet.tsx",
+    "frontend/src/components/EditProfileModal.tsx",
+    "frontend/src/components/PostCard.tsx",
+    "frontend/src/components/UserListItem.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
+    "frontend/src/pages/ReelsPage.tsx",
     "project_state.json"
   ]
 }

@@ -1,19 +1,20 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 11,
+  "projectStateVersion": 23,
   "summary": "A full-featured car enthusiast social media app inspired by Instagram, built exclusively for car culture. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, and the ability for users to delete their own posts and reels.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
     "Core entities: Users, Posts, Reels, Comments, Likes, Follows, Messages, Events, Builds",
     "Media-heavy app requiring image and video upload/storage support",
     "App has a gated landing page — users must press login before accessing the main app",
-    "Marketplace entity needed: listings (id, sellerId, title, description, price, imageUrls, category, status, createdAt)"
+    "Marketplace entity needed: listings (id, sellerId, title, description, price, imageUrls, category, status, createdAt)",
+    "Reels support category tags: Street, Stance, JDM, Drift, and other car culture subgenres — stored on the post/reel entity"
   ],
   "known_issues": [
-    "App header/topbar still displays 'CarGram' instead of the preferred 'RevReel' branding"
+    "App header/topbar still displays 'CarGram' instead of the preferred 'RevReel' branding",
+    "Follow/unfollow button is missing or not visible next to the profile picture on the user profile page"
   ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Marketplace hero banner image — dark asphalt background with scattered performance car parts (wheels, exhaust tips, spoilers) arranged artistically, amber/orange accent lighting, cinematic tone (marketplace-hero.dim_1200x400.jpg)",
   "existing_features": [
     {
       "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
@@ -148,6 +149,126 @@
       "title": "Replace all occurrences of 'CarGram' with 'RevReel' throughout the frontend: update the page title in frontend/index.html, the TopBar component (frontend/src/components/TopBar.tsx), the LandingPage component (frontend/src/components/LandingPage.tsx), and any other frontend files that display the app name 'CarGram' to users.",
       "reqIds": [
         "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-user-profile-page-frontend-src-pages-profilepage-tsx-ensure-a-prominent-follow-unfollow-button-is-displayed-when-viewing-another-user-s-profile-the-button-should-be-clearly-visible-in-the-profile-header-area-near-the-follower-following-counts-use-the-app-s-amber-orange-accent-styling-and-correctly-reflect-the-current-follow-state-following-vs-not-following-with-optimistic-ui-updates",
+      "title": "On the User Profile page (frontend/src/pages/ProfilePage.tsx), ensure a prominent follow/unfollow button is displayed when viewing another user's profile. The button should be clearly visible in the profile header area (near the follower/following counts), use the app's amber/orange accent styling, and correctly reflect the current follow state (following vs. not following) with optimistic UI updates.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-restrict-direct-messaging-so-that-a-user-can-only-initiate-or-view-a-chat-thread-with-another-user-if-there-is-a-mutual-follow-relationship-i-e-both-users-follow-each-other-or-if-at-least-one-follows-the-other-followers-only-on-the-messagespage-only-show-users-the-current-user-follows-or-is-followed-by-as-available-conversation-partners-on-the-chatthreadpage-if-neither-user-follows-the-other-show-a-locked-restricted-state-with-a-message-indicating-they-must-follow-each-other-to-chat",
+      "title": "Restrict direct messaging so that a user can only initiate or view a chat thread with another user if there is a mutual follow relationship (i.e., both users follow each other) OR if at least one follows the other (followers-only). On the MessagesPage, only show users the current user follows or is followed by as available conversation partners. On the ChatThreadPage, if neither user follows the other, show a locked/restricted state with a message indicating they must follow each other to chat.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-createreelpage-frontend-src-pages-createreelpage-tsx-to-replace-or-supplement-the-image-video-url-input-with-a-native-file-input-that-allows-the-user-to-select-a-video-or-image-file-from-their-device-encode-the-file-as-base64-and-submit-it-via-the-backend-createpost-mutation-also-add-a-required-reel-category-selector-with-the-options-street-stance-jdm-drift-build-show-track-import-the-selected-category-must-be-submitted-with-the-post",
+      "title": "Update the CreateReelPage (frontend/src/pages/CreateReelPage.tsx) to replace or supplement the image/video URL input with a native file input that allows the user to select a video or image file from their device. Encode the file as base64 and submit it via the backend createPost mutation. Also add a required reel category selector with the options: Street, Stance, JDM, Drift, Build, Show, Track, Import. The selected category must be submitted with the post.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-createfeedpostpage-frontend-src-pages-createfeedpostpage-tsx-to-replace-or-supplement-the-image-url-input-with-a-native-file-input-that-allows-the-user-to-select-an-image-from-their-device-encode-the-selected-image-as-base64-and-submit-it-via-the-backend-createpost-mutation",
+      "title": "Update the CreateFeedPostPage (frontend/src/pages/CreateFeedPostPage.tsx) to replace or supplement the image URL input with a native file input that allows the user to select an image from their device. Encode the selected image as base64 and submit it via the backend createPost mutation.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-editprofilemodal-frontend-src-components-editprofilemodal-tsx-to-include-a-profile-picture-upload-field-allow-the-user-to-select-an-image-file-from-their-device-show-a-circular-preview-encode-it-as-base64-and-call-the-updateprofilepic-backend-function-on-save-display-the-uploaded-profile-picture-throughout-the-app-wherever-the-user-s-avatar-is-shown",
+      "title": "Update the EditProfileModal (frontend/src/components/EditProfileModal.tsx) to include a profile picture upload field. Allow the user to select an image file from their device, show a circular preview, encode it as base64, and call the updateProfilePic backend function on save. Display the uploaded profile picture throughout the app wherever the user's avatar is shown.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-reelspage-frontend-src-pages-reelspage-tsx-to-display-the-reel-category-badge-e-g-jdm-drift-stance-as-an-overlay-on-each-full-screen-reel-card-style-the-badge-using-the-app-s-amber-asphalt-theme-as-a-small-pill-or-tag-near-the-caption-or-username-area",
+      "title": "Update the ReelsPage (frontend/src/pages/ReelsPage.tsx) to display the reel category badge (e.g., 'JDM', 'Drift', 'Stance') as an overlay on each full-screen reel card. Style the badge using the app's amber/asphalt theme as a small pill or tag near the caption or username area.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-that-post-and-reel-deletion-is-accessible-and-functional-from-the-reelspage-the-home-feed-postcard-and-the-profile-page-tabs-posts-reels-builds-the-delete-button-trash-icon-or-three-dot-menu-must-only-be-visible-to-the-post-s-author-tapping-it-shows-a-confirmation-prompt-on-confirmation-it-calls-the-backend-deletepost-and-removes-the-item-from-the-ui-via-react-query-cache-invalidation-this-should-be-verified-reinforced-across-all-three-surfaces",
+      "title": "Ensure that post and reel deletion is accessible and functional from the ReelsPage, the Home Feed (PostCard), and the Profile page tabs (Posts, Reels, Builds). The delete button (trash icon or three-dot menu) must only be visible to the post's author. Tapping it shows a confirmation prompt; on confirmation it calls the backend deletePost and removes the item from the UI via React Query cache invalidation. This should be verified/reinforced across all three surfaces.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-postcard-component-frontend-src-components-postcard-tsx-shows-a-delete-button-trash-icon-or-three-dot-menu-option-that-is-only-visible-to-the-post-s-author-tapping-it-shows-an-inline-confirmation-prompt-on-confirmation-it-calls-the-deletepost-backend-mutation-and-invalidates-the-relevant-react-query-caches-to-immediately-remove-the-post-from-the-home-feed",
+      "title": "Ensure the PostCard component (frontend/src/components/PostCard.tsx) shows a delete button (trash icon or three-dot menu option) that is only visible to the post's author. Tapping it shows an inline confirmation prompt; on confirmation it calls the `deletePost` backend mutation and invalidates the relevant React Query caches to immediately remove the post from the Home Feed.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-reelspage-frontend-src-pages-reelspage-tsx-shows-a-delete-button-overlay-on-each-full-screen-reel-card-that-is-only-visible-to-the-reel-s-author-tapping-it-shows-a-confirmation-prompt-on-confirmation-it-calls-the-deletepost-backend-mutation-and-removes-the-reel-from-the-feed-via-react-query-cache-invalidation",
+      "title": "Ensure the ReelsPage (frontend/src/pages/ReelsPage.tsx) shows a delete button overlay on each full-screen reel card that is only visible to the reel's author. Tapping it shows a confirmation prompt; on confirmation it calls the `deletePost` backend mutation and removes the reel from the feed via React Query cache invalidation.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-profile-page-frontend-src-pages-profilepage-tsx-in-all-three-tabs-posts-reels-and-builds-shows-a-delete-button-on-each-content-card-in-the-current-user-s-own-profile-grid-tapping-it-shows-a-confirmation-prompt-on-confirmation-it-calls-the-deletepost-backend-mutation-and-removes-the-item-from-the-grid-via-react-query-cache-invalidation",
+      "title": "Ensure the Profile page (frontend/src/pages/ProfilePage.tsx) in all three tabs — Posts, Reels, and Builds — shows a delete button on each content card in the current user's own profile grid. Tapping it shows a confirmation prompt; on confirmation it calls the `deletePost` backend mutation and removes the item from the grid via React Query cache invalidation.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-user-profile-page-frontend-src-pages-profilepage-tsx-place-a-prominent-follow-unfollow-button-directly-next-to-or-immediately-below-the-profile-picture-in-the-profile-header-the-button-must-be-clearly-visible-at-all-times-when-viewing-another-user-s-profile-styled-with-the-app-s-amber-orange-accent-colors-consistent-with-the-existing-design-system-and-must-correctly-reflect-the-current-follow-state-follow-vs-following-tapping-it-toggles-the-follow-state-with-optimistic-ui-updates-the-button-must-not-appear-when-the-current-user-is-viewing-their-own-profile",
+      "title": "On the User Profile page (frontend/src/pages/ProfilePage.tsx), place a prominent follow/unfollow button directly next to (or immediately below) the profile picture in the profile header. The button must be clearly visible at all times when viewing another user's profile, styled with the app's amber/orange accent colors (consistent with the existing design system), and must correctly reflect the current follow state ('Follow' vs 'Following'). Tapping it toggles the follow state with optimistic UI updates. The button must not appear when the current user is viewing their own profile.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-usesearchreels-react-query-hook-in-frontend-src-hooks-usequeries-ts-that-calls-the-backend-searchreels-function-with-a-query-string-and-returns-the-matching-reel-posts",
+      "title": "Add a `useSearchReels` React Query hook in `frontend/src/hooks/useQueries.ts` that calls the backend `searchReels` function with a query string and returns the matching reel posts.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-reels-search-page-at-frontend-src-pages-reelssearchpage-tsx-the-page-must-include-1-a-prominent-search-input-bar-styled-with-the-app-s-dark-asphalt-amber-theme-2-a-row-of-quick-filter-category-pill-buttons-for-the-reel-categories-street-stance-jdm-drift-build-show-track-import-that-pre-fill-the-search-input-when-tapped-3-a-vertically-scrollable-results-grid-of-matching-reels-below-the-search-bar-each-result-card-shows-the-reel-thumbnail-media-the-category-badge-amber-pill-the-author-s-username-and-avatar-and-the-caption-snippet-4-tapping-a-result-card-navigates-to-the-reelspage-scrolled-to-that-reel-or-opens-a-detail-view-5-an-empty-state-message-when-no-reels-match-the-query-styled-consistently-with-the-automotive-theme",
+      "title": "Add a Reels Search page at `frontend/src/pages/ReelsSearchPage.tsx`. The page must include: (1) a prominent search input bar styled with the app's dark asphalt/amber theme, (2) a row of quick-filter category pill buttons for the reel categories (Street, Stance, JDM, Drift, Build, Show, Track, Import) that pre-fill the search input when tapped, (3) a vertically scrollable results grid of matching reels below the search bar — each result card shows the reel thumbnail/media, the category badge (amber pill), the author's username and avatar, and the caption snippet, (4) tapping a result card navigates to the ReelsPage scrolled to that reel or opens a detail view, (5) an empty state message when no reels match the query, styled consistently with the automotive theme.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-reels-search-page-in-frontend-src-app-tsx-as-a-new-route-at-reels-search-add-a-search-icon-button-or-a-search-reels-entry-point-on-the-reelspage-frontend-src-pages-reelspage-tsx-such-as-a-search-icon-in-the-top-overlay-that-navigates-to-reels-search-also-add-a-search-reels-entry-point-accessible-from-the-discover-page-frontend-src-pages-discoverpage-tsx-tab-area-or-as-a-dedicated-reels-tab-within-the-existing-search-experience",
+      "title": "Register the Reels Search page in `frontend/src/App.tsx` as a new route at `/reels-search`. Add a search icon button or a 'Search Reels' entry point on the ReelsPage (`frontend/src/pages/ReelsPage.tsx`) — such as a search icon in the top overlay — that navigates to `/reels-search`. Also add a 'Search Reels' entry point accessible from the Discover page (`frontend/src/pages/DiscoverPage.tsx`) tab area or as a dedicated 'Reels' tab within the existing search experience.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-editprofilemodal-frontend-src-components-editprofilemodal-tsx-to-include-a-profile-picture-upload-field-allow-the-user-to-select-an-image-file-from-their-device-show-a-circular-preview-of-the-selected-image-encode-it-as-base64-and-call-the-updateprofilepic-backend-function-on-save-display-the-uploaded-profile-picture-throughout-the-app-wherever-the-user-s-avatar-is-shown-profilepage-postcard-commentssheet-userlistitem-reelspage-etc",
+      "title": "Update the EditProfileModal (frontend/src/components/EditProfileModal.tsx) to include a profile picture upload field. Allow the user to select an image file from their device, show a circular preview of the selected image, encode it as base64, and call the `updateProfilePic` backend function on save. Display the uploaded profile picture throughout the app wherever the user's avatar is shown (ProfilePage, PostCard, CommentsSheet, UserListItem, ReelsPage, etc.).",
+      "reqIds": [
+        "REQ-47"
       ],
       "version": 1
     }
@@ -312,6 +433,86 @@
       "summary": "Add a 'Marketplace' navigation entry to the BottomNav or the CreatePostSheet so users can easily access the Marketplace page. Update the route in App.tsx to include the /marketplace route. Add a 'List Item for Sale' option in the CreatePostSheet bottom sheet alongside the existing four content types.",
       "reqIds": [
         "REQ-26"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Add a follow/unfollow button prominently on the user profile page, and restrict direct messaging (chat) so that users can only message each other if they follow one another (followers-only chat).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Expose a backend query in main.mo that returns the list of principal IDs that a given user follows (getFollowing) and the list of principal IDs that follow a given user (getFollowers), if not already available. Also ensure a query exists to check whether the current caller follows a specific user (isFollowing). These are needed to power the followers-only chat restriction and the follow button state on the profile page.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Allow users to upload their own videos/reels and profile pictures (actual file upload, not just URL input)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "Add reel category/tag selection when creating a reel — options like Street, Stance, JDM, Drift, etc. Display the category on the reel.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Extend the backend Post data model to include an optional `reelCategory` field (text) on posts of type `reel`. Add or update the `createPost` function to accept this optional field. Store reel categories such as 'Street', 'Stance', 'JDM', 'Drift', 'Build', 'Show', 'Track', 'Import' alongside the post record.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Extend the backend UserProfile data model to include a `profilePicData` field for storing uploaded profile picture content (as Blob or base64-encoded text). Add an `updateProfilePic` function that accepts the image data and updates the caller's profile picture, replacing the existing URL-only approach.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "Extend the backend Post data model to support storing uploaded media data (image or video as base64-encoded text or Blob) directly on the post record alongside the existing imageUrl field. Update createPost to accept an optional mediaData field. For reel posts, allow video data to be stored. Ensure deletePost (already implemented) also removes associated media data.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Verify and reinforce that the backend `deletePost` function correctly handles all post types (feed, reel, build, mechanic) — it must verify the caller is the post's author before deleting, and remove associated likes and comments from state maps along with the post record.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Add a search feature for reels — allow users to search for reels by category/interest tags (JDM, Drift, Stance, etc.) and by username, displaying matching reels in a searchable results view.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Add a backend query `searchReels` that accepts a search string and returns all posts of type `reel` whose `reelCategory` (case-insensitive) or author's username/displayName contains the search string. The function must be callable by authenticated users and return the same Post record shape already used by other post queries.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Extend the backend UserProfile data model in backend/main.mo to include a `profilePicData` field (as ?Text) for storing base64-encoded profile picture data. Add an `updateProfilePic` function that accepts the base64 image string and updates the caller's profile record. Ensure that all profile query functions return the `profilePicData` field so the frontend can render it as the user's avatar.",
+      "reqIds": [
+        "REQ-48"
       ],
       "status": "pending"
     }

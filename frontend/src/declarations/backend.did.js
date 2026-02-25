@@ -74,6 +74,7 @@ export const PostRecord = IDL.Record({
   'authorId' : UserId,
   'createdAt' : IDL.Int,
   'tags' : IDL.Vec(IDL.Text),
+  'reelCategory' : IDL.Opt(IDL.Text),
   'caption' : IDL.Text,
   'image' : IDL.Opt(ExternalBlob),
 });
@@ -84,6 +85,7 @@ export const UserProfile = IDL.Record({
   'displayName' : IDL.Text,
   'followersCount' : IDL.Nat,
   'createdAt' : IDL.Int,
+  'profilePicData' : IDL.Opt(IDL.Text),
   'carInfo' : IDL.Text,
   'followingCount' : IDL.Nat,
   'profilePic' : IDL.Opt(ExternalBlob),
@@ -110,6 +112,7 @@ export const User = IDL.Record({
   'displayName' : IDL.Text,
   'followersCount' : IDL.Nat,
   'createdAt' : IDL.Int,
+  'profilePicData' : IDL.Opt(IDL.Text),
   'carInfo' : IDL.Text,
   'followingCount' : IDL.Nat,
   'profilePic' : IDL.Opt(ExternalBlob),
@@ -165,7 +168,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'createPost' : IDL.Func(
-      [IDL.Text, IDL.Vec(IDL.Text), PostType],
+      [IDL.Text, IDL.Vec(IDL.Text), PostType, IDL.Opt(IDL.Text)],
       [PostId],
       [],
     ),
@@ -204,6 +207,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isFollowing' : IDL.Func([UserId], [IDL.Bool], ['query']),
   'likePost' : IDL.Func([PostId], [], []),
   'markListingAsSold' : IDL.Func([MarketplaceListingId], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
@@ -212,6 +216,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(MarketplaceListing)],
       ['query'],
     ),
+  'searchReels' : IDL.Func([IDL.Text], [IDL.Vec(PostRecord)], ['query']),
   'searchUsers' : IDL.Func([IDL.Text], [IDL.Vec(User)], ['query']),
   'sendMessage' : IDL.Func([UserId, IDL.Text], [MessageId], []),
   'unfollowUser' : IDL.Func([UserId], [], []),
@@ -229,6 +234,7 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'updateProfilePic' : IDL.Func([IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
@@ -300,6 +306,7 @@ export const idlFactory = ({ IDL }) => {
     'authorId' : UserId,
     'createdAt' : IDL.Int,
     'tags' : IDL.Vec(IDL.Text),
+    'reelCategory' : IDL.Opt(IDL.Text),
     'caption' : IDL.Text,
     'image' : IDL.Opt(ExternalBlob),
   });
@@ -310,6 +317,7 @@ export const idlFactory = ({ IDL }) => {
     'displayName' : IDL.Text,
     'followersCount' : IDL.Nat,
     'createdAt' : IDL.Int,
+    'profilePicData' : IDL.Opt(IDL.Text),
     'carInfo' : IDL.Text,
     'followingCount' : IDL.Nat,
     'profilePic' : IDL.Opt(ExternalBlob),
@@ -336,6 +344,7 @@ export const idlFactory = ({ IDL }) => {
     'displayName' : IDL.Text,
     'followersCount' : IDL.Nat,
     'createdAt' : IDL.Int,
+    'profilePicData' : IDL.Opt(IDL.Text),
     'carInfo' : IDL.Text,
     'followingCount' : IDL.Nat,
     'profilePic' : IDL.Opt(ExternalBlob),
@@ -391,7 +400,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'createPost' : IDL.Func(
-        [IDL.Text, IDL.Vec(IDL.Text), PostType],
+        [IDL.Text, IDL.Vec(IDL.Text), PostType, IDL.Opt(IDL.Text)],
         [PostId],
         [],
       ),
@@ -430,6 +439,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isFollowing' : IDL.Func([UserId], [IDL.Bool], ['query']),
     'likePost' : IDL.Func([PostId], [], []),
     'markListingAsSold' : IDL.Func([MarketplaceListingId], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
@@ -438,6 +448,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(MarketplaceListing)],
         ['query'],
       ),
+    'searchReels' : IDL.Func([IDL.Text], [IDL.Vec(PostRecord)], ['query']),
     'searchUsers' : IDL.Func([IDL.Text], [IDL.Vec(User)], ['query']),
     'sendMessage' : IDL.Func([UserId, IDL.Text], [MessageId], []),
     'unfollowUser' : IDL.Func([UserId], [], []),
@@ -455,6 +466,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'updateProfilePic' : IDL.Func([IDL.Text], [], []),
   });
 };
 

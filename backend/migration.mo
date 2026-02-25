@@ -1,18 +1,11 @@
 import Map "mo:core/Map";
-import Set "mo:core/Set";
+import Blob "mo:core/Blob";
 import Principal "mo:core/Principal";
+import Set "mo:core/Set";
 
 module {
-  type UserId = Text;
-  type PostId = Text;
-  type CommentId = Text;
-  type MessageId = Text;
-  type EventId = Text;
-  type BuildId = Text;
-  type MarketplaceListingId = Text;
-
-  type UserProfile = {
-    id : UserId;
+  type OldUserProfile = {
+    id : Text;
     username : Text;
     displayName : Text;
     bio : Text;
@@ -23,96 +16,46 @@ module {
     createdAt : Int;
   };
 
-  type User = UserProfile;
-
-  type PostType = { #feed; #reel; #build; #mechanic };
-
-  type Comment = {
-    id : CommentId;
-    postId : PostId;
-    authorId : UserId;
-    text : Text;
-    createdAt : Int;
-  };
-
-  type Message = {
-    id : MessageId;
-    senderId : UserId;
-    receiverId : UserId;
-    text : Text;
-    createdAt : Int;
-  };
-
-  type Event = {
-    id : EventId;
-    organizerId : UserId;
-    title : Text;
-    description : Text;
-    location : Text;
-    date : Int;
-    image : ?Blob;
-    attendeesCount : Nat;
-  };
-
-  type BuildShowcase = {
-    id : BuildId;
-    authorId : UserId;
-    title : Text;
-    description : Text;
-    images : [Blob];
-    specs : Text;
-    createdAt : Int;
-  };
-
-  type PostRecord = {
-    id : PostId;
-    authorId : UserId;
-    image : ?Blob;
-    caption : Text;
-    tags : [Text];
-    postType : PostType;
-    createdAt : Int;
-  };
-
-  type MarketplaceListing = {
-    id : MarketplaceListingId;
-    authorId : UserId;
-    title : Text;
-    description : Text;
-    price : Text;
-    condition : { #new; #used };
-    category : Text;
-    imageUrl : Text;
-    createdAt : Int;
-    sold : Bool;
-  };
-
   type OldActor = {
-    principalProfiles : Map.Map<Principal, UserProfile>;
-    users : Map.Map<UserId, User>;
-    posts : Map.Map<PostId, PostRecord>;
-    comments : Map.Map<CommentId, Comment>;
-    messages : Map.Map<MessageId, Message>;
-    events : Map.Map<EventId, Event>;
-    builds : Map.Map<BuildId, BuildShowcase>;
-    follows : Map.Map<UserId, Set.Set<UserId>>;
-    likes : Map.Map<PostId, Set.Set<UserId>>;
+    principalProfiles : Map.Map<Principal, OldUserProfile>;
+    users : Map.Map<Text, OldUserProfile>;
+    follows : Map.Map<Text, Set.Set<Text>>;
+  };
+
+  type NewUserProfile = {
+    id : Text;
+    username : Text;
+    displayName : Text;
+    bio : Text;
+    profilePic : ?Blob;
+    carInfo : Text;
+    followersCount : Nat;
+    followingCount : Nat;
+    createdAt : Int;
+    profilePicData : ?Text;
   };
 
   type NewActor = {
-    principalProfiles : Map.Map<Principal, UserProfile>;
-    users : Map.Map<UserId, User>;
-    posts : Map.Map<PostId, PostRecord>;
-    comments : Map.Map<CommentId, Comment>;
-    messages : Map.Map<MessageId, Message>;
-    events : Map.Map<EventId, Event>;
-    builds : Map.Map<BuildId, BuildShowcase>;
-    marketplaceListings : Map.Map<MarketplaceListingId, MarketplaceListing>;
-    follows : Map.Map<UserId, Set.Set<UserId>>;
-    likes : Map.Map<PostId, Set.Set<UserId>>;
+    principalProfiles : Map.Map<Principal, NewUserProfile>;
+    users : Map.Map<Text, NewUserProfile>;
+    follows : Map.Map<Text, Set.Set<Text>>;
   };
 
   public func run(old : OldActor) : NewActor {
-    { old with marketplaceListings = Map.empty<MarketplaceListingId, MarketplaceListing>() };
+    let principalProfiles = old.principalProfiles.map<Principal, OldUserProfile, NewUserProfile>(
+      func(_principal, oldUser) {
+        { oldUser with profilePicData = null };
+      }
+    );
+    let users = old.users.map<Text, OldUserProfile, NewUserProfile>(
+      func(_userId, oldUser) {
+        { oldUser with profilePicData = null };
+      }
+    );
+    {
+      old with
+      principalProfiles;
+      users;
+    };
   };
 };

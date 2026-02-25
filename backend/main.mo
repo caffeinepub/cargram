@@ -7,14 +7,12 @@ import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
 import Int "mo:core/Int";
-import Migration "migration";
-
+import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
-import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
-// Use migration with-clause
 (with migration = Migration.run)
 actor {
   // Mixin core components
@@ -41,11 +39,23 @@ actor {
     followersCount : Nat;
     followingCount : Nat;
     createdAt : Int;
+    profilePicData : ?Text;
   };
 
   type User = UserProfile; // Legacy alias
 
   type PostType = { #feed; #reel; #build; #mechanic };
+
+  type PostRecord = {
+    id : PostId;
+    authorId : UserId;
+    image : ?Storage.ExternalBlob;
+    caption : Text;
+    tags : [Text];
+    postType : PostType;
+    createdAt : Int;
+    reelCategory : ?Text;
+  };
 
   type Comment = {
     id : CommentId;
@@ -84,17 +94,6 @@ actor {
     createdAt : Int;
   };
 
-  type PostRecord = {
-    id : PostId;
-    authorId : UserId;
-    image : ?Storage.ExternalBlob;
-    caption : Text;
-    tags : [Text];
-    postType : PostType;
-    createdAt : Int;
-  };
-
-  // Marketplace listing type
   type MarketplaceListing = {
     id : MarketplaceListingId;
     authorId : UserId;
@@ -147,6 +146,25 @@ actor {
     principalProfiles.get(user);
   };
 
+  /// Update the caller's profile picture (base64-encoded image data)
+  public shared ({ caller }) func updateProfilePic(imageBase64 : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update profile picture");
+    };
+
+    switch (principalProfiles.get(caller)) {
+      case (?profile) {
+        let updatedProfile : UserProfile = {
+          profile with
+          profilePicData = ?imageBase64;
+        };
+        principalProfiles.add(caller, updatedProfile);
+        users.add(profile.username, updatedProfile);
+      };
+      case (null) { Runtime.trap("User profile not found") };
+    };
+  };
+
   // ─── User operations ──────────────────────────────────────────────────────
 
   /// Create a user record (authenticated users only)
@@ -165,6 +183,7 @@ actor {
       followersCount = 0;
       followingCount = 0;
       createdAt = Time.now();
+      profilePicData = null;
     };
     users.add(userId, newUser);
     principalProfiles.add(caller, newUser);
@@ -180,7 +199,7 @@ actor {
   // ─── Post operations ──────────────────────────────────────────────────────
 
   /// Create a post; authorId is derived from the caller's stored profile
-  public shared ({ caller }) func createPost(caption : Text, tags : [Text], postType : PostType) : async PostId {
+  public shared ({ caller }) func createPost(caption : Text, tags : [Text], postType : PostType, reelCategory : ?Text) : async PostId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create posts");
     };
@@ -197,6 +216,7 @@ actor {
       tags;
       postType;
       createdAt = Time.now();
+      reelCategory;
     };
     posts.add(postId, newPost);
     postId;
@@ -207,16 +227,16 @@ actor {
     posts.get(postId);
   };
 
-  // New: Delete post functionality
+  /// Delete post (author only)
   public shared ({ caller }) func deletePost(postId : PostId) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete posts");
+    };
     let maybePost = posts.get(postId);
 
     switch (maybePost) {
       case (null) { Runtime.trap("Post not found") };
       case (?post) {
-        if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-          Runtime.trap("Unauthorized: Only users can delete posts");
-        };
         let callerUsername = switch (principalProfiles.get(caller)) {
           case (?p) { p.username };
           case (null) { Runtime.trap("Unauthorized: Caller has no profile") };
@@ -224,7 +244,20 @@ actor {
         if (post.authorId != callerUsername) {
           Runtime.trap("Unauthorized: Only the author can delete their post");
         };
+
+        // Remove post
         posts.remove(postId);
+
+        // Remove all associated likes
+        ignore likes.remove(postId);
+
+        // Remove all comments for this post
+        let commentEntries = comments.entries();
+        for ((commentId, comment) in commentEntries) {
+          if (comment.postId == postId) {
+            comments.remove(commentId);
+          };
+        };
       };
     };
   };
@@ -333,6 +366,21 @@ actor {
     switch (follows.get(userId)) {
       case (?f) { f.toArray() };
       case (null) { [] };
+    };
+  };
+
+  /// Check if caller follows a specific user
+  public query ({ caller }) func isFollowing(userId : UserId) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      return false;
+    };
+    let callerId = switch (principalProfiles.get(caller)) {
+      case (?p) { p.username };
+      case (null) { return false };
+    };
+    switch (follows.get(callerId)) {
+      case (?f) { f.contains(userId) };
+      case (null) { false };
     };
   };
 
@@ -526,6 +574,30 @@ actor {
     );
   };
 
+  /// Search reels by category or username (authenticated users only)
+  public query ({ caller }) func searchReels(searchQuery : Text) : async [PostRecord] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can search reels");
+    };
+
+    posts.values().toArray().filter(
+      func(p : PostRecord) : Bool {
+        if (p.postType == #reel) {
+          let categoryMatches = switch (p.reelCategory) {
+            case (null) { false };
+            case (?category) { category.toLower().contains(#text (searchQuery.toLower())) };
+          };
+
+          let authorMatches = p.authorId.toLower().contains(#text (searchQuery.toLower()));
+
+          categoryMatches or authorMatches;
+        } else {
+          false;
+        };
+      }
+    );
+  };
+
   // ─── Marketplace CRUD Operations ──────────────────────────────────────────
 
   /// Create a marketplace listing
@@ -581,6 +653,9 @@ actor {
     category : Text,
     imageUrl : Text
   ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update listings");
+    };
     let maybeListing = marketplaceListings.get(listingId);
 
     switch (maybeListing) {
@@ -612,6 +687,9 @@ actor {
 
   /// Delete a listing (author only)
   public shared ({ caller }) func deleteListing(listingId : MarketplaceListingId) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete listings");
+    };
     let maybeListing = marketplaceListings.get(listingId);
 
     switch (maybeListing) {
@@ -631,6 +709,9 @@ actor {
 
   /// Mark a listing as sold (author only)
   public shared ({ caller }) func markListingAsSold(listingId : MarketplaceListingId) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can mark listings as sold");
+    };
     let maybeListing = marketplaceListings.get(listingId);
 
     switch (maybeListing) {
@@ -651,7 +732,7 @@ actor {
     };
   };
 
-  /// Search listings by title, description, or category
+  /// Search listings by title, description, or category (public read)
   public query func searchListings(searchQuery : Text) : async [MarketplaceListing] {
     marketplaceListings.values().toArray().filter(
       func(l : MarketplaceListing) : Bool {

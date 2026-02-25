@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
-import { MessageCircle, Loader2 } from 'lucide-react';
+import { MessageCircle, Loader2, Lock } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { useGetAllPosts, useGetCallerUserProfile, useGetUser } from '../hooks/useQueries';
+import { useGetCallerUserProfile, useGetFollowers, useGetFollowing, useGetUser } from '../hooks/useQueries';
 
 function ConversationItem({ userId, currentUserId }: { userId: string; currentUserId: string }) {
   const navigate = useNavigate();
@@ -41,14 +41,18 @@ function ConversationItem({ userId, currentUserId }: { userId: string; currentUs
 }
 
 export default function MessagesPage() {
-  const { data: currentProfile, isLoading } = useGetCallerUserProfile();
-  const { data: allPosts = [] } = useGetAllPosts();
+  const { data: currentProfile, isLoading: profileLoading } = useGetCallerUserProfile();
+  const currentUserId = currentProfile?.username;
 
-  const otherUsers = [...new Set(
-    allPosts
-      .filter(p => p.authorId !== currentProfile?.username)
-      .map(p => p.authorId)
-  )];
+  const { data: followers = [], isLoading: followersLoading } = useGetFollowers(currentUserId);
+  const { data: following = [], isLoading: followingLoading } = useGetFollowing(currentUserId);
+
+  const isLoading = profileLoading || followersLoading || followingLoading;
+
+  // Build a deduplicated list of users with at least a one-way follow relationship
+  const connectedUsers = [...new Set([...followers, ...following])].filter(
+    uid => uid !== currentUserId
+  );
 
   if (isLoading) {
     return (
@@ -60,26 +64,36 @@ export default function MessagesPage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      {otherUsers.length === 0 ? (
+      {connectedUsers.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8">
           <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center">
             <MessageCircle className="w-10 h-10 text-primary" />
           </div>
-          <h2 className="font-heading text-2xl font-bold text-foreground">NO MESSAGES</h2>
+          <h2 className="font-heading text-2xl font-bold text-foreground">NO CONNECTIONS</h2>
           <p className="text-muted-foreground text-center text-sm">
-            Follow other users and start a conversation!
+            Follow other users or get followed to start chatting!
           </p>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-secondary/60 border border-border text-xs text-muted-foreground">
+            <Lock className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <span>Chat is only available between users who follow each other.</span>
+          </div>
         </div>
       ) : (
         <div>
-          <p className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
-            Community Members
-          </p>
-          {otherUsers.map(userId => (
+          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
+              Your Connections
+            </p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Lock className="w-3 h-3 text-amber-500" />
+              <span>Followers only</span>
+            </div>
+          </div>
+          {connectedUsers.map(userId => (
             <ConversationItem
               key={userId}
               userId={userId}
-              currentUserId={currentProfile?.username || ''}
+              currentUserId={currentUserId || ''}
             />
           ))}
         </div>

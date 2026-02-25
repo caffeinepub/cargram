@@ -1,9 +1,10 @@
-import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet, redirect } from '@tanstack/react-router';
+import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import ReelsPage from './pages/ReelsPage';
+import ReelsSearchPage from './pages/ReelsSearchPage';
 import DiscoverPage from './pages/DiscoverPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
@@ -34,6 +35,7 @@ const rootRoute = createRootRoute({
 
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: HomePage });
 const reelsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/reels', component: ReelsPage });
+const reelsSearchRoute = createRoute({ getParentRoute: () => rootRoute, path: '/reels-search', component: ReelsSearchPage });
 const discoverRoute = createRoute({ getParentRoute: () => rootRoute, path: '/discover', component: DiscoverPage });
 
 const eventsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events', component: EventsPage });
@@ -62,6 +64,7 @@ const createReelRoute = createRoute({ getParentRoute: () => rootRoute, path: '/c
 const routeTree = rootRoute.addChildren([
   indexRoute,
   reelsRoute,
+  reelsSearchRoute,
   discoverRoute,
   eventsRoute,
   eventsCreateRoute,
@@ -92,9 +95,9 @@ declare module '@tanstack/react-router' {
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} forcedTheme="dark">
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <RouterProvider router={router} />
-      <Toaster theme="dark" position="top-center" />
+      <Toaster richColors position="top-center" />
     </ThemeProvider>
   );
 }

@@ -1,159 +1,61 @@
 {
   "kind": "build_request",
-  "title": "Add Marketplace, enhance Mechanics & Builds pages, and add post/reel deletion",
-  "projectName": "RevReel",
+  "title": "Profile picture upload",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-20",
-      "text": "Add a Marketplace page where users can create, browse, and view listings for car parts and vehicles for sale. Each listing card shows: seller avatar, username, item title, price, condition, description, at least one image (via URL input), and a contact/inquiry button. Include a 'Create Listing' button that opens a form with fields for title, description, price, condition (new/used), category (parts/wheels/audio/exterior/interior/other), and image URL. Listings are persisted in the backend. Add a 'Marketplace' tab or entry point accessible from the bottom navigation or Discover page.",
-      "target": "both",
+      "id": "REQ-47",
+      "text": "Update the EditProfileModal (frontend/src/components/EditProfileModal.tsx) to include a profile picture upload field. Allow the user to select an image file from their device, show a circular preview of the selected image, encode it as base64, and call the `updateProfilePic` backend function on save. Display the uploaded profile picture throughout the app wherever the user's avatar is shown (ProfilePage, PostCard, CommentsSheet, UserListItem, ReelsPage, etc.).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
         ],
         "quotes": [
-          "a marketplace"
+          "I want to be able to upload a profile pic"
         ]
       },
       "acceptanceCriteria": [
-        "A Marketplace page exists and is navigable from the app",
-        "Users can view all marketplace listings in a scrollable list or grid",
-        "Each listing card displays title, price, condition, image, and seller info",
-        "Authenticated users can create a new listing via a form with all required fields",
-        "Listings are saved to and loaded from the backend",
-        "A contact/inquiry button is present on each listing detail view"
+        "EditProfileModal contains a circular avatar preview that updates when a file is selected",
+        "A native file input (accept='image/*') is present to select an image from device",
+        "The selected image is encoded as base64 before submission",
+        "On save, the base64 image data is submitted to the `updateProfilePic` backend function",
+        "After saving, the new profile picture is immediately reflected in the ProfilePage header",
+        "All other surfaces that display the user's avatar (PostCard, CommentsSheet, UserListItem, ReelsPage overlay) also show the updated profile picture"
       ]
     },
     {
-      "id": "REQ-21",
-      "text": "Extend the backend data model to support marketplace listings with fields: id, authorId, title, description, price (text), condition ('new' | 'used'), category (text), imageUrl, createdAt, and a sold flag. Expose CRUD operations: createListing, getListing, getAllListings, updateListing, deleteListing (owner only).",
+      "id": "REQ-48",
+      "text": "Extend the backend UserProfile data model in backend/main.mo to include a `profilePicData` field (as ?Text) for storing base64-encoded profile picture data. Add an `updateProfilePic` function that accepts the base64 image string and updates the caller's profile record. Ensure that all profile query functions return the `profilePicData` field so the frontend can render it as the user's avatar.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
         ],
         "quotes": [
-          "a marketplace"
+          "I want to be able to upload a profile pic"
         ]
       },
       "acceptanceCriteria": [
-        "Marketplace listing type is defined in the backend actor",
-        "createListing, getAllListings, getListing, and deleteListing functions are implemented",
-        "Only the listing owner can delete their own listing",
-        "Listings are persisted across canister upgrades"
-      ]
-    },
-    {
-      "id": "REQ-22",
-      "text": "Add delete functionality to posts and reels: on each post card in the Home Feed, and on each reel in the Reels page, show a delete button (e.g., a trash icon or a three-dot menu option) that is only visible to the post's author. When tapped, prompt for confirmation, then call the backend delete function and remove the post from the UI. Also surface this delete option on the user's own profile page tabs (Posts, Reels, Builds).",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "make sure all posts and reels can be deleted by the user"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A delete option is visible on post cards and reels only when the current user is the author",
-        "Tapping delete shows a confirmation prompt before proceeding",
-        "Confirmed deletion calls the backend and removes the item from the feed/reel list without a full page reload",
-        "Delete option is also available on the user's own profile page for posts, reels, and builds",
-        "Non-authors do not see the delete option"
-      ]
-    },
-    {
-      "id": "REQ-23",
-      "text": "Expose a deletePost function in the backend that accepts a post ID, verifies the caller is the post's author, and permanently removes the post record (and associated likes/comments if applicable).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "make sure all posts and reels can be deleted by the user"
-        ]
-      },
-      "acceptanceCriteria": [
-        "deletePost function exists and requires caller to be the post author",
-        "Attempting to delete another user's post returns an authorization error",
-        "Post is fully removed from getAllPosts and getPostsByAuthor after deletion"
-      ]
-    },
-    {
-      "id": "REQ-24",
-      "text": "Enhance the existing Mechanics Help page (MechanicsPage.tsx and MechanicThreadPage.tsx) to support image attachments on questions: add an optional image URL field to the CreateMechanicQuestionPage form, display the image on the question thread page when present, and show a car model/year field on the creation form.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "a machanics help page"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The mechanic question creation form includes optional image URL and car model/year fields",
-        "Submitted images are displayed prominently on the mechanic thread detail page",
-        "Existing mechanic questions without images render correctly without broken image placeholders"
-      ]
-    },
-    {
-      "id": "REQ-25",
-      "text": "Enhance the existing Build Showcase section: update the CreateBuildPage form to support multiple image URLs (allow adding/removing image URL inputs dynamically, minimum 1, up to 6). Display all images in a swipeable carousel on the BuildDetailPage. Add a delete button on build cards visible only to the build's author.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "a car build page with pictures"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The build creation form allows entering between 1 and 6 image URLs",
-        "BuildDetailPage displays all submitted images in a swipeable/scrollable gallery carousel",
-        "The author sees a delete button on their build cards in BuildsPage and their profile",
-        "Deleting a build triggers confirmation and removes it from the builds grid"
-      ]
-    },
-    {
-      "id": "REQ-26",
-      "text": "Add a 'Marketplace' navigation entry to the BottomNav or the CreatePostSheet so users can easily access the Marketplace page. Update the route in App.tsx to include the /marketplace route. Add a 'List Item for Sale' option in the CreatePostSheet bottom sheet alongside the existing four content types.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "a marketplace"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Marketplace page is reachable via a navigation element (BottomNav tab, Discover page link, or dedicated nav entry)",
-        "App.tsx includes a /marketplace route",
-        "CreatePostSheet includes a 'List Item for Sale' option that navigates to the marketplace listing creation form"
+        "UserProfile type includes an optional `profilePicData : ?Text` field",
+        "An `updateProfilePic(data: Text) : async ()` function exists, callable only by an authenticated user, that stores the base64 string in the caller's profile",
+        "Existing profile query functions (getProfile, getProfileByPrincipal, etc.) return the `profilePicData` field",
+        "Calling `updateProfilePic` with new data replaces any previously stored profile picture data",
+        "A migration entry is generated to add the new nullable field to existing UserProfile records without breaking existing state"
       ]
     }
   ],
   "constraints": [
-    "Preserve the existing dark asphalt / amber automotive visual theme across all new pages and components",
-    "Do not modify files listed in frontend.immutablePaths",
-    "All new backend logic must remain in the single backend/main.mo actor file",
-    "Keep the existing layout structure (TopBar, affiliate banner, BottomNav) intact on all new pages"
+    "Do not break existing profile editing functionality (display name, bio, car info)",
+    "Profile picture data must be stored on-chain in the backend actor, not via an external URL service"
   ],
   "nonGoals": [
-    "Payment processing or escrow functionality in the Marketplace",
-    "Real-time chat for marketplace inquiries (static contact info or inquiry flag only)",
-    "Video upload or hosting for reels (URL-based media only)",
-    "Changing the existing authentication flow or landing page"
+    "Cover photo upload (only profile picture is in scope)",
+    "Image cropping or resizing UI",
+    "Support for video uploads as profile pictures"
   ],
   "imageRequirements": {
-    "required": [
-      "Marketplace hero banner image — dark asphalt background with scattered performance car parts (wheels, exhaust tips, spoilers) arranged artistically, amber/orange accent lighting, cinematic tone (marketplace-hero.dim_1200x400.jpg)"
-    ],
+    "required": [],
     "edits": []
   }
 }

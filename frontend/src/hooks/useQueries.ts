@@ -1,13 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { PostType, type UserProfile, type PostRecord, type Comment, type Message, type Event, type BuildShowcase, type User } from '../backend';
-
-// ─── User Profile ─────────────────────────────────────────────────────────────
+import { PostType, type UserProfile, type Variant_new_used } from '../backend';
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  const query = useQuery<UserProfile | null>({
+  const query = useQuery({
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
@@ -24,25 +22,10 @@ export function useGetCallerUserProfile() {
   };
 }
 
-export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.saveCallerUserProfile(profile);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
 export function useGetUser(userId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<User | null>({
+  return useQuery({
     queryKey: ['user', userId],
     queryFn: async () => {
       if (!actor || !userId) return null;
@@ -52,59 +35,27 @@ export function useGetUser(userId: string | undefined) {
   });
 }
 
-export function useSearchUsers(searchQuery: string) {
+export function useGetFeed(postType: PostType) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<User[]>({
-    queryKey: ['searchUsers', searchQuery],
-    queryFn: async () => {
-      if (!actor || !searchQuery.trim()) return [];
-      return actor.searchUsers(searchQuery);
-    },
-    enabled: !!actor && !isFetching && searchQuery.trim().length > 0,
-  });
-}
-
-export function useCreateUser() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ username, displayName, bio, carInfo }: { username: string; displayName: string; bio: string; carInfo: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.createUser(username, displayName, bio, carInfo);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
-// ─── Posts ────────────────────────────────────────────────────────────────────
-
-export function useGetAllPosts() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<PostRecord[]>({
-    queryKey: ['allPosts'],
+  return useQuery({
+    queryKey: ['feed', postType],
     queryFn: async () => {
       if (!actor) return [];
-      const posts = await actor.getAllPosts();
-      return [...posts].sort((a, b) => Number(b.createdAt - a.createdAt));
+      return actor.getFeed(postType);
     },
     enabled: !!actor && !isFetching,
   });
 }
 
-export function useGetFeed(postType: PostType) {
+export function useGetAllPosts() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<PostRecord[]>({
-    queryKey: ['feed', postType],
+  return useQuery({
+    queryKey: ['allPosts'],
     queryFn: async () => {
       if (!actor) return [];
-      const posts = await actor.getFeed(postType);
-      return [...posts].sort((a, b) => Number(b.createdAt - a.createdAt));
+      return actor.getAllPosts();
     },
     enabled: !!actor && !isFetching,
   });
@@ -113,7 +64,7 @@ export function useGetFeed(postType: PostType) {
 export function useGetPost(postId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<PostRecord | null>({
+  return useQuery({
     queryKey: ['post', postId],
     queryFn: async () => {
       if (!actor || !postId) return null;
@@ -128,23 +79,75 @@ export function useCreatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ caption, tags, postType }: { caption: string; tags: string[]; postType: PostType }) => {
+    mutationFn: async ({
+      caption,
+      tags,
+      postType,
+      reelCategory,
+    }: {
+      caption: string;
+      tags: string[];
+      postType: PostType;
+      reelCategory?: string | null;
+    }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createPost(caption, tags, postType);
+      return actor.createPost(caption, tags, postType, reelCategory ?? null);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allPosts'] });
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['allPosts'] });
     },
   });
 }
 
-// ─── Likes ────────────────────────────────────────────────────────────────────
+export function useDeletePost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deletePost(postId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['allPosts'] });
+    },
+  });
+}
+
+export function useGetComments(postId: string | undefined) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['comments', postId],
+    queryFn: async () => {
+      if (!actor || !postId) return [];
+      return actor.getComments(postId);
+    },
+    enabled: !!actor && !isFetching && !!postId,
+  });
+}
+
+export function useAddComment() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ postId, text }: { postId: string; text: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.addComment(postId, text);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['comments', variables.postId] });
+    },
+  });
+}
 
 export function useGetLikeCount(postId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<bigint>({
+  return useQuery({
     queryKey: ['likeCount', postId],
     queryFn: async () => {
       if (!actor || !postId) return BigInt(0);
@@ -184,44 +187,46 @@ export function useUnlikePost() {
   });
 }
 
-// ─── Comments ─────────────────────────────────────────────────────────────────
-
-export function useGetComments(postId: string | undefined) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Comment[]>({
-    queryKey: ['comments', postId],
-    queryFn: async () => {
-      if (!actor || !postId) return [];
-      const comments = await actor.getComments(postId);
-      return [...comments].sort((a, b) => Number(a.createdAt - b.createdAt));
-    },
-    enabled: !!actor && !isFetching && !!postId,
-  });
-}
-
-export function useAddComment() {
+export function useFollowUser() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ postId, text }: { postId: string; text: string }) => {
+    mutationFn: async (userId: string) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addComment(postId, text);
+      return actor.followUser(userId);
     },
-    onSuccess: (_data, { postId }) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
-      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['followers'] });
+      queryClient.invalidateQueries({ queryKey: ['following'] });
+      queryClient.invalidateQueries({ queryKey: ['isFollowing'] });
     },
   });
 }
 
-// ─── Follow ───────────────────────────────────────────────────────────────────
+export function useUnfollowUser() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.unfollowUser(userId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['followers'] });
+      queryClient.invalidateQueries({ queryKey: ['following'] });
+      queryClient.invalidateQueries({ queryKey: ['isFollowing'] });
+    },
+  });
+}
 
 export function useGetFollowers(userId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<string[]>({
+  return useQuery({
     queryKey: ['followers', userId],
     queryFn: async () => {
       if (!actor || !userId) return [];
@@ -234,7 +239,7 @@ export function useGetFollowers(userId: string | undefined) {
 export function useGetFollowing(userId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<string[]>({
+  return useQuery({
     queryKey: ['following', userId],
     queryFn: async () => {
       if (!actor || !userId) return [];
@@ -244,56 +249,101 @@ export function useGetFollowing(userId: string | undefined) {
   });
 }
 
-export function useFollowUser() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (followeeId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.followUser(followeeId);
-    },
-    onSuccess: (_data, followeeId) => {
-      queryClient.invalidateQueries({ queryKey: ['followers', followeeId] });
-      queryClient.invalidateQueries({ queryKey: ['following'] });
-      queryClient.invalidateQueries({ queryKey: ['user', followeeId] });
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
-export function useUnfollowUser() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (followeeId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.unfollowUser(followeeId);
-    },
-    onSuccess: (_data, followeeId) => {
-      queryClient.invalidateQueries({ queryKey: ['followers', followeeId] });
-      queryClient.invalidateQueries({ queryKey: ['following'] });
-      queryClient.invalidateQueries({ queryKey: ['user', followeeId] });
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
-// ─── Messages ─────────────────────────────────────────────────────────────────
-
-export function useGetMessages(conversationId: string | undefined) {
+export function useIsFollowing(userId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Message[]>({
-    queryKey: ['messages', conversationId],
+  return useQuery({
+    queryKey: ['isFollowing', userId],
     queryFn: async () => {
-      if (!actor || !conversationId) return [];
-      const msgs = await actor.getMessages(conversationId);
-      return [...msgs].sort((a, b) => Number(a.createdAt - b.createdAt));
+      if (!actor || !userId) return false;
+      return actor.isFollowing(userId);
     },
-    enabled: !!actor && !isFetching && !!conversationId,
-    refetchInterval: 5000,
+    enabled: !!actor && !isFetching && !!userId,
+  });
+}
+
+export function useSaveCallerUserProfile() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: UserProfile) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.saveCallerUserProfile(profile);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
+  });
+}
+
+export function useUpdateProfilePic() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (imageBase64: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateProfilePic(imageBase64);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+    onError: (error: Error) => {
+      console.error('Failed to update profile picture:', error.message);
+    },
+  });
+}
+
+export function useCreateUser() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      username,
+      displayName,
+      bio,
+      carInfo,
+    }: {
+      username: string;
+      displayName: string;
+      bio: string;
+      carInfo: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createUser(username, displayName, bio, carInfo);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
+  });
+}
+
+export function useSearchUsers(query: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['searchUsers', query],
+    queryFn: async () => {
+      if (!actor || !query.trim()) return [];
+      return actor.searchUsers(query);
+    },
+    enabled: !!actor && !isFetching && !!query.trim(),
+  });
+}
+
+export function useSearchReels(query: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['searchReels', query],
+    queryFn: async () => {
+      if (!actor || !query.trim()) return [];
+      return actor.searchReels(query);
+    },
+    enabled: !!actor && !isFetching && !!query.trim(),
   });
 }
 
@@ -312,17 +362,28 @@ export function useSendMessage() {
   });
 }
 
-// ─── Events ───────────────────────────────────────────────────────────────────
+export function useGetMessages(conversationId: string | undefined) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['messages', conversationId],
+    queryFn: async () => {
+      if (!actor || !conversationId) return [];
+      return actor.getMessages(conversationId);
+    },
+    enabled: !!actor && !isFetching && !!conversationId,
+    refetchInterval: 3000,
+  });
+}
 
 export function useGetAllEvents() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Event[]>({
-    queryKey: ['allEvents'],
+  return useQuery({
+    queryKey: ['events'],
     queryFn: async () => {
       if (!actor) return [];
-      const evts = await actor.getAllEvents();
-      return [...evts].sort((a, b) => Number(a.date - b.date));
+      return actor.getAllEvents();
     },
     enabled: !!actor && !isFetching,
   });
@@ -331,7 +392,7 @@ export function useGetAllEvents() {
 export function useGetEvent(eventId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Event | null>({
+  return useQuery({
     queryKey: ['event', eventId],
     queryFn: async () => {
       if (!actor || !eventId) return null;
@@ -346,12 +407,22 @@ export function useCreateEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ title, description, location, date }: { title: string; description: string; location: string; date: bigint }) => {
+    mutationFn: async ({
+      title,
+      description,
+      location,
+      date,
+    }: {
+      title: string;
+      description: string;
+      location: string;
+      date: bigint;
+    }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.createEvent(title, description, location, date);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allEvents'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
   });
 }
@@ -365,24 +436,20 @@ export function useAttendEvent() {
       if (!actor) throw new Error('Actor not available');
       return actor.attendEvent(eventId);
     },
-    onSuccess: (_data, eventId) => {
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['allEvents'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
   });
 }
 
-// ─── Builds ───────────────────────────────────────────────────────────────────
-
 export function useGetAllBuilds() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<BuildShowcase[]>({
-    queryKey: ['allBuilds'],
+  return useQuery({
+    queryKey: ['builds'],
     queryFn: async () => {
       if (!actor) return [];
-      const builds = await actor.getAllBuilds();
-      return [...builds].sort((a, b) => Number(b.createdAt - a.createdAt));
+      return actor.getAllBuilds();
     },
     enabled: !!actor && !isFetching,
   });
@@ -391,7 +458,7 @@ export function useGetAllBuilds() {
 export function useGetBuild(buildId: string | undefined) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<BuildShowcase | null>({
+  return useQuery({
     queryKey: ['build', buildId],
     queryFn: async () => {
       if (!actor || !buildId) return null;
@@ -406,12 +473,136 @@ export function useCreateBuild() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ title, description, specs }: { title: string; description: string; specs: string }) => {
+    mutationFn: async ({
+      title,
+      description,
+      specs,
+    }: {
+      title: string;
+      description: string;
+      specs: string;
+    }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.createBuild(title, description, specs);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allBuilds'] });
+      queryClient.invalidateQueries({ queryKey: ['builds'] });
     },
+  });
+}
+
+export function useGetAllListings() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['listings'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllListings();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCreateListing() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      title: string;
+      description: string;
+      price: string;
+      condition: Variant_new_used;
+      category: string;
+      imageUrl: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createListing(
+        params.title,
+        params.description,
+        params.price,
+        params.condition,
+        params.category,
+        params.imageUrl
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+    },
+  });
+}
+
+export function useUpdateListing() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      listingId: string;
+      title: string;
+      description: string;
+      price: string;
+      condition: Variant_new_used;
+      category: string;
+      imageUrl: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateListing(
+        params.listingId,
+        params.title,
+        params.description,
+        params.price,
+        params.condition,
+        params.category,
+        params.imageUrl
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+    },
+  });
+}
+
+export function useDeleteListing() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteListing(listingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+    },
+  });
+}
+
+export function useMarkListingAsSold() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.markListingAsSold(listingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+    },
+  });
+}
+
+export function useSearchListings(query: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['searchListings', query],
+    queryFn: async () => {
+      if (!actor || !query.trim()) return [];
+      return actor.searchListings(query);
+    },
+    enabled: !!actor && !isFetching && !!query.trim(),
   });
 }

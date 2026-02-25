@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Film } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useGetAllPosts, useGetAllEvents, useGetAllBuilds, useSearchUsers } from '../hooks/useQueries';
@@ -55,6 +55,20 @@ export default function DiscoverPage() {
             className="pl-9 bg-secondary border-border text-foreground"
           />
         </div>
+
+        {/* Reels Search shortcut */}
+        <button
+          onClick={() => navigate({ to: '/reels-search' })}
+          className="mt-2 w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary border border-border hover:border-primary/50 hover:bg-secondary/80 transition-all group"
+        >
+          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+            <Film className="w-4 h-4 text-primary" />
+          </div>
+          <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+            Search reels by category or username…
+          </span>
+          <Search className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+        </button>
       </div>
 
       {/* Search Results */}
