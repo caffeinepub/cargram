@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    /* Dark automotive theme - asphalt inspired */
+    --background: 0.12 0.005 260;
+    --foreground: 0.97 0.005 90;
+    --card: 0.16 0.006 260;
+    --card-foreground: 0.97 0.005 90;
+    --popover: 0.18 0.006 260;
+    --popover-foreground: 0.97 0.005 90;
+    /* Amber/orange primary accent */
+    --primary: 0.72 0.18 55;
+    --primary-foreground: 0.1 0.005 260;
+    --secondary: 0.22 0.008 260;
+    --secondary-foreground: 0.85 0.005 90;
+    --muted: 0.2 0.007 260;
+    --muted-foreground: 0.55 0.01 260;
+    --accent: 0.72 0.18 55;
+    --accent-foreground: 0.1 0.005 260;
+    --destructive: 0.62 0.22 25;
+    --destructive-foreground: 0.97 0.005 90;
+    --border: 0.28 0.008 260;
+    --input: 0.22 0.008 260;
+    --ring: 0.72 0.18 55;
+    --chart-1: 0.72 0.18 55;
+    --chart-2: 0.65 0.15 200;
+    --chart-3: 0.55 0.12 150;
+    --chart-4: 0.75 0.16 30;
+    --chart-5: 0.6 0.2 300;
+    --sidebar: 0.14 0.006 260;
+    --sidebar-foreground: 0.97 0.005 90;
+    --sidebar-primary: 0.72 0.18 55;
+    --sidebar-primary-foreground: 0.1 0.005 260;
+    --sidebar-accent: 0.22 0.008 260;
+    --sidebar-accent-foreground: 0.85 0.005 90;
+    --sidebar-border: 0.28 0.008 260;
+    --sidebar-ring: 0.72 0.18 55;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer utilities {
+  .racing-stripe {
+    background: linear-gradient(
+      135deg,
+      oklch(0.72 0.18 55) 0%,
+      oklch(0.72 0.18 55) 2px,
+      transparent 2px,
+      transparent 8px,
+      oklch(0.72 0.18 55) 8px,
+      oklch(0.72 0.18 55) 10px,
+      transparent 10px
+    );
+  }
+
+  .amber-glow {
+    box-shadow: 0 0 20px oklch(0.72 0.18 55 / 0.3);
+  }
+
+  .text-amber-glow {
+    text-shadow: 0 0 20px oklch(0.72 0.18 55 / 0.5);
+  }
+
+  .glass-card {
+    background: oklch(0.16 0.006 260 / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid oklch(0.28 0.008 260 / 0.5);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

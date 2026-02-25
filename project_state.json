@@ -1,0 +1,323 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 11,
+  "summary": "A full-featured car enthusiast social media app inspired by Instagram, built exclusively for car culture. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, and the ability for users to delete their own posts and reels.",
+  "architectural_notes": [
+    "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
+    "Core entities: Users, Posts, Reels, Comments, Likes, Follows, Messages, Events, Builds",
+    "Media-heavy app requiring image and video upload/storage support",
+    "App has a gated landing page — users must press login before accessing the main app",
+    "Marketplace entity needed: listings (id, sellerId, title, description, price, imageUrls, category, status, createdAt)"
+  ],
+  "known_issues": [
+    "App header/topbar still displays 'CarGram' instead of the preferred 'RevReel' branding"
+  ],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Marketplace hero banner image — dark asphalt background with scattered performance car parts (wheels, exhaust tips, spoilers) arranged artistically, amber/orange accent lighting, cinematic tone (marketplace-hero.dim_1200x400.jpg)",
+  "existing_features": [
+    {
+      "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
+      "title": "Design and apply a cohesive visual theme throughout the entire app: dark asphalt-inspired backgrounds, bold amber/orange accent colors, high-contrast white text, racing-stripe decorative elements, and a gritty automotive aesthetic. Apply consistently across all pages, navigation, cards, and modals.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-persistent-bottom-navigation-bar-with-five-tabs-home-feed-reels-discover-events-and-profile-each-tab-routes-to-its-respective-page-include-an-upload-post-fab-button-in-the-center-of-the-nav-bar-for-creating-new-content",
+      "title": "Build a persistent bottom navigation bar with five tabs: Home (feed), Reels, Discover, Events, and Profile. Each tab routes to its respective page. Include an upload/post FAB button in the center of the nav bar for creating new content.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-home-feed-page-displaying-a-scrollable-vertical-list-of-car-posts-from-followed-users-and-trending-posts-each-post-card-shows-user-avatar-username-car-info-tag-post-image-s-caption-hashtags-like-button-with-count-comment-button-with-count-share-button-and-a-follow-unfollow-button-if-not-the-current-user-support-pull-to-refresh-and-infinite-scroll-pagination",
+      "title": "Build a Home Feed page displaying a scrollable vertical list of car posts from followed users and trending posts. Each post card shows: user avatar, username, car info tag, post image(s), caption, hashtags, like button with count, comment button with count, share button, and a follow/unfollow button if not the current user. Support pull-to-refresh and infinite scroll pagination.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-reels-page-with-a-full-screen-vertical-swipe-interface-for-short-form-car-video-image-reel-posts-each-reel-fills-the-screen-with-the-media-overlays-the-username-car-info-caption-and-right-side-action-buttons-like-comment-share-follow-swiping-up-advances-to-the-next-reel",
+      "title": "Build a Reels page with a full-screen vertical swipe interface for short-form car video/image reel posts. Each reel fills the screen with the media, overlays the username, car info, caption, and right-side action buttons (like, comment, share, follow). Swiping up advances to the next reel.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-discover-explore-page-with-a-search-bar-and-grid-of-trending-posts-include-tabs-for-all-builds-reels-mechanics-events-show-suggested-users-to-follow-with-follow-buttons-search-queries-filter-posts-and-users-by-keyword-hashtag",
+      "title": "Build a Discover/Explore page with a search bar and grid of trending posts. Include tabs for: All, Builds, Reels, Mechanics, Events. Show suggested users to follow with follow buttons. Search queries filter posts and users by keyword/hashtag.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-user-profile-page-showing-cover-photo-profile-picture-display-name-username-bio-car-info-badge-follower-count-following-count-and-a-follow-unfollow-button-if-viewing-another-user-s-profile-include-tabbed-sections-for-posts-builds-and-reels-each-showing-a-grid-of-the-user-s-content-of-that-type-the-current-user-s-own-profile-shows-an-edit-profile-option",
+      "title": "Build a User Profile page showing: cover photo, profile picture, display name, username, bio, car info badge, follower count, following count, and a follow/unfollow button (if viewing another user's profile). Include tabbed sections for Posts, Builds, and Reels, each showing a grid of the user's content of that type. The current user's own profile shows an Edit Profile option.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-follow-system-users-can-follow-and-unfollow-other-users-a-followers-list-page-and-following-list-page-should-be-accessible-from-the-profile-each-list-entry-shows-the-avatar-username-and-a-follow-unfollow-button",
+      "title": "Build a Follow system: users can follow and unfollow other users. A Followers list page and Following list page should be accessible from the profile. Each list entry shows the avatar, username, and a follow/unfollow button.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-direct-messaging-chat-feature-a-messages-page-listing-all-conversations-showing-the-other-user-s-avatar-username-last-message-preview-and-timestamp-selecting-a-conversation-opens-a-chat-thread-with-a-scrollable-message-history-and-a-message-input-bar-at-the-bottom-messages-are-sent-and-persisted-via-the-backend",
+      "title": "Build a Direct Messaging (Chat) feature: a Messages page listing all conversations, showing the other user's avatar, username, last message preview, and timestamp. Selecting a conversation opens a chat thread with a scrollable message history and a message input bar at the bottom. Messages are sent and persisted via the backend.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-mechanics-help-section-as-a-dedicated-page-where-users-can-post-mechanical-questions-with-optional-images-a-description-of-the-issue-and-car-model-year-other-users-can-post-replies-answers-display-questions-in-a-list-with-answer-count-and-a-view-for-full-q-a-threads",
+      "title": "Build a Mechanics Help section as a dedicated page where users can post mechanical questions with optional images, a description of the issue, and car model/year. Other users can post replies/answers. Display questions in a list with answer count and a view for full Q&A threads.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-build-showcase-section-where-users-can-create-showcase-posts-with-a-title-description-car-specs-and-a-multi-image-gallery-builds-are-displayed-in-a-dedicated-grid-page-each-build-detail-page-shows-all-images-in-a-swipeable-gallery-specs-table-and-comments-section",
+      "title": "Build a Build Showcase section where users can create showcase posts with a title, description, car specs, and a multi-image gallery. Builds are displayed in a dedicated grid page. Each build detail page shows all images in a swipeable gallery, specs table, and comments section.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-car-meets-events-page-listing-upcoming-and-past-car-meet-events-each-event-card-shows-title-image-date-location-description-and-attendee-count-users-can-browse-events-view-event-details-and-create-new-events-include-an-i-m-attending-button-that-increments-the-attendee-count",
+      "title": "Build a Car Meets & Events page listing upcoming and past car meet events. Each event card shows: title, image, date, location, description, and attendee count. Users can browse events, view event details, and create new events. Include an 'I'm Attending' button that increments the attendee count.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-comments-sheet-modal-that-opens-when-a-user-taps-the-comment-button-on-any-post-it-should-display-existing-comments-avatar-username-text-timestamp-and-an-input-field-at-the-bottom-to-post-a-new-comment-comments-are-loaded-from-and-saved-to-the-backend",
+      "title": "Build a Comments sheet/modal that opens when a user taps the comment button on any post. It should display existing comments (avatar, username, text, timestamp) and an input field at the bottom to post a new comment. Comments are loaded from and saved to the backend.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-create-post-flow-triggered-by-the-center-fab-show-a-bottom-sheet-with-four-options-feed-post-reel-build-showcase-and-mechanic-question-each-option-opens-a-dedicated-creation-form-with-relevant-fields-caption-image-upload-via-url-input-tags-car-info-on-submit-the-new-post-is-saved-to-the-backend-and-appears-in-the-relevant-feed",
+      "title": "Build a Create Post flow triggered by the center FAB. Show a bottom sheet with four options: Feed Post, Reel, Build Showcase, and Mechanic Question. Each option opens a dedicated creation form with relevant fields (caption, image upload via URL input, tags, car info). On submit, the new post is saved to the backend and appears in the relevant feed.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-full-screen-landing-page-that-gates-access-to-the-app-the-page-must-display-a-visually-striking-modified-import-car-as-the-background-image-overlay-the-existing-dark-automotive-theme-dark-asphalt-tones-amber-orange-accents-on-top-of-the-background-center-a-prominent-login-button-that-when-tapped-triggers-internet-identity-authentication-only-after-successful-login-does-the-user-proceed-into-the-main-app-unauthenticated-users-landing-on-any-route-should-be-redirected-to-this-landing-page-integrate-this-landing-page-into-the-existing-authgate-flow-in-frontend-src-components-authgate-tsx-by-replacing-or-extending-the-current-unauthenticated-screen-with-this-styled-landing-page",
+      "title": "Create a full-screen landing page that gates access to the app. The page must display a visually striking modified import car as the background image. Overlay the existing dark automotive theme (dark asphalt tones, amber/orange accents) on top of the background. Center a prominent 'Login' button that, when tapped, triggers Internet Identity authentication. Only after successful login does the user proceed into the main app. Unauthenticated users landing on any route should be redirected to this landing page. Integrate this landing page into the existing AuthGate flow in frontend/src/components/AuthGate.tsx by replacing or extending the current unauthenticated screen with this styled landing page.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-a-high-quality-background-image-of-a-modified-import-car-e-g-a-lowered-japanese-sports-car-with-aftermarket-body-kit-wide-body-fenders-and-performance-wheels-for-use-as-the-landing-page-background-the-image-should-have-a-dark-moody-cinematic-tone-that-complements-the-app-s-dark-asphalt-theme-and-amber-accent-colors-use-it-as-a-static-asset-at-frontend-public-assets-generated-landing-bg-dim-1920x1080-jpg-and-render-it-as-the-full-screen-background-of-the-landing-page",
+      "title": "Generate a high-quality background image of a modified import car (e.g., a lowered Japanese sports car with aftermarket body kit, wide-body fenders, and performance wheels) for use as the landing page background. The image should have a dark, moody, cinematic tone that complements the app's dark asphalt theme and amber accent colors. Use it as a static asset at frontend/public/assets/generated/landing-bg.dim_1920x1080.jpg and render it as the full-screen background of the landing page.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-persistent-aftermarket-car-parts-advertisement-banner-link-on-every-page-of-the-app-all-routes-inside-the-authenticated-layout-that-links-to-https-ebay-com-inf-revreel-mkcid-1-mkrid-711-53200-19255-0-siteid-0-campid-5339143418-toolid-80008-mkevt-1-the-banner-should-open-the-link-in-a-new-tab-and-be-styled-consistently-with-the-app-s-dark-automotive-theme-amber-orange-accents-asphalt-backgrounds-place-it-in-a-non-intrusive-but-visible-position-such-as-a-slim-banner-inside-the-layout-component-frontend-src-components-layout-tsx-between-the-topbar-and-the-main-content-area-or-as-a-fixed-strip-above-the-bottomnav-label-it-clearly-as-shop-aftermarket-parts-or-similar-automotive-relevant-call-to-action-text",
+      "title": "Add a persistent aftermarket car parts advertisement banner/link on every page of the app (all routes inside the authenticated Layout) that links to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1. The banner should open the link in a new tab and be styled consistently with the app's dark automotive theme (amber/orange accents, asphalt backgrounds). Place it in a non-intrusive but visible position — such as a slim banner inside the Layout component (frontend/src/components/Layout.tsx) between the TopBar and the main content area, or as a fixed strip above the BottomNav. Label it clearly as 'Shop Aftermarket Parts' or similar automotive-relevant call-to-action text.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-all-occurrences-of-cargram-with-revreel-throughout-the-frontend-update-the-page-title-in-frontend-index-html-the-topbar-component-frontend-src-components-topbar-tsx-the-landingpage-component-frontend-src-components-landingpage-tsx-and-any-other-frontend-files-that-display-the-app-name-cargram-to-users",
+      "title": "Replace all occurrences of 'CarGram' with 'RevReel' throughout the frontend: update the page title in frontend/index.html, the TopBar component (frontend/src/components/TopBar.tsx), the LandingPage component (frontend/src/components/LandingPage.tsx), and any other frontend files that display the app name 'CarGram' to users.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Car photo/video feed with likes and comments",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Reels-style short video feature for car content",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Follow/unfollow system between users",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Direct messaging (chat) between users",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "User profiles with car info and posts",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Mechanics help section for Q&A and advice",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Build showcase pages with photo galleries",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Car meet events page for browsing and posting events",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Discovery/explore page for finding users and content",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Bug checking and fixes across all features",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Implement a backend data model and actor supporting: users (id, username, displayName, bio, profilePicUrl, carInfo, followersCount, followingCount, createdAt), posts (id, authorId, imageUrl, caption, tags, likesCount, commentsCount, createdAt, postType: 'feed' | 'reel' | 'build' | 'mechanic'), comments (id, postId, authorId, text, createdAt), likes (userId, postId), follows (followerId, followeeId), messages (id, senderId, receiverId, text, createdAt), events (id, organizerId, title, description, location, date, imageUrl, attendeesCount), and buildShowcases (id, authorId, title, description, imageUrls, specs, createdAt). Provide full CRUD operations for all entities.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Implement a mock/demo user session system (no Internet Identity required for demo) that pre-populates the app with at least 6 realistic demo users with car profiles, 15+ demo posts across all content types (feed, reels, builds, mechanic Q&A), 3 demo events, and several follows/messages. This allows the app to be immediately usable and visually rich on first load.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Add a landing/login page with a login button that gates access to the app, featuring a modified import car as the background image",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Add an aftermarket car parts advertisement/link on each page pointing to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Rename the app display name shown at the top of the page from 'CarGram' to 'RevReel' (or the preferred rev-related name)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Add a Marketplace page where users can list, browse, and inquire about car parts and vehicles for sale",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Allow users to delete their own posts and reels from the feed, reels page, and their profile",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Add a Marketplace page where users can create, browse, and view listings for car parts and vehicles for sale. Each listing card shows: seller avatar, username, item title, price, condition, description, at least one image (via URL input), and a contact/inquiry button. Include a 'Create Listing' button that opens a form with fields for title, description, price, condition (new/used), category (parts/wheels/audio/exterior/interior/other), and image URL. Listings are persisted in the backend. Add a 'Marketplace' tab or entry point accessible from the bottom navigation or Discover page.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Extend the backend data model to support marketplace listings with fields: id, authorId, title, description, price (text), condition ('new' | 'used'), category (text), imageUrl, createdAt, and a sold flag. Expose CRUD operations: createListing, getListing, getAllListings, updateListing, deleteListing (owner only).",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Add delete functionality to posts and reels: on each post card in the Home Feed, and on each reel in the Reels page, show a delete button (e.g., a trash icon or a three-dot menu option) that is only visible to the post's author. When tapped, prompt for confirmation, then call the backend delete function and remove the post from the UI. Also surface this delete option on the user's own profile page tabs (Posts, Reels, Builds).",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Expose a deletePost function in the backend that accepts a post ID, verifies the caller is the post's author, and permanently removes the post record (and associated likes/comments if applicable).",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Enhance the existing Mechanics Help page (MechanicsPage.tsx and MechanicThreadPage.tsx) to support image attachments on questions: add an optional image URL field to the CreateMechanicQuestionPage form, display the image on the question thread page when present, and show a car model/year field on the creation form.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Enhance the existing Build Showcase section: update the CreateBuildPage form to support multiple image URLs (allow adding/removing image URL inputs dynamically, minimum 1, up to 6). Display all images in a swipeable carousel on the BuildDetailPage. Add a delete button on build cards visible only to the build's author.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Add a 'Marketplace' navigation entry to the BottomNav or the CreatePostSheet so users can easily access the Marketplace page. Update the route in App.tsx to include the /marketplace route. Add a 'List Item for Sale' option in the CreatePostSheet bottom sheet alongside the existing four content types.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "CarGram",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

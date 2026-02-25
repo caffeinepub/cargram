@@ -1,0 +1,6 @@
+{
+  "frontend/src/components/LandingPage.tsx": "Full-screen landing page with the modified import car background image, dark cinematic overlay, RevGrid logo, and a prominent amber-styled Login button that triggers Internet Identity authentication.",
+  "frontend/src/components/AuthGate.tsx": "Authentication gate component that shows the LandingPage for unauthenticated users, a profile setup form for new users, and renders children for fully authenticated users with profiles.",
+  "frontend/src/components/Layout.tsx": "Authenticated app shell with TopBar, a slim amber-styled aftermarket parts affiliate banner linking to eBay, main content Outlet, and BottomNav. The banner appears on every authenticated page and opens the affiliate link in a new tab.",
+  "frontend/index.html": "HTML entry point with updated browser tab title changed from \"CarGram\" to \"RevReel\"."
+}
