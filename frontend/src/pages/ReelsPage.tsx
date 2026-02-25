@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Heart, MessageCircle, Trash2, Volume2, VolumeX, Search, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, Volume2, VolumeX, Search, Loader2, Film } from 'lucide-react';
 import { PostRecord } from '../backend';
 import { useGetFeed, useGetLikeCount, useLikePost, useUnlikePost, useGetCallerUserProfile, useDeletePost, useGetUser } from '../hooks/useQueries';
 import { PostType } from '../backend';
@@ -15,6 +15,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+
+/**
+ * Parse a reel's caption field which may be a JSON-encoded object
+ * containing { caption, mediaData } or a plain string caption.
+ */
+function parseReelCaption(raw: string): { caption: string; mediaData: string | null } {
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && 'caption' in parsed) {
+      return {
+        caption: parsed.caption ?? '',
+        mediaData: parsed.mediaData ?? null,
+      };
+    }
+  } catch {
+    // Not JSON, treat as plain caption
+  }
+  return { caption: raw, mediaData: null };
+}
 
 interface ReelItemProps {
   reel: PostRecord;
@@ -41,6 +60,17 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
     ? `data:image/jpeg;base64,${authorUser.profilePicData}`
     : '/assets/generated/default-avatar.dim_128x128.png';
 
+  // Parse caption to extract media data
+  const { caption, mediaData: embeddedMediaData } = parseReelCaption(reel.caption);
+
+  // Determine media source: prefer embedded base64, fall back to ExternalBlob URL
+  const externalMediaUrl = reel.image ? reel.image.getDirectURL() : null;
+  const mediaSource = embeddedMediaData ?? externalMediaUrl;
+
+  const isVideo = embeddedMediaData
+    ? embeddedMediaData.startsWith('data:video/')
+    : (externalMediaUrl?.includes('.mp4') || externalMediaUrl?.includes('.webm') || externalMediaUrl?.includes('.mov')) ?? false;
+
   useEffect(() => {
     if (videoRef.current) {
       if (isActive) {
@@ -61,25 +91,22 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
     }
   };
 
-  const mediaUrl = reel.image ? reel.image.getDirectURL() : null;
-  const isVideo = mediaUrl?.includes('.mp4') || mediaUrl?.includes('.webm') || mediaUrl?.includes('.mov');
-
   return (
     <>
       <div className="relative w-full h-full bg-black flex items-center justify-center snap-start">
         {/* Media */}
-        {mediaUrl ? (
+        {mediaSource ? (
           isVideo ? (
             <video
               ref={videoRef}
-              src={mediaUrl}
+              src={mediaSource}
               className="w-full h-full object-cover"
               loop
               muted={muted}
               playsInline
             />
           ) : (
-            <img src={mediaUrl} alt={reel.caption} className="w-full h-full object-cover" />
+            <img src={mediaSource} alt={caption} className="w-full h-full object-cover" />
           )
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center">
@@ -160,8 +187,8 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
             </span>
           )}
 
-          {reel.caption && (
-            <p className="text-white text-sm drop-shadow line-clamp-2">{reel.caption}</p>
+          {caption && (
+            <p className="text-white text-sm drop-shadow line-clamp-2">{caption}</p>
           )}
         </div>
       </div>
@@ -257,6 +284,3 @@ export default function ReelsPage() {
     </>
   );
 }
-
-// Need to import Film for the empty state
-import { Film } from 'lucide-react';

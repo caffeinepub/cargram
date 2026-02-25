@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Camera, Film, Wrench, Car } from 'lucide-react';
+import { Camera, Film, Wrench, Car, ShoppingBag } from 'lucide-react';
 
 interface CreatePostSheetProps {
   open: boolean;
@@ -39,6 +39,14 @@ const OPTIONS = [
     path: '/mechanics/create' as const,
     color: 'text-green-400',
     bg: 'bg-green-400/10',
+  },
+  {
+    icon: ShoppingBag,
+    label: 'List for Sale',
+    description: 'Sell parts & accessories',
+    path: '/marketplace/create' as const,
+    color: 'text-amber-400',
+    bg: 'bg-amber-400/10',
   },
 ];
 

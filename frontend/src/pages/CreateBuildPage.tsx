@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, Car } from 'lucide-react';
+import { ArrowLeft, Loader2, Car, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,8 +29,9 @@ export default function CreateBuildPage() {
       });
       toast.success('Build showcase created!');
       navigate({ to: '/builds/$buildId', params: { buildId } });
-    } catch {
-      toast.error('Failed to create build');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create build';
+      toast.error(message || 'Failed to create build. Please try again.');
     }
   };
 
@@ -85,6 +86,13 @@ export default function CreateBuildPage() {
             rows={6}
           />
         </div>
+
+        {createBuild.isError && (
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Failed to create build showcase. Please try again.</span>
+          </div>
+        )}
 
         <Button
           type="submit"

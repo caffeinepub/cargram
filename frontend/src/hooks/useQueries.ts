@@ -491,11 +491,13 @@ export function useCreateBuild() {
   });
 }
 
+// ─── Marketplace Hooks ────────────────────────────────────────────────────────
+
 export function useGetAllListings() {
   const { actor, isFetching } = useActor();
 
   return useQuery({
-    queryKey: ['listings'],
+    queryKey: ['marketplaceListings'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllListings();
@@ -509,7 +511,14 @@ export function useCreateListing() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: {
+    mutationFn: async ({
+      title,
+      description,
+      price,
+      condition,
+      category,
+      imageUrl,
+    }: {
       title: string;
       description: string;
       price: string;
@@ -518,91 +527,10 @@ export function useCreateListing() {
       imageUrl: string;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createListing(
-        params.title,
-        params.description,
-        params.price,
-        params.condition,
-        params.category,
-        params.imageUrl
-      );
+      return actor.createListing(title, description, price, condition, category, imageUrl);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplaceListings'] });
     },
-  });
-}
-
-export function useUpdateListing() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (params: {
-      listingId: string;
-      title: string;
-      description: string;
-      price: string;
-      condition: Variant_new_used;
-      category: string;
-      imageUrl: string;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateListing(
-        params.listingId,
-        params.title,
-        params.description,
-        params.price,
-        params.condition,
-        params.category,
-        params.imageUrl
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-    },
-  });
-}
-
-export function useDeleteListing() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (listingId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.deleteListing(listingId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-    },
-  });
-}
-
-export function useMarkListingAsSold() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (listingId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.markListingAsSold(listingId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-    },
-  });
-}
-
-export function useSearchListings(query: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery({
-    queryKey: ['searchListings', query],
-    queryFn: async () => {
-      if (!actor || !query.trim()) return [];
-      return actor.searchListings(query);
-    },
-    enabled: !!actor && !isFetching && !!query.trim(),
   });
 }

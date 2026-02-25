@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, Camera } from 'lucide-react';
+import { ArrowLeft, Loader2, Camera, Upload, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,11 +9,62 @@ import { useCreatePost } from '../hooks/useQueries';
 import { PostType } from '../backend';
 import { toast } from 'sonner';
 
+const MAX_FILE_SIZE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to stay safely under ICP 2MB limit
+
 export default function CreateFeedPostPage() {
   const navigate = useNavigate();
   const [caption, setCaption] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+  const [mediaData, setMediaData] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>('');
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const createPost = useCreatePost();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFileError(null);
+
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      toast.error('Please select an image file');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      const errorMsg = `File too large (${sizeMB} MB) — please select a file under 1.5 MB`;
+      setFileError(errorMsg);
+      toast.error(errorMsg);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      setMediaData(result);
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read file');
+      setFileError('Failed to read file');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClearMedia = () => {
+    setMediaData(null);
+    setFileName('');
+    setFileError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,13 +72,31 @@ export default function CreateFeedPostPage() {
       toast.error('Caption is required');
       return;
     }
+    if (fileError) {
+      toast.error('Please fix the file error before submitting');
+      return;
+    }
+
     const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+
+    // Embed image data in caption JSON if present
+    const encodedCaption = mediaData
+      ? JSON.stringify({ caption: caption.trim(), mediaData })
+      : caption.trim();
+
     try {
-      await createPost.mutateAsync({ caption: caption.trim(), tags, postType: PostType.feed });
+      await createPost.mutateAsync({
+        caption: encodedCaption,
+        tags,
+        postType: PostType.feed,
+      });
       toast.success('Post created!');
       navigate({ to: '/' });
-    } catch {
-      toast.error('Failed to create post');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      toast.error(message.includes('size') || message.includes('limit')
+        ? 'File too large for upload — try a smaller image'
+        : 'Failed to create post. Please try again.');
     }
   };
 
@@ -41,12 +110,72 @@ export default function CreateFeedPostPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 space-y-5">
-        <div className="w-full aspect-square rounded-xl bg-secondary border-2 border-dashed border-border flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 text-muted-foreground">
-            <Camera className="w-10 h-10 text-primary" />
-            <p className="text-sm font-medium">Feed Post</p>
-            <p className="text-xs text-center px-4">Share your car moment with the community</p>
-          </div>
+        {/* Image Upload / Preview */}
+        <div className="space-y-2">
+          <Label className="text-foreground font-medium">Photo (optional)</Label>
+          <p className="text-xs text-muted-foreground">Max file size: 1.5 MB</p>
+
+          {!mediaData ? (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full aspect-square rounded-xl bg-secondary border-2 border-dashed border-border flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-secondary/80 transition-colors cursor-pointer"
+            >
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <Camera className="w-7 h-7 text-primary" />
+              </div>
+              <div className="text-center px-4">
+                <p className="text-sm font-semibold text-foreground">Tap to add a photo</p>
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP supported</p>
+              </div>
+            </button>
+          ) : (
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-black">
+              <img
+                src={mediaData}
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={handleClearMedia}
+                className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="absolute bottom-2 left-2 right-2">
+                <p className="text-white text-xs bg-black/50 rounded px-2 py-1 truncate">{fileName}</p>
+              </div>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+
+          {!mediaData && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full border-border text-foreground"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Choose Photo
+            </Button>
+          )}
+
+          {fileError && (
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>{fileError}</span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-1">
@@ -71,9 +200,16 @@ export default function CreateFeedPostPage() {
           />
         </div>
 
+        {createPost.isError && (
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Failed to create post. Please try again or use a smaller image.</span>
+          </div>
+        )}
+
         <Button
           type="submit"
-          disabled={createPost.isPending || !caption.trim()}
+          disabled={createPost.isPending || !caption.trim() || !!fileError}
           className="w-full bg-primary text-primary-foreground font-heading font-bold tracking-wider h-12"
         >
           {createPost.isPending ? (

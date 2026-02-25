@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, Wrench } from 'lucide-react';
+import { ArrowLeft, Loader2, Wrench, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,8 +26,9 @@ export default function CreateMechanicQuestionPage() {
       await createPost.mutateAsync({ caption: caption.trim(), tags, postType: PostType.mechanic });
       toast.success('Question posted!');
       navigate({ to: '/mechanics' });
-    } catch {
-      toast.error('Failed to post question');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      toast.error(message || 'Failed to post question. Please try again.');
     }
   };
 
@@ -70,6 +71,13 @@ export default function CreateMechanicQuestionPage() {
           />
           <p className="text-xs text-muted-foreground">Separate tags with commas</p>
         </div>
+
+        {createPost.isError && (
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Failed to post question. Please try again.</span>
+          </div>
+        )}
 
         <Button
           type="submit"

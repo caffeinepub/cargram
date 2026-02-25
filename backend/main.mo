@@ -11,9 +11,7 @@ import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   // Mixin core components
   include MixinStorage();
@@ -42,7 +40,7 @@ actor {
     profilePicData : ?Text;
   };
 
-  type User = UserProfile; // Legacy alias
+  type User = UserProfile;
 
   type PostType = { #feed; #reel; #build; #mechanic };
 

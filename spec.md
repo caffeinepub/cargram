@@ -1,15 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Allow users to upload a profile picture that is stored on-chain and displayed throughout the app.
+**Goal:** Add a fully functional Marketplace feature to RevReel, allowing users to browse and create vehicle parts/accessories listings with images.
 
 **Planned changes:**
-- Add an optional `profilePicData : ?Text` field to the `UserProfile` backend data model
-- Add an `updateProfilePic(data: Text) : async ()` backend function that stores base64 image data for the authenticated caller
-- Ensure all existing profile query functions return the new `profilePicData` field
-- Update `EditProfileModal` to include a file input (`accept="image/*"`) for selecting a profile picture
-- Show a circular preview of the selected image in `EditProfileModal` before saving
-- Encode the selected image as base64 and call `updateProfilePic` on save
-- Display the updated profile picture wherever user avatars appear: `ProfilePage`, `PostCard`, `CommentsSheet`, `UserListItem`, `ReelsPage`
+- Add `MarketplaceListing` type and CRUD functions (`createListing`, `getAllListings`, `getListing`, `deleteListing`) to the backend `main.mo` actor
+- Create `MarketplacePage.tsx` displaying a grid of listing cards with seller info, item details, condition badge, category, and image; includes category filter chips and empty state
+- Create `CreateListingPage.tsx` with a form for title, description, price, condition, category, and image upload (base64, max 1.5 MB with preview)
+- Add `useGetAllListings` and `useCreateListing` React Query hooks to `useQueries.ts`
+- Register `/marketplace` and `/marketplace/create` routes in `App.tsx`
+- Add a "Marketplace" / "List for Sale" option to `CreatePostSheet.tsx` navigating to `/marketplace/create`
+- Add a Marketplace entry point on `DiscoverPage.tsx` linking to `/marketplace`
 
-**User-visible outcome:** Users can upload a profile picture from their device in the Edit Profile modal; the image is saved on-chain and immediately shown as their avatar across the entire app.
+**User-visible outcome:** Users can browse all marketplace listings on a dedicated Marketplace page, filter by category, and create new listings with photos via a form accessible from both the Create Post sheet and the Discover page.

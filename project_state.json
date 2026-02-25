@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
+  "projectStateVersion": 33,
   "summary": "A full-featured car enthusiast social media app inspired by Instagram, built exclusively for car culture. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, and the ability for users to delete their own posts and reels.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
@@ -12,9 +12,12 @@
   ],
   "known_issues": [
     "App header/topbar still displays 'CarGram' instead of the preferred 'RevReel' branding",
-    "Follow/unfollow button is missing or not visible next to the profile picture on the user profile page"
+    "Follow/unfollow button is missing or not visible next to the profile picture on the user profile page",
+    "CreateReelPage is missing the video/file upload input — users cannot upload a video when creating a reel",
+    "Post/reel creation flow gets stuck in a loading state and does not complete the upload — users cannot successfully submit new posts",
+    "Discovery/Explore page is missing or not accessible — users cannot navigate to it from the bottom nav or any other entry point"
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
@@ -271,6 +274,86 @@
         "REQ-47"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-createreelpage-frontend-src-pages-createreelpage-tsx-to-include-a-native-file-input-that-explicitly-accepts-both-video-files-video-and-image-files-image-clearly-labeled-so-users-understand-they-can-upload-a-video-the-file-input-should-display-a-preview-of-the-selected-file-video-preview-using-an-html-video-element-for-video-files-image-preview-for-image-files-encode-the-selected-file-as-base64-and-submit-it-via-the-backend-createpost-mutation-s-mediadata-field-the-existing-reel-category-selector-and-caption-tags-fields-must-remain-intact",
+      "title": "Update the CreateReelPage (frontend/src/pages/CreateReelPage.tsx) to include a native file input that explicitly accepts both video files (video/*) and image files (image/*), clearly labeled so users understand they can upload a video. The file input should display a preview of the selected file (video preview using an HTML <video> element for video files, image preview for image files). Encode the selected file as base64 and submit it via the backend createPost mutation's mediaData field. The existing reel category selector and caption/tags fields must remain intact.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-diagnose-and-fix-the-post-creation-flow-so-that-submitting-a-new-post-feed-post-reel-build-showcase-or-mechanic-question-from-any-creation-page-completes-successfully-instead-of-getting-stuck-in-a-perpetual-loading-state-investigate-the-usecreatepost-mutation-in-frontend-src-hooks-usequeries-ts-and-the-backend-createpost-function-in-backend-main-mo-to-identify-why-the-mutation-never-resolves-ensure-the-mutation-correctly-awaits-the-backend-call-handles-both-success-and-error-responses-exits-the-loading-state-in-all-cases-and-navigates-away-or-shows-a-success-error-message-on-completion",
+      "title": "Diagnose and fix the post creation flow so that submitting a new post (Feed Post, Reel, Build Showcase, or Mechanic Question) from any creation page completes successfully instead of getting stuck in a perpetual loading state. Investigate the useCreatePost mutation in frontend/src/hooks/useQueries.ts and the backend createPost function in backend/main.mo to identify why the mutation never resolves. Ensure the mutation correctly awaits the backend call, handles both success and error responses, exits the loading state in all cases, and navigates away or shows a success/error message on completion.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-maximum-file-size-guard-on-the-createreelpage-frontend-src-pages-createreelpage-tsx-and-createfeedpostpage-frontend-src-pages-createfeedpostpage-tsx-file-inputs-before-encoding-the-selected-file-as-base64-check-its-size-against-the-icp-message-size-limit-approximately-2-mb-for-ingress-messages-if-the-file-exceeds-the-limit-immediately-clear-the-loading-state-reject-the-file-selection-and-display-a-clear-user-facing-error-message-explaining-the-size-limit-e-g-file-too-large-please-select-a-file-under-2-mb",
+      "title": "Add a maximum file size guard on the CreateReelPage (frontend/src/pages/CreateReelPage.tsx) and CreateFeedPostPage (frontend/src/pages/CreateFeedPostPage.tsx) file inputs. Before encoding the selected file as base64, check its size against the ICP message size limit (approximately 2 MB for ingress messages). If the file exceeds the limit, immediately clear the loading state, reject the file selection, and display a clear user-facing error message explaining the size limit (e.g., 'File too large — please select a file under 2 MB').",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-perform-a-deep-audit-and-fix-of-the-entire-post-creation-flow-across-all-creation-pages-createfeedpostpage-createreelpage-createbuildpage-createmechanicquestionpage-trace-the-full-call-chain-from-the-submit-button-through-the-usecreatepost-mutation-in-frontend-src-hooks-usequeries-ts-to-the-backend-createpost-function-in-backend-main-mo-identify-and-fix-every-root-cause-preventing-the-mutation-from-resolving-including-but-not-limited-to-unhandled-promise-rejections-missing-await-statements-actor-call-failures-backend-traps-or-panics-incorrect-argument-serialization-e-g-optional-fields-candid-encoding-mismatches-and-any-error-paths-that-silently-swallow-exceptions-without-exiting-the-loading-state-the-fix-must-ensure-1-the-submit-button-exits-its-loading-disabled-state-in-all-outcomes-success-and-error-2-on-success-the-user-is-navigated-away-from-the-creation-page-and-the-relevant-feed-is-refreshed-3-on-error-a-clear-user-facing-error-message-is-shown-4-the-backend-createpost-function-does-not-trap-on-any-valid-input-and-returns-a-result-the-frontend-can-handle",
+      "title": "Perform a deep audit and fix of the entire post creation flow across all creation pages (CreateFeedPostPage, CreateReelPage, CreateBuildPage, CreateMechanicQuestionPage). Trace the full call chain from the submit button through the useCreatePost mutation in frontend/src/hooks/useQueries.ts to the backend createPost function in backend/main.mo. Identify and fix every root cause preventing the mutation from resolving — including but not limited to: unhandled promise rejections, missing await statements, actor call failures, backend traps or panics, incorrect argument serialization (e.g., optional fields, Candid encoding mismatches), and any error paths that silently swallow exceptions without exiting the loading state. The fix must ensure: (1) the submit button exits its loading/disabled state in all outcomes (success and error), (2) on success the user is navigated away from the creation page and the relevant feed is refreshed, (3) on error a clear user-facing error message is shown, (4) the backend createPost function does not trap on any valid input and returns a result the frontend can handle.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-audit-the-usecreatepost-mutation-in-frontend-src-hooks-usequeries-ts-to-ensure-it-correctly-1-awaits-the-actor-createpost-call-2-inspects-the-returned-result-and-throws-if-it-is-an-err-variant-3-calls-onsuccess-with-cache-invalidation-when-the-call-succeeds-4-calls-onerror-with-a-user-visible-message-when-the-call-fails-and-5-always-exits-the-ispending-isloading-state-regardless-of-outcome-fix-any-issues-found",
+      "title": "Audit the useCreatePost mutation in frontend/src/hooks/useQueries.ts to ensure it correctly: (1) awaits the actor.createPost call, (2) inspects the returned Result and throws if it is an #err variant, (3) calls onSuccess with cache invalidation when the call succeeds, (4) calls onError with a user-visible message when the call fails, and (5) always exits the isPending/isLoading state regardless of outcome. Fix any issues found.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-discover-tab-to-the-persistent-bottom-navigation-bar-in-frontend-src-components-bottomnav-tsx-the-tab-must-use-a-compass-or-search-icon-be-labelled-discover-and-navigate-to-discover-when-tapped-it-must-appear-alongside-the-existing-home-reels-events-and-profile-tabs",
+      "title": "Add a 'Discover' tab to the persistent bottom navigation bar in frontend/src/components/BottomNav.tsx. The tab must use a compass or search icon, be labelled 'Discover', and navigate to '/discover' when tapped. It must appear alongside the existing Home, Reels, Events, and Profile tabs.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-marketplace-page-at-frontend-src-pages-marketplacepage-tsx-the-page-must-1-display-a-grid-list-of-all-marketplace-listings-fetched-from-the-backend-via-a-usegetalllistings-react-query-hook-2-each-listing-card-shows-the-seller-avatar-username-item-title-price-condition-badge-new-used-category-and-listing-image-3-include-a-prominent-list-item-for-sale-button-amber-orange-cta-styled-with-the-automotive-theme-that-opens-a-create-listing-form-or-navigates-to-a-create-listing-page-4-include-a-search-filter-bar-to-filter-listings-by-category-parts-wheels-audio-exterior-interior-other-5-empty-state-message-when-no-listings-exist",
+      "title": "Create a Marketplace page at `frontend/src/pages/MarketplacePage.tsx`. The page must: (1) display a grid/list of all marketplace listings fetched from the backend via a `useGetAllListings` React Query hook, (2) each listing card shows the seller avatar, username, item title, price, condition badge (New/Used), category, and listing image, (3) include a prominent 'List Item for Sale' button (amber/orange CTA styled with the automotive theme) that opens a create-listing form or navigates to a create-listing page, (4) include a search/filter bar to filter listings by category (Parts, Wheels, Audio, Exterior, Interior, Other), (5) empty state message when no listings exist.",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-create-listing-page-at-frontend-src-pages-createlistingpage-tsx-with-a-form-containing-title-text-input-description-textarea-price-text-input-condition-selector-new-used-category-selector-parts-wheels-audio-exterior-interior-other-and-a-native-file-input-for-an-image-accepts-image-max-1-5-mb-encodes-as-base64-data-url-shows-a-preview-on-submit-call-the-backend-createlisting-mutation-via-a-usecreatelisting-react-query-mutation-hook-on-success-invalidate-the-listings-cache-and-navigate-back-to-marketplace-on-error-show-a-user-facing-error-message-the-submit-button-must-exit-loading-state-in-all-outcomes",
+      "title": "Create a Create Listing page at `frontend/src/pages/CreateListingPage.tsx` with a form containing: title (text input), description (textarea), price (text input), condition selector (New / Used), category selector (Parts / Wheels / Audio / Exterior / Interior / Other), and a native file input for an image (accepts image/*, max 1.5 MB, encodes as base64 data URL, shows a preview). On submit, call the backend `createListing` mutation via a `useCreateListing` React Query mutation hook. On success, invalidate the listings cache and navigate back to `/marketplace`. On error, show a user-facing error message. The submit button must exit loading state in all outcomes.",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-marketplace-route-in-frontend-src-app-tsx-at-marketplace-pointing-to-marketplacepage-tsx-and-the-create-listing-route-at-marketplace-create-pointing-to-createlistingpage-tsx-add-a-marketplace-entry-to-the-createpostsheet-frontend-src-components-createpostsheet-tsx-as-a-fifth-option-alongside-the-existing-four-content-types-navigating-to-marketplace-create-when-tapped-add-a-marketplace-shortcut-or-tab-entry-on-the-discover-page-frontend-src-pages-discoverpage-tsx-so-users-can-navigate-to-marketplace-from-the-discovery-experience",
+      "title": "Register the Marketplace route in `frontend/src/App.tsx` at `/marketplace` pointing to `MarketplacePage.tsx`, and the Create Listing route at `/marketplace/create` pointing to `CreateListingPage.tsx`. Add a 'Marketplace' entry to the `CreatePostSheet` (`frontend/src/components/CreatePostSheet.tsx`) as a fifth option alongside the existing four content types, navigating to `/marketplace/create` when tapped. Add a 'Marketplace' shortcut or tab entry on the Discover page (`frontend/src/pages/DiscoverPage.tsx`) so users can navigate to `/marketplace` from the discovery experience.",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-usegetalllistings-react-query-query-hook-and-a-usecreatelisting-react-query-mutation-hook-in-frontend-src-hooks-usequeries-ts-usegetalllistings-calls-the-backend-getalllistings-function-and-returns-the-listings-array-usecreatelisting-calls-the-backend-createlisting-function-with-the-listing-fields-including-base64-imageurl-on-success-invalidates-the-getalllistings-cache-key",
+      "title": "Add a `useGetAllListings` React Query query hook and a `useCreateListing` React Query mutation hook in `frontend/src/hooks/useQueries.ts`. `useGetAllListings` calls the backend `getAllListings` function and returns the listings array. `useCreateListing` calls the backend `createListing` function with the listing fields (including base64 imageUrl), on success invalidates the `getAllListings` cache key.",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -513,6 +596,44 @@
       "summary": "Extend the backend UserProfile data model in backend/main.mo to include a `profilePicData` field (as ?Text) for storing base64-encoded profile picture data. Add an `updateProfilePic` function that accepts the base64 image string and updates the caller's profile record. Ensure that all profile query functions return the `profilePicData` field so the frontend can render it as the user's avatar.",
       "reqIds": [
         "REQ-48"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Audit the backend createPost function in backend/main.mo for any conditions that could cause it to trap (panic) rather than return a structured error — such as: out-of-bounds array access, division by zero, assertion failures, or calls to Debug.trap. Replace any such traps with graceful #err result variants so that the frontend always receives a response and is never left awaiting an unresolved call.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-54",
+      "summary": "Fix missing Discovery/Explore page — the page is not rendering or accessible from the bottom navigation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-55",
+      "summary": "Ensure the Discover page (frontend/src/pages/DiscoverPage.tsx) is correctly registered as a route in frontend/src/App.tsx at the path '/discover' and is fully accessible to authenticated users.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-57",
+      "summary": "Verify that DiscoverPage (frontend/src/pages/DiscoverPage.tsx) renders correctly: it must display a search bar, suggested users with follow buttons, and a tabbed content grid (All, Builds, Reels, Mechanics, Events). Fix any runtime errors, broken imports, or missing data-fetching hooks that prevent the page from rendering.",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-58",
+      "summary": "Ensure the backend `main.mo` actor exposes full marketplace listing CRUD: `createListing` (accepts title, description, price as Text, condition as 'new'|'used', category as Text, imageUrl as Text), `getAllListings` (returns all listings), `getListing` (returns a single listing by ID), `deleteListing` (owner-only, removes the listing record). Each listing record must include: id (Nat), authorId (Principal), title, description, price, condition, category, imageUrl, createdAt (Int nanoseconds), and a sold flag (Bool). If this data model already exists in main.mo, verify it is complete and fix any missing fields or functions.",
+      "reqIds": [
+        "REQ-58"
       ],
       "status": "pending"
     }

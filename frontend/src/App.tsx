@@ -22,6 +22,8 @@ import BuildDetailPage from './pages/BuildDetailPage';
 import CreateBuildPage from './pages/CreateBuildPage';
 import CreateFeedPostPage from './pages/CreateFeedPostPage';
 import CreateReelPage from './pages/CreateReelPage';
+import MarketplacePage from './pages/MarketplacePage';
+import CreateListingPage from './pages/CreateListingPage';
 import AuthGate from './components/AuthGate';
 
 // Root route with layout
@@ -61,6 +63,9 @@ const buildDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/
 const createFeedRoute = createRoute({ getParentRoute: () => rootRoute, path: '/create/feed', component: CreateFeedPostPage });
 const createReelRoute = createRoute({ getParentRoute: () => rootRoute, path: '/create/reel', component: CreateReelPage });
 
+const marketplaceRoute = createRoute({ getParentRoute: () => rootRoute, path: '/marketplace', component: MarketplacePage });
+const marketplaceCreateRoute = createRoute({ getParentRoute: () => rootRoute, path: '/marketplace/create', component: CreateListingPage });
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   reelsRoute,
@@ -83,6 +88,8 @@ const routeTree = rootRoute.addChildren([
   buildDetailRoute,
   createFeedRoute,
   createReelRoute,
+  marketplaceRoute,
+  marketplaceCreateRoute,
 ]);
 
 const router = createRouter({ routeTree });
