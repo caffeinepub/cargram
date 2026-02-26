@@ -110,7 +110,7 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
           )
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center">
-            <p className="text-white/40 text-sm">No media</p>
+            <p className="text-white/40 text-lg">No media</p>
           </div>
         )}
 
@@ -123,7 +123,7 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
             onClick={() => navigate({ to: '/reels-search' })}
             className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-6 h-6" />
           </button>
 
           {isVideo && (
@@ -131,64 +131,70 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
               onClick={() => setMuted(!muted)}
               className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
             >
-              {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+              {muted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
             </button>
           )}
         </div>
 
         {/* Right Actions */}
-        <div className="absolute right-4 bottom-24 flex flex-col items-center gap-5">
+        <div className="absolute right-4 bottom-28 flex flex-col items-center gap-6">
           <button
             onClick={handleLike}
-            className={`flex flex-col items-center gap-1 transition-colors ${
+            className={`flex flex-col items-center gap-1.5 transition-colors ${
               liked ? 'text-red-500' : 'text-white'
             }`}
           >
-            <Heart className={`w-7 h-7 ${liked ? 'fill-current' : ''}`} />
-            <span className="text-xs font-medium">{Number(likeCount ?? 0) + (liked ? 1 : 0)}</span>
+            <Heart className={`w-8 h-8 ${liked ? 'fill-current' : ''}`} />
+            <span className="text-sm font-semibold drop-shadow">{Number(likeCount ?? 0) + (liked ? 1 : 0)}</span>
           </button>
 
           <button
             onClick={() => setCommentsOpen(true)}
-            className="flex flex-col items-center gap-1 text-white"
+            className="flex flex-col items-center gap-1.5 text-white"
           >
-            <MessageCircle className="w-7 h-7" />
-            <span className="text-xs font-medium">Comment</span>
+            <MessageCircle className="w-8 h-8" />
+            <span className="text-sm font-semibold drop-shadow">Comment</span>
           </button>
 
           {isAuthor && (
             <button
               onClick={() => onDeleteRequest(reel.id)}
-              className="flex flex-col items-center gap-1 text-white hover:text-red-400 transition-colors"
+              className="flex flex-col items-center gap-1.5 text-white hover:text-red-400 transition-colors"
             >
-              <Trash2 className="w-7 h-7" />
-              <span className="text-xs font-medium">Delete</span>
+              <Trash2 className="w-8 h-8" />
+              <span className="text-sm font-semibold drop-shadow">Delete</span>
             </button>
           )}
         </div>
 
         {/* Bottom Author Info */}
-        <div className="absolute bottom-6 left-4 right-16">
+        <div className="absolute bottom-8 left-4 right-20">
           <button
             onClick={() => navigate({ to: `/profile/${reel.authorId}` })}
-            className="flex items-center gap-2.5 mb-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity"
           >
             <img
               src={authorAvatarUrl}
               alt={reel.authorId}
-              className="w-9 h-9 rounded-full object-cover border-2 border-white/60"
+              className="w-12 h-12 rounded-full object-cover border-2 border-white/70 shadow-lg"
             />
-            <span className="text-white font-semibold text-sm drop-shadow">{reel.authorId}</span>
+            <span className="text-white font-bold text-xl drop-shadow-lg">{reel.authorId}</span>
           </button>
 
           {reel.reelCategory && (
-            <span className="inline-block bg-primary/80 text-primary-foreground text-xs px-2 py-0.5 rounded-full mb-1">
+            <span className="inline-block bg-primary/80 text-primary-foreground text-sm font-semibold px-3 py-1 rounded-full mb-2 drop-shadow">
               {reel.reelCategory}
             </span>
           )}
 
           {caption && (
-            <p className="text-white text-sm drop-shadow line-clamp-2">{caption}</p>
+            <p className="text-white text-lg font-medium drop-shadow-lg leading-snug line-clamp-3">{caption}</p>
+          )}
+
+          {reel.tags && reel.tags.length > 0 && (
+            <p className="text-white/80 text-base mt-1.5 drop-shadow">
+              {reel.tags.map((t) => `#${t}`).join(' ')}
+            </p>
           )}
         </div>
       </div>
@@ -239,7 +245,7 @@ export default function ReelsPage() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-black text-white gap-4">
         <Film className="w-12 h-12 text-white/40" />
-        <p className="text-white/60">No reels yet. Be the first to post!</p>
+        <p className="text-white/60 text-lg">No reels yet. Be the first to post!</p>
       </div>
     );
   }

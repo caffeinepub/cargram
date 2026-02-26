@@ -233,9 +233,9 @@ export interface backendInterface {
     createListing(title: string, description: string, price: string, condition: Variant_new_used, category: string, imageUrl: string): Promise<MarketplaceListingId>;
     /**
      * / Create a post; authorId is derived from the caller's stored profile
-     * / Allows up to 2MB of mediaData (base64-encoded media as Text).
+     * / Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
      */
-    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null): Promise<PostId>;
+    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null, imageUrl: string): Promise<PostId>;
     /**
      * / Create a user record (authenticated users only)
      */
@@ -560,17 +560,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createPost(arg0: string, arg1: Array<string>, arg2: PostType, arg3: string | null, arg4: string | null): Promise<PostId> {
+    async createPost(arg0: string, arg1: Array<string>, arg2: PostType, arg3: string | null, arg4: string | null, arg5: string): Promise<PostId> {
         if (this.processError) {
             try {
-                const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4));
+                const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4), arg5);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4));
+            const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4), arg5);
             return result;
         }
     }

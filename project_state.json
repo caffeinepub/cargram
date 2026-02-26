@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 35,
-  "summary": "A full-featured car enthusiast social media app inspired by Instagram, built exclusively for car culture. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, and the ability for users to delete their own posts and reels.",
+  "projectStateVersion": 41,
+  "summary": "A full-featured car enthusiast social media app inspired by Instagram/TikTok, built exclusively for car culture under the brand 'RevGrid'. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, the ability for users to delete their own posts and reels, and an About RevGrid page with platform description, support/donation info, and contact details.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
     "Core entities: Users, Posts, Reels, Comments, Likes, Follows, Messages, Events, Builds",
@@ -363,6 +363,62 @@
         "REQ-63"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-reelspage-tsx-increase-the-font-sizes-of-all-overlay-text-elements-on-each-full-screen-reel-card-the-caption-text-the-username-display-name-the-car-info-line-the-hashtags-tags-and-the-reel-category-badge-make-each-of-these-noticeably-larger-and-more-readable-for-example-increase-the-caption-from-its-current-small-size-to-at-least-text-base-or-text-lg-the-username-to-at-least-text-lg-or-text-xl-and-the-category-badge-text-to-match-apply-these-size-increases-consistently-across-every-reel-card-in-the-vertical-swipe-feed",
+      "title": "In frontend/src/pages/ReelsPage.tsx, increase the font sizes of all overlay text elements on each full-screen reel card: the caption text, the username/display name, the car info line, the hashtags/tags, and the reel category badge. Make each of these noticeably larger and more readable — for example, increase the caption from its current small size to at least text-base or text-lg, the username to at least text-lg or text-xl, and the category badge text to match. Apply these size increases consistently across every reel card in the vertical swipe feed.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-about-revgrid-page-at-frontend-src-pages-aboutpage-tsx-the-page-must-display-the-following-content-sections-styled-with-the-app-s-dark-asphalt-amber-automotive-theme-1-hero-section-large-revgrid-heading-with-the-tagline-the-ultimate-social-platform-built-by-car-enthusiasts-for-car-enthusiasts-and-a-brief-description-think-tiktok-but-every-post-is-pure-automotive-culture-from-slammed-builds-and-drift-clips-to-engine-swaps-burnouts-restorations-and-daily-drivers-revgrid-is-where-cars-take-center-stage-2-platform-description-paragraph-swipe-left-or-right-through-endless-car-content-discover-unique-builds-and-connect-with-owners-from-all-over-the-world-every-profile-is-more-than-just-a-username-showcase-your-car-with-photos-videos-specs-build-lists-future-plans-and-mods-in-progress-whether-you-re-into-jdm-muscle-euro-off-road-or-street-builds-revgrid-is-your-digital-garage-3-features-section-with-a-features-heading-and-the-following-items-as-styled-cards-or-a-list-short-form-videos-and-photos-focused-entirely-on-cars-swipe-based-discovery-to-find-new-builds-instantly-detailed-car-profiles-with-specs-mods-and-build-history-follow-creators-builders-and-local-enthusiasts-a-community-driven-by-passion-not-algorithms-chasing-trends-4-closing-statement-revgrid-isn-t-just-an-app-it-s-a-movement-for-people-who-live-and-breathe-cars-5-support-section-with-a-support-revgrid-heading-revgrid-is-independently-built-and-community-powered-if-you-d-like-to-support-development-server-costs-and-future-features-donations-are-always-appreciated-display-the-cash-app-handle-as-a-styled-copyable-element-cash-app-alteredsol-6-contact-section-with-a-contact-heading-display-instagram-handle-as-a-styled-link-or-badge-instagram-boddysum-links-to-https-www-instagram-com-boddysum-in-a-new-tab-all-sections-must-use-the-existing-dark-asphalt-amber-design-system-dark-backgrounds-amber-orange-accent-colors-high-contrast-white-text-rajdhani-inter-fonts-consistent-with-the-rest-of-the-app",
+      "title": "Create an About RevGrid page at `frontend/src/pages/AboutPage.tsx`. The page must display the following content sections, styled with the app's dark asphalt/amber automotive theme:\n\n1. **Hero section**: Large 'RevGrid' heading with the tagline 'The ultimate social platform built by car enthusiasts, for car enthusiasts.' and a brief description: 'Think TikTok—but every post is pure automotive culture. From slammed builds and drift clips to engine swaps, burnouts, restorations, and daily drivers, RevGrid is where cars take center stage.'\n\n2. **Platform description paragraph**: 'Swipe left or right through endless car content, discover unique builds, and connect with owners from all over the world. Every profile is more than just a username—showcase your car with photos, videos, specs, build lists, future plans, and mods in progress. Whether you're into JDM, muscle, Euro, off-road, or street builds, RevGrid is your digital garage.'\n\n3. **Features section** with a '🔥 Features' heading and the following items as styled cards or a list:\n   - Short-form videos and photos focused entirely on cars\n   - Swipe-based discovery to find new builds instantly\n   - Detailed car profiles with specs, mods, and build history\n   - Follow creators, builders, and local enthusiasts\n   - A community driven by passion, not algorithms chasing trends\n\n4. **Closing statement**: 'RevGrid isn't just an app—it's a movement for people who live and breathe cars.'\n\n5. **Support section** with a '🚗 Support RevGrid' heading: 'RevGrid is independently built and community-powered. If you'd like to support development, server costs, and future features, donations are always appreciated.' Display the Cash App handle as a styled, copyable element: **Cash App: $alteredsol**\n\n6. **Contact section** with a '📩 Contact' heading: Display Instagram handle as a styled link or badge: **Instagram: @boddysum** (links to https://www.instagram.com/boddysum in a new tab)\n\nAll sections must use the existing dark asphalt/amber design system (dark backgrounds, amber/orange accent colors, high-contrast white text, Rajdhani/Inter fonts, consistent with the rest of the app).",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-about-revgrid-page-in-frontend-src-app-tsx-as-a-new-authenticated-route-at-about-pointing-to-aboutpage-tsx-add-an-about-entry-point-accessible-from-the-app-either-as-a-menu-item-in-the-topbar-frontend-src-components-topbar-tsx-via-a-dropdown-or-info-icon-or-as-a-link-in-the-profile-page-frontend-src-pages-profilepage-tsx-when-viewing-the-current-user-s-own-profile-the-entry-point-must-be-clearly-labelled-about-revgrid-and-navigate-to-about",
+      "title": "Register the About RevGrid page in `frontend/src/App.tsx` as a new authenticated route at `/about` pointing to `AboutPage.tsx`. Add an 'About' entry point accessible from the app — either as a menu item in the TopBar (`frontend/src/components/TopBar.tsx`) via a dropdown or info icon, or as a link in the Profile page (`frontend/src/pages/ProfilePage.tsx`) when viewing the current user's own profile. The entry point must be clearly labelled 'About RevGrid' and navigate to `/about`.",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-maximum-allowed-file-size-on-createfeedpostpage-frontend-src-pages-createfeedpostpage-tsx-from-the-current-1-5-mb-cap-to-at-least-10-mb-update-the-file-size-validation-guard-and-the-user-facing-error-message-to-reflect-the-new-limit-e-g-file-too-large-please-select-a-file-under-10-mb-the-base64-encoding-and-submission-flow-must-continue-to-work-correctly-for-larger-files",
+      "title": "Increase the maximum allowed file size on CreateFeedPostPage (frontend/src/pages/CreateFeedPostPage.tsx) from the current ~1.5 MB cap to at least 10 MB. Update the file size validation guard and the user-facing error message to reflect the new limit (e.g., 'File too large — please select a file under 10 MB'). The base64 encoding and submission flow must continue to work correctly for larger files.",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-maximum-allowed-file-size-on-createmechanicquestionpage-frontend-src-pages-createmechanicquestionpage-tsx-to-at-least-10-mb-add-or-update-the-file-size-validation-guard-on-any-image-file-input-present-reject-files-exceeding-the-limit-with-a-clear-user-facing-error-message-e-g-file-too-large-please-select-a-file-under-10-mb-and-ensure-the-base64-encoding-and-submission-flow-works-correctly-for-larger-files",
+      "title": "Increase the maximum allowed file size on CreateMechanicQuestionPage (frontend/src/pages/CreateMechanicQuestionPage.tsx) to at least 10 MB. Add or update the file size validation guard on any image file input present, reject files exceeding the limit with a clear user-facing error message (e.g., 'File too large — please select a file under 10 MB'), and ensure the base64 encoding and submission flow works correctly for larger files.",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-maximum-allowed-file-size-on-createbuildpage-frontend-src-pages-createbuildpage-tsx-to-at-least-10-mb-per-image-add-or-update-the-file-size-validation-guard-on-all-image-file-inputs-reject-files-exceeding-the-limit-with-a-clear-user-facing-error-message-e-g-file-too-large-please-select-a-file-under-10-mb-and-ensure-the-base64-encoding-and-submission-flow-works-correctly-for-larger-files",
+      "title": "Increase the maximum allowed file size on CreateBuildPage (frontend/src/pages/CreateBuildPage.tsx) to at least 10 MB per image. Add or update the file size validation guard on all image file inputs, reject files exceeding the limit with a clear user-facing error message (e.g., 'File too large — please select a file under 10 MB'), and ensure the base64 encoding and submission flow works correctly for larger files.",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-maximum-allowed-file-size-on-createlistingpage-frontend-src-pages-createlistingpage-tsx-from-the-current-1-5-mb-cap-to-at-least-10-mb-update-the-file-size-validation-guard-and-the-user-facing-error-message-to-reflect-the-new-limit-the-base64-encoding-and-submission-flow-must-continue-to-work-correctly-for-larger-files",
+      "title": "Increase the maximum allowed file size on CreateListingPage (frontend/src/pages/CreateListingPage.tsx) from the current ~1.5 MB cap to at least 10 MB. Update the file size validation guard and the user-facing error message to reflect the new limit. The base64 encoding and submission flow must continue to work correctly for larger files.",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -657,6 +713,32 @@
       "summary": "Update the backend createPost function in backend/main.mo to accept larger mediaData payloads. Ensure the Text field used to store base64-encoded media data on post records does not impose an artificially low size cap, and that the function does not trap or return an error for media payloads up to the ICP ingress message limit (~2 MB per call). If chunked or asset canister storage is not feasible, document the effective limit in a comment but ensure the frontend and backend limits are consistent so users are not shown conflicting errors.",
       "reqIds": [
         "REQ-64"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-62",
+      "summary": "Increase the caption text size and related text sizes (username, tags, etc.) on the Reels page so they are larger and more readable",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-63",
+      "summary": "Create an About RevGrid page displaying the platform description, feature highlights, support/donation info (Cash App: $alteredsol), and contact info (Instagram: @boddysum), styled with the app's dark automotive theme.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-64",
+      "summary": "Increase the maximum allowed file/media upload size across all post creation flows — feed posts, reels, build showcases, and mechanic questions — to accept larger images and videos beyond the current cap",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-69",
+      "summary": "Update the backend createPost function in backend/main.mo to ensure it does not trap or return an error for mediaData (base64-encoded text) payloads up to the ICP ingress message limit (~2 MB per call). Remove any artificial size cap or assertion on the mediaData or imageUrl Text fields. Add a comment documenting the effective payload limit. This ensures the backend is consistent with the increased frontend file size limits.",
+      "reqIds": [
+        "REQ-72"
       ],
       "status": "pending"
     }

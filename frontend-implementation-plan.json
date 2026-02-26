@@ -1,23 +1,70 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Increase file size limit for reel/video uploads",
+  "title": "Increase file upload size limits across all post creation flows",
   "requirements": [
     {
-      "id": "REQ-63",
-      "summary": "Increase the maximum allowed file size for reel/video uploads from ~1.5–2 MB to at least 10 MB on CreateReelPage, update validation logic and error messages, and ensure video preview and base64 encoding continue to work correctly for larger files.",
+      "id": "REQ-68",
+      "summary": "Increase CreateFeedPostPage file upload limit from ~1.5 MB to 10 MB with updated validation and error messaging",
       "acceptanceCriteria": [
-        "The file input on CreateReelPage accepts video and image files up to at least 10 MB without showing a size error.",
-        "Files larger than 10 MB are rejected with a clear error message stating the new size limit.",
-        "Files under 10 MB are correctly previewed (video element for video files, img element for images) and encoded as base64 before submission.",
-        "The submission flow continues to work end-to-end for files within the new limit — the post is created and the user is navigated away on success.",
-        "The old ~2 MB hard-coded size check is removed or replaced with the new 10 MB threshold."
+        "CreateFeedPostPage accepts image files up to 10 MB without rejecting them",
+        "Files larger than 10 MB are rejected with a clear user-facing error message stating the limit",
+        "The error message reflects the new 10 MB limit",
+        "Base64 encoding and post submission work correctly for files up to 10 MB"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CreateReelPage.tsx",
+          "path": "frontend/src/pages/CreateFeedPostPage.tsx",
           "operation": "modify",
-          "description": "Update the file size validation guard in the handleFileSelect function from the current 1.5 MB limit (1.5 * 1024 * 1024 bytes) to 10 MB (10 * 1024 * 1024 bytes). Replace the error message to read 'File too large — please select a file under 10 MB' or similar. Ensure the file preview logic (video element for video files, img element for images), base64 encoding via FileReader, and the submission flow through useCreatePost all continue to function correctly for files up to the new 10 MB threshold. Verify that the reel category selector, caption, and tags fields remain unaffected."
+          "description": "Update the file size validation guard from the current ~1.5 MB limit to 10 MB (10 * 1024 * 1024 bytes). Update the user-facing error message to state 'File too large — please select a file under 10 MB'. Ensure the base64 encoding logic and submission flow via useCreatePost continue to work correctly for files up to the new limit. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
+        }
+      ]
+    },
+    {
+      "id": "REQ-69",
+      "summary": "Increase CreateMechanicQuestionPage file upload limit to 10 MB with validation and error messaging",
+      "acceptanceCriteria": [
+        "CreateMechanicQuestionPage accepts image files up to 10 MB",
+        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
+        "Base64 encoding and submission work correctly for files up to 10 MB"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+          "operation": "modify",
+          "description": "Add or update file size validation on any image file input to enforce a 10 MB limit (10 * 1024 * 1024 bytes). Reject files exceeding the limit with a user-facing error message stating 'File too large — please select a file under 10 MB'. Ensure base64 encoding and submission via useCreatePost work correctly for files up to 10 MB. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
+        }
+      ]
+    },
+    {
+      "id": "REQ-70",
+      "summary": "Increase CreateBuildPage file upload limit to 10 MB per image with validation and error messaging",
+      "acceptanceCriteria": [
+        "CreateBuildPage accepts image files up to 10 MB per image input",
+        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
+        "Base64 encoding and submission work correctly for files up to 10 MB"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CreateBuildPage.tsx",
+          "operation": "modify",
+          "description": "Add or update file size validation on all image file inputs to enforce a 10 MB limit (10 * 1024 * 1024 bytes) per image. Reject files exceeding the limit with a user-facing error message stating 'File too large — please select a file under 10 MB'. Ensure base64 encoding and submission via useCreateBuild work correctly for files up to 10 MB. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
+        }
+      ]
+    },
+    {
+      "id": "REQ-71",
+      "summary": "Increase CreateListingPage file upload limit from ~1.5 MB to 10 MB with updated validation and error messaging",
+      "acceptanceCriteria": [
+        "CreateListingPage accepts image files up to 10 MB",
+        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
+        "Base64 encoding and submission work correctly for files up to 10 MB"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CreateListingPage.tsx",
+          "operation": "modify",
+          "description": "Update the file size validation guard from the current ~1.5 MB limit to 10 MB (10 * 1024 * 1024 bytes). Update the user-facing error message to state 'File too large — please select a file under 10 MB'. Ensure the base64 encoding logic and submission flow via useCreateListing continue to work correctly for files up to the new limit. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
         }
       ]
     }

@@ -1,13 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Increase the maximum file size allowed for reel/video uploads from ~2 MB to 10 MB on the CreateReelPage, and ensure the backend handles larger media payloads consistently.
+**Goal:** Increase the file upload size limit from ~1.5 MB to 10 MB across all post creation pages in RevGrid.
 
 **Planned changes:**
-- Update the file size validation on `CreateReelPage` to accept files up to 10 MB instead of the current ~1.5–2 MB cap.
-- Update the user-facing error message to reflect the new 10 MB limit (e.g., "File too large — please select a file under 10 MB").
-- Ensure video preview, base64 encoding, and submission flow continue to work correctly for files up to 10 MB.
-- Update the backend `createPost` function in `backend/main.mo` to handle larger `mediaData` payloads without trapping, returning a structured `#err` result for invalid or oversized input.
-- Align frontend and backend size limits so users see consistent error messages.
+- Update file size validation on `CreateFeedPostPage` to allow files up to 10 MB and show a clear error message for files exceeding the limit
+- Update file size validation on `CreateMechanicQuestionPage` to allow files up to 10 MB with the same error messaging
+- Update file size validation on `CreateBuildPage` to allow files up to 10 MB per image input with the same error messaging
+- Update file size validation on `CreateListingPage` to allow files up to 10 MB with the same error messaging
+- Remove any artificial size cap or assertion on `mediaData`/`imageUrl` fields in the backend `createPost` function, and add a comment documenting the ICP ingress message size limit
 
-**User-visible outcome:** Users can upload reel/video files up to 10 MB on the CreateReelPage without encountering false size errors, and the post creation flow completes successfully for files within the new limit.
+**User-visible outcome:** Users can upload image files up to 10 MB when creating feed posts, mechanic questions, builds, and marketplace listings. Files over 10 MB are rejected with a clear error message stating the limit.

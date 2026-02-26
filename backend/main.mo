@@ -11,9 +11,7 @@ import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   // Mixin core components
   include MixinStorage();
@@ -200,13 +198,14 @@ actor {
   // ─── Post operations ──────────────────────────────────────────────────────
 
   /// Create a post; authorId is derived from the caller's stored profile
-  /// Allows up to 2MB of mediaData (base64-encoded media as Text).
+  /// Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
   public shared ({ caller }) func createPost(
     caption : Text,
     tags : [Text],
     postType : PostType,
     reelCategory : ?Text,
     mediaData : ?Text,
+    imageUrl : Text,
   ) : async PostId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create posts");
@@ -218,7 +217,7 @@ actor {
     };
     let postId = authorId # Time.now().toText();
 
-    /// IMPORTANT: Payload size for mediaData must not exceed 2MB SYSTEM LIMIT!
+    /// IMPORTANT: Payload size for mediaData and imageUrl must not exceed 2MB SYSTEM LIMIT!
     /// This limit is imposed by the Internet Computer's consensus system.
     /// Larger payloads require chunked uploads or separate asset canisters.
 
@@ -232,6 +231,7 @@ actor {
       createdAt = Time.now();
       reelCategory;
       mediaData;
+      imageUrl;
     };
     posts.add(postId, newPost);
     postId;
@@ -767,4 +767,3 @@ actor {
     );
   };
 };
-

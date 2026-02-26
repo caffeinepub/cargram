@@ -168,10 +168,10 @@ export interface _SERVICE {
   >,
   /**
    * / Create a post; authorId is derived from the caller's stored profile
-   * / Allows up to 2MB of mediaData (base64-encoded media as Text).
+   * / Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
    */
   'createPost' : ActorMethod<
-    [string, Array<string>, PostType, [] | [string], [] | [string]],
+    [string, Array<string>, PostType, [] | [string], [] | [string], string],
     PostId
   >,
   /**
