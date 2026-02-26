@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 33,
+  "projectStateVersion": 35,
   "summary": "A full-featured car enthusiast social media app inspired by Instagram, built exclusively for car culture. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, and the ability for users to delete their own posts and reels.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
@@ -8,7 +8,8 @@
     "Media-heavy app requiring image and video upload/storage support",
     "App has a gated landing page — users must press login before accessing the main app",
     "Marketplace entity needed: listings (id, sellerId, title, description, price, imageUrls, category, status, createdAt)",
-    "Reels support category tags: Street, Stance, JDM, Drift, and other car culture subgenres — stored on the post/reel entity"
+    "Reels support category tags: Street, Stance, JDM, Drift, and other car culture subgenres — stored on the post/reel entity",
+    "Larger media uploads may require chunked upload strategy or asset canister (ICP) to bypass the ~2 MB ingress message limit"
   ],
   "known_issues": [
     "App header/topbar still displays 'CarGram' instead of the preferred 'RevReel' branding",
@@ -17,7 +18,7 @@
     "Post/reel creation flow gets stuck in a loading state and does not complete the upload — users cannot successfully submit new posts",
     "Discovery/Explore page is missing or not accessible — users cannot navigate to it from the bottom nav or any other entry point"
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
@@ -354,6 +355,14 @@
         "REQ-62"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-increase-the-maximum-allowed-file-size-for-reel-video-uploads-on-createreelpage-frontend-src-pages-createreelpage-tsx-from-the-current-1-5-2-mb-cap-to-at-least-10-mb-update-the-file-size-validation-guard-so-that-files-up-to-10-mb-are-accepted-and-update-the-user-facing-error-message-to-reflect-the-new-limit-e-g-file-too-large-please-select-a-file-under-10-mb-the-video-preview-base64-encoding-and-submission-flow-must-continue-to-work-correctly-for-larger-files",
+      "title": "Increase the maximum allowed file size for reel/video uploads on CreateReelPage (frontend/src/pages/CreateReelPage.tsx) from the current ~1.5–2 MB cap to at least 10 MB. Update the file size validation guard so that files up to 10 MB are accepted, and update the user-facing error message to reflect the new limit (e.g., 'File too large — please select a file under 10 MB'). The video preview, base64 encoding, and submission flow must continue to work correctly for larger files.",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -634,6 +643,20 @@
       "summary": "Ensure the backend `main.mo` actor exposes full marketplace listing CRUD: `createListing` (accepts title, description, price as Text, condition as 'new'|'used', category as Text, imageUrl as Text), `getAllListings` (returns all listings), `getListing` (returns a single listing by ID), `deleteListing` (owner-only, removes the listing record). Each listing record must include: id (Nat), authorId (Principal), title, description, price, condition, category, imageUrl, createdAt (Int nanoseconds), and a sold flag (Bool). If this data model already exists in main.mo, verify it is complete and fix any missing fields or functions.",
       "reqIds": [
         "REQ-58"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-59",
+      "summary": "Increase the file size limit for reel/video uploads to support larger files and longer reels beyond the current ~2 MB cap",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-61",
+      "summary": "Update the backend createPost function in backend/main.mo to accept larger mediaData payloads. Ensure the Text field used to store base64-encoded media data on post records does not impose an artificially low size cap, and that the function does not trap or return an error for media payloads up to the ICP ingress message limit (~2 MB per call). If chunked or asset canister storage is not feasible, document the effective limit in a comment but ensure the frontend and backend limits are consistent so users are not shown conflicting errors.",
+      "reqIds": [
+        "REQ-64"
       ],
       "status": "pending"
     }

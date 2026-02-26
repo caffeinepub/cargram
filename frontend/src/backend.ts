@@ -120,6 +120,7 @@ export interface PostRecord {
     createdAt: bigint;
     tags: Array<string>;
     reelCategory?: string;
+    mediaData?: string;
     caption: string;
     image?: ExternalBlob;
 }
@@ -232,8 +233,9 @@ export interface backendInterface {
     createListing(title: string, description: string, price: string, condition: Variant_new_used, category: string, imageUrl: string): Promise<MarketplaceListingId>;
     /**
      * / Create a post; authorId is derived from the caller's stored profile
+     * / Allows up to 2MB of mediaData (base64-encoded media as Text).
      */
-    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null): Promise<PostId>;
+    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null): Promise<PostId>;
     /**
      * / Create a user record (authenticated users only)
      */
@@ -275,6 +277,10 @@ export interface backendInterface {
      */
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    /**
+     * / Get total comment count for a post (public read)
+     */
+    getCommentCount(postId: PostId): Promise<bigint>;
     /**
      * / Get all comments for a post (public read)
      */
@@ -554,17 +560,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createPost(arg0: string, arg1: Array<string>, arg2: PostType, arg3: string | null): Promise<PostId> {
+    async createPost(arg0: string, arg1: Array<string>, arg2: PostType, arg3: string | null, arg4: string | null): Promise<PostId> {
         if (this.processError) {
             try {
-                const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3));
+                const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3));
+            const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4));
             return result;
         }
     }
@@ -720,6 +726,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCallerUserRole();
             return from_candid_UserRole_n37(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCommentCount(arg0: PostId): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCommentCount(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCommentCount(arg0);
+            return result;
         }
     }
     async getComments(arg0: PostId): Promise<Array<Comment>> {
@@ -1223,6 +1243,7 @@ async function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promi
     createdAt: bigint;
     tags: Array<string>;
     reelCategory: [] | [string];
+    mediaData: [] | [string];
     caption: string;
     image: [] | [_ExternalBlob];
 }): Promise<{
@@ -1232,6 +1253,7 @@ async function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promi
     createdAt: bigint;
     tags: Array<string>;
     reelCategory?: string;
+    mediaData?: string;
     caption: string;
     image?: ExternalBlob;
 }> {
@@ -1242,6 +1264,7 @@ async function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promi
         createdAt: value.createdAt,
         tags: value.tags,
         reelCategory: record_opt_to_undefined(from_candid_opt_n32(_uploadFile, _downloadFile, value.reelCategory)),
+        mediaData: record_opt_to_undefined(from_candid_opt_n32(_uploadFile, _downloadFile, value.mediaData)),
         caption: value.caption,
         image: record_opt_to_undefined(await from_candid_opt_n22(_uploadFile, _downloadFile, value.image))
     };

@@ -1,15 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a fully functional Marketplace feature to RevReel, allowing users to browse and create vehicle parts/accessories listings with images.
+**Goal:** Increase the maximum file size allowed for reel/video uploads from ~2 MB to 10 MB on the CreateReelPage, and ensure the backend handles larger media payloads consistently.
 
 **Planned changes:**
-- Add `MarketplaceListing` type and CRUD functions (`createListing`, `getAllListings`, `getListing`, `deleteListing`) to the backend `main.mo` actor
-- Create `MarketplacePage.tsx` displaying a grid of listing cards with seller info, item details, condition badge, category, and image; includes category filter chips and empty state
-- Create `CreateListingPage.tsx` with a form for title, description, price, condition, category, and image upload (base64, max 1.5 MB with preview)
-- Add `useGetAllListings` and `useCreateListing` React Query hooks to `useQueries.ts`
-- Register `/marketplace` and `/marketplace/create` routes in `App.tsx`
-- Add a "Marketplace" / "List for Sale" option to `CreatePostSheet.tsx` navigating to `/marketplace/create`
-- Add a Marketplace entry point on `DiscoverPage.tsx` linking to `/marketplace`
+- Update the file size validation on `CreateReelPage` to accept files up to 10 MB instead of the current ~1.5–2 MB cap.
+- Update the user-facing error message to reflect the new 10 MB limit (e.g., "File too large — please select a file under 10 MB").
+- Ensure video preview, base64 encoding, and submission flow continue to work correctly for files up to 10 MB.
+- Update the backend `createPost` function in `backend/main.mo` to handle larger `mediaData` payloads without trapping, returning a structured `#err` result for invalid or oversized input.
+- Align frontend and backend size limits so users see consistent error messages.
 
-**User-visible outcome:** Users can browse all marketplace listings on a dedicated Marketplace page, filter by category, and create new listings with photos via a form accessible from both the Create Post sheet and the Discover page.
+**User-visible outcome:** Users can upload reel/video files up to 10 MB on the CreateReelPage without encountering false size errors, and the post creation flow completes successfully for files within the new limit.

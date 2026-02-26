@@ -42,6 +42,7 @@ export interface PostRecord {
     createdAt: bigint;
     tags: Array<string>;
     reelCategory?: string;
+    mediaData?: string;
     caption: string;
     image?: ExternalBlob;
 }
@@ -139,8 +140,9 @@ export interface backendInterface {
     createListing(title: string, description: string, price: string, condition: Variant_new_used, category: string, imageUrl: string): Promise<MarketplaceListingId>;
     /**
      * / Create a post; authorId is derived from the caller's stored profile
+     * / Allows up to 2MB of mediaData (base64-encoded media as Text).
      */
-    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null): Promise<PostId>;
+    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null): Promise<PostId>;
     /**
      * / Create a user record (authenticated users only)
      */
@@ -182,6 +184,10 @@ export interface backendInterface {
      */
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    /**
+     * / Get total comment count for a post (public read)
+     */
+    getCommentCount(postId: PostId): Promise<bigint>;
     /**
      * / Get all comments for a post (public read)
      */

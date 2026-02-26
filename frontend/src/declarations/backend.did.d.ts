@@ -70,6 +70,7 @@ export interface PostRecord {
   'createdAt' : bigint,
   'tags' : Array<string>,
   'reelCategory' : [] | [string],
+  'mediaData' : [] | [string],
   'caption' : string,
   'image' : [] | [ExternalBlob],
 }
@@ -167,9 +168,10 @@ export interface _SERVICE {
   >,
   /**
    * / Create a post; authorId is derived from the caller's stored profile
+   * / Allows up to 2MB of mediaData (base64-encoded media as Text).
    */
   'createPost' : ActorMethod<
-    [string, Array<string>, PostType, [] | [string]],
+    [string, Array<string>, PostType, [] | [string], [] | [string]],
     PostId
   >,
   /**
@@ -213,6 +215,10 @@ export interface _SERVICE {
    */
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  /**
+   * / Get total comment count for a post (public read)
+   */
+  'getCommentCount' : ActorMethod<[PostId], bigint>,
   /**
    * / Get all comments for a post (public read)
    */

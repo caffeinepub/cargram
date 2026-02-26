@@ -75,6 +75,7 @@ export const PostRecord = IDL.Record({
   'createdAt' : IDL.Int,
   'tags' : IDL.Vec(IDL.Text),
   'reelCategory' : IDL.Opt(IDL.Text),
+  'mediaData' : IDL.Opt(IDL.Text),
   'caption' : IDL.Text,
   'image' : IDL.Opt(ExternalBlob),
 });
@@ -168,7 +169,13 @@ export const idlService = IDL.Service({
       [],
     ),
   'createPost' : IDL.Func(
-      [IDL.Text, IDL.Vec(IDL.Text), PostType, IDL.Opt(IDL.Text)],
+      [
+        IDL.Text,
+        IDL.Vec(IDL.Text),
+        PostType,
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+      ],
       [PostId],
       [],
     ),
@@ -187,6 +194,7 @@ export const idlService = IDL.Service({
   'getBuild' : IDL.Func([BuildId], [IDL.Opt(BuildShowcase)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getCommentCount' : IDL.Func([PostId], [IDL.Nat], ['query']),
   'getComments' : IDL.Func([PostId], [IDL.Vec(Comment)], ['query']),
   'getEvent' : IDL.Func([EventId], [IDL.Opt(Event)], ['query']),
   'getFeed' : IDL.Func([PostType], [IDL.Vec(PostRecord)], ['query']),
@@ -307,6 +315,7 @@ export const idlFactory = ({ IDL }) => {
     'createdAt' : IDL.Int,
     'tags' : IDL.Vec(IDL.Text),
     'reelCategory' : IDL.Opt(IDL.Text),
+    'mediaData' : IDL.Opt(IDL.Text),
     'caption' : IDL.Text,
     'image' : IDL.Opt(ExternalBlob),
   });
@@ -400,7 +409,13 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'createPost' : IDL.Func(
-        [IDL.Text, IDL.Vec(IDL.Text), PostType, IDL.Opt(IDL.Text)],
+        [
+          IDL.Text,
+          IDL.Vec(IDL.Text),
+          PostType,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+        ],
         [PostId],
         [],
       ),
@@ -419,6 +434,7 @@ export const idlFactory = ({ IDL }) => {
     'getBuild' : IDL.Func([BuildId], [IDL.Opt(BuildShowcase)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getCommentCount' : IDL.Func([PostId], [IDL.Nat], ['query']),
     'getComments' : IDL.Func([PostId], [IDL.Vec(Comment)], ['query']),
     'getEvent' : IDL.Func([EventId], [IDL.Opt(Event)], ['query']),
     'getFeed' : IDL.Func([PostType], [IDL.Vec(PostRecord)], ['query']),

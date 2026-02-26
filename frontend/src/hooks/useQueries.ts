@@ -84,14 +84,16 @@ export function useCreatePost() {
       tags,
       postType,
       reelCategory,
+      mediaData,
     }: {
       caption: string;
       tags: string[];
       postType: PostType;
       reelCategory?: string | null;
+      mediaData?: string | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createPost(caption, tags, postType, reelCategory ?? null);
+      return actor.createPost(caption, tags, postType, reelCategory ?? null, mediaData ?? null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });

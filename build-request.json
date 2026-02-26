@@ -1,119 +1,56 @@
 {
   "kind": "build_request",
-  "title": "Add Marketplace page with listings and ad creation",
-  "projectName": "RevReel",
+  "title": "Increase file size limit for reel/video uploads",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-58",
-      "text": "Ensure the backend `main.mo` actor exposes full marketplace listing CRUD: `createListing` (accepts title, description, price as Text, condition as 'new'|'used', category as Text, imageUrl as Text), `getAllListings` (returns all listings), `getListing` (returns a single listing by ID), `deleteListing` (owner-only, removes the listing record). Each listing record must include: id (Nat), authorId (Principal), title, description, price, condition, category, imageUrl, createdAt (Int nanoseconds), and a sold flag (Bool). If this data model already exists in main.mo, verify it is complete and fix any missing fields or functions.",
+      "id": "REQ-63",
+      "text": "Increase the maximum allowed file size for reel/video uploads on CreateReelPage (frontend/src/pages/CreateReelPage.tsx) from the current ~1.5–2 MB cap to at least 10 MB. Update the file size validation guard so that files up to 10 MB are accepted, and update the user-facing error message to reflect the new limit (e.g., 'File too large — please select a file under 10 MB'). The video preview, base64 encoding, and submission flow must continue to work correctly for larger files.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Can you make it where bigger file can be uploaded longer reels"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The file input on CreateReelPage accepts video and image files up to at least 10 MB without showing a size error.",
+        "Files larger than 10 MB are rejected with a clear error message stating the new size limit.",
+        "Files under 10 MB are correctly previewed (video element for video files, img element for images) and encoded as base64 before submission.",
+        "The submission flow continues to work end-to-end for files within the new limit — the post is created and the user is navigated away on success.",
+        "The old ~2 MB hard-coded size check is removed or replaced with the new 10 MB threshold."
+      ]
+    },
+    {
+      "id": "REQ-64",
+      "text": "Update the backend createPost function in backend/main.mo to accept larger mediaData payloads. Ensure the Text field used to store base64-encoded media data on post records does not impose an artificially low size cap, and that the function does not trap or return an error for media payloads up to the ICP ingress message limit (~2 MB per call). If chunked or asset canister storage is not feasible, document the effective limit in a comment but ensure the frontend and backend limits are consistent so users are not shown conflicting errors.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-latest"
         ],
         "quotes": [
-          "Add a marketplace with a way to create adds with pics"
+          "Can you make it where bigger file can be uploaded longer reels"
         ]
       },
       "acceptanceCriteria": [
-        "The MarketplaceListing type in main.mo includes all required fields: id, authorId, title, description, price, condition, category, imageUrl, createdAt, sold.",
-        "createListing can be called by any authenticated user and persists the listing.",
-        "getAllListings returns all listings regardless of caller.",
-        "getListing returns a single listing by ID or an error if not found.",
-        "deleteListing verifies the caller is the listing's author before removing the record, returning an error otherwise."
-      ]
-    },
-    {
-      "id": "REQ-59",
-      "text": "Create a Marketplace page at `frontend/src/pages/MarketplacePage.tsx`. The page must: (1) display a grid/list of all marketplace listings fetched from the backend via a `useGetAllListings` React Query hook, (2) each listing card shows the seller avatar, username, item title, price, condition badge (New/Used), category, and listing image, (3) include a prominent 'List Item for Sale' button (amber/orange CTA styled with the automotive theme) that opens a create-listing form or navigates to a create-listing page, (4) include a search/filter bar to filter listings by category (Parts, Wheels, Audio, Exterior, Interior, Other), (5) empty state message when no listings exist.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Add a marketplace with a way to create adds with pics"
-        ]
-      },
-      "acceptanceCriteria": [
-        "MarketplacePage.tsx renders a grid of listing cards fetched from the backend.",
-        "Each listing card displays seller avatar, username, title, price, condition, category, and image.",
-        "A 'List Item for Sale' button is prominently visible and triggers the create-listing flow.",
-        "Category filter chips allow filtering the listing grid.",
-        "An empty state message is shown when no listings exist.",
-        "The page uses the dark asphalt/amber automotive theme consistently."
-      ]
-    },
-    {
-      "id": "REQ-60",
-      "text": "Create a Create Listing page at `frontend/src/pages/CreateListingPage.tsx` with a form containing: title (text input), description (textarea), price (text input), condition selector (New / Used), category selector (Parts / Wheels / Audio / Exterior / Interior / Other), and a native file input for an image (accepts image/*, max 1.5 MB, encodes as base64 data URL, shows a preview). On submit, call the backend `createListing` mutation via a `useCreateListing` React Query mutation hook. On success, invalidate the listings cache and navigate back to `/marketplace`. On error, show a user-facing error message. The submit button must exit loading state in all outcomes.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Add a marketplace with a way to create adds with pics"
-        ]
-      },
-      "acceptanceCriteria": [
-        "CreateListingPage renders a form with title, description, price, condition, category, and image file input fields.",
-        "Image file input accepts image/* files, enforces 1.5 MB max size with a user-facing error if exceeded, shows a preview.",
-        "Submitting the form calls the backend createListing with all fields.",
-        "On success, the listings cache is invalidated and the user is navigated to /marketplace.",
-        "On error, a clear error message is displayed.",
-        "The submit button is disabled while pending and always re-enables after the call resolves."
-      ]
-    },
-    {
-      "id": "REQ-61",
-      "text": "Register the Marketplace route in `frontend/src/App.tsx` at `/marketplace` pointing to `MarketplacePage.tsx`, and the Create Listing route at `/marketplace/create` pointing to `CreateListingPage.tsx`. Add a 'Marketplace' entry to the `CreatePostSheet` (`frontend/src/components/CreatePostSheet.tsx`) as a fifth option alongside the existing four content types, navigating to `/marketplace/create` when tapped. Add a 'Marketplace' shortcut or tab entry on the Discover page (`frontend/src/pages/DiscoverPage.tsx`) so users can navigate to `/marketplace` from the discovery experience.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Add a marketplace with a way to create adds with pics"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Navigating to /marketplace renders MarketplacePage.",
-        "Navigating to /marketplace/create renders CreateListingPage.",
-        "The CreatePostSheet shows a 'Marketplace' / 'List for Sale' option that navigates to /marketplace/create.",
-        "The Discover page has a visible entry point (tab, button, or chip) linking to /marketplace."
-      ]
-    },
-    {
-      "id": "REQ-62",
-      "text": "Add a `useGetAllListings` React Query query hook and a `useCreateListing` React Query mutation hook in `frontend/src/hooks/useQueries.ts`. `useGetAllListings` calls the backend `getAllListings` function and returns the listings array. `useCreateListing` calls the backend `createListing` function with the listing fields (including base64 imageUrl), on success invalidates the `getAllListings` cache key.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Add a marketplace with a way to create adds with pics"
-        ]
-      },
-      "acceptanceCriteria": [
-        "useGetAllListings fetches and returns all marketplace listings from the backend.",
-        "useCreateListing successfully calls backend createListing and invalidates the listings cache on success.",
-        "Both hooks are exported from useQueries.ts and usable in MarketplacePage and CreateListingPage."
+        "The backend createPost function does not trap on a valid reel post with a large mediaData payload within the ICP message size limit.",
+        "The function returns a structured #err result (not a trap) for any invalid or oversized input.",
+        "Backend and frontend size limits are consistent — if the ICP cap limits payload size, the frontend error threshold matches."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files listed in frontend.immutablePaths.",
-    "All Motoko logic must remain in the single backend/main.mo actor.",
-    "Image uploads must be handled as base64 data URLs on the frontend; do not route media through separate backend storage."
+    "Do not break the existing reel category selector, caption, or tags fields on CreateReelPage.",
+    "Do not modify files in frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "The file size increase must not break the existing post creation flow for smaller files."
   ],
   "nonGoals": [
-    "Real-time listing updates or WebSocket notifications.",
-    "Payment processing or checkout flow for marketplace purchases.",
-    "External third-party integrations for the marketplace.",
-    "Fixing unrelated existing bugs (post creation flow, branding, etc.) beyond what is required for the marketplace feature."
+    "Implementing chunked upload or asset canister streaming for files beyond the ICP ingress message limit.",
+    "Changing the file size limit on CreateFeedPostPage or CreateListingPage — only reel uploads are in scope.",
+    "Adding new reel categories or changing the reel creation UI beyond the file size guard."
   ],
   "imageRequirements": {
     "required": [],

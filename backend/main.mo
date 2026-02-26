@@ -11,7 +11,9 @@ import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   // Mixin core components
   include MixinStorage();
@@ -53,6 +55,7 @@ actor {
     postType : PostType;
     createdAt : Int;
     reelCategory : ?Text;
+    mediaData : ?Text;
   };
 
   type Comment = {
@@ -197,15 +200,28 @@ actor {
   // ─── Post operations ──────────────────────────────────────────────────────
 
   /// Create a post; authorId is derived from the caller's stored profile
-  public shared ({ caller }) func createPost(caption : Text, tags : [Text], postType : PostType, reelCategory : ?Text) : async PostId {
+  /// Allows up to 2MB of mediaData (base64-encoded media as Text).
+  public shared ({ caller }) func createPost(
+    caption : Text,
+    tags : [Text],
+    postType : PostType,
+    reelCategory : ?Text,
+    mediaData : ?Text,
+  ) : async PostId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create posts");
     };
+
     let authorId = switch (principalProfiles.get(caller)) {
       case (?p) { p.username };
       case (null) { Runtime.trap("Unauthorized: Caller has no user profile") };
     };
     let postId = authorId # Time.now().toText();
+
+    /// IMPORTANT: Payload size for mediaData must not exceed 2MB SYSTEM LIMIT!
+    /// This limit is imposed by the Internet Computer's consensus system.
+    /// Larger payloads require chunked uploads or separate asset canisters.
+
     let newPost : PostRecord = {
       id = postId;
       authorId;
@@ -215,6 +231,7 @@ actor {
       postType;
       createdAt = Time.now();
       reelCategory;
+      mediaData;
     };
     posts.add(postId, newPost);
     postId;
@@ -280,6 +297,17 @@ actor {
   /// Get all comments for a post (public read)
   public query func getComments(postId : PostId) : async [Comment] {
     comments.values().toArray().filter(func(c : Comment) : Bool { c.postId == postId });
+  };
+
+  /// Get total comment count for a post (public read)
+  public query func getCommentCount(postId : PostId) : async Nat {
+    var count = 0;
+    for (comment in comments.values()) {
+      if (comment.postId == postId) {
+        count += 1;
+      };
+    };
+    count;
   };
 
   // ─── Follow operations ────────────────────────────────────────────────────
@@ -739,3 +767,4 @@ actor {
     );
   };
 };
+

@@ -11,7 +11,7 @@ import { PostType } from '../backend';
 import { toast } from 'sonner';
 
 const REEL_CATEGORIES = ['Street', 'Stance', 'JDM', 'Drift', 'Build', 'Show', 'Track', 'Import'];
-const MAX_FILE_SIZE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to stay safely under ICP 2MB limit
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export default function CreateReelPage() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export default function CreateReelPage() {
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      const errorMsg = `File too large (${sizeMB} MB) — please select a file under 1.5 MB`;
+      const errorMsg = `File too large (${sizeMB} MB) — please select a file under 10 MB`;
       setFileError(errorMsg);
       toast.error(errorMsg);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -122,7 +122,7 @@ export default function CreateReelPage() {
         {/* Media Upload / Preview */}
         <div className="space-y-2">
           <Label className="text-foreground font-medium">Upload Video or Image</Label>
-          <p className="text-xs text-muted-foreground">Max file size: 1.5 MB</p>
+          <p className="text-xs text-muted-foreground">Max file size: 10 MB</p>
 
           {!mediaData ? (
             <button
@@ -139,7 +139,7 @@ export default function CreateReelPage() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Film className="w-4 h-4" />
-                <span className="text-xs">Video or Image</span>
+                <span className="text-xs">Video or Image · Up to 10 MB</span>
               </div>
             </button>
           ) : (

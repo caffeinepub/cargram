@@ -1,86 +1,23 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Marketplace page with listings and ad creation",
+  "title": "Increase file size limit for reel/video uploads",
   "requirements": [
     {
-      "id": "REQ-59",
-      "summary": "Create a Marketplace page displaying all listings with filters and a create button",
+      "id": "REQ-63",
+      "summary": "Increase the maximum allowed file size for reel/video uploads from ~1.5–2 MB to at least 10 MB on CreateReelPage, update validation logic and error messages, and ensure video preview and base64 encoding continue to work correctly for larger files.",
       "acceptanceCriteria": [
-        "MarketplacePage.tsx renders a grid of listing cards fetched from the backend.",
-        "Each listing card displays seller avatar, username, title, price, condition, category, and image.",
-        "A 'List Item for Sale' button is prominently visible and triggers the create-listing flow.",
-        "Category filter chips allow filtering the listing grid.",
-        "An empty state message is shown when no listings exist.",
-        "The page uses the dark asphalt/amber automotive theme consistently."
+        "The file input on CreateReelPage accepts video and image files up to at least 10 MB without showing a size error.",
+        "Files larger than 10 MB are rejected with a clear error message stating the new size limit.",
+        "Files under 10 MB are correctly previewed (video element for video files, img element for images) and encoded as base64 before submission.",
+        "The submission flow continues to work end-to-end for files within the new limit — the post is created and the user is navigated away on success.",
+        "The old ~2 MB hard-coded size check is removed or replaced with the new 10 MB threshold."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/MarketplacePage.tsx",
-          "operation": "create",
-          "description": "Create the Marketplace page component that fetches all marketplace listings using the useGetAllListings hook. Display listings in a responsive grid with each card showing seller avatar (fetched via getUser), username, item title, price, condition badge (New/Used styled with amber for 'New'), category, and listing image. Include a prominent amber/orange 'List Item for Sale' CTA button at the top that navigates to /marketplace/create. Add a horizontal scrollable category filter bar with chips for Parts, Wheels, Audio, Exterior, Interior, Other, and All (default). Implement client-side filtering based on selected category. Show an empty state with the generated marketplace hero image (frontend/public/assets/generated/marketplace-hero.dim_1200x400.jpg) and a message encouraging users to list their first item when no listings exist. Use the automotive theme with dark asphalt background, amber accents, and glass card effects matching the existing design system."
-        }
-      ]
-    },
-    {
-      "id": "REQ-60",
-      "summary": "Create a Create Listing page with a form for adding marketplace listings with images",
-      "acceptanceCriteria": [
-        "CreateListingPage renders a form with title, description, price, condition, category, and image file input fields.",
-        "Image file input accepts image/* files, enforces 1.5 MB max size with a user-facing error if exceeded, shows a preview.",
-        "Submitting the form calls the backend createListing with all fields.",
-        "On success, the listings cache is invalidated and the user is navigated to /marketplace.",
-        "On error, a clear error message is displayed.",
-        "The submit button is disabled while pending and always re-enables after the call resolves."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/CreateListingPage.tsx",
-          "operation": "create",
-          "description": "Create the Create Listing page component with a form containing: title (text input with label 'Item Title'), description (textarea with label 'Description'), price (text input with label 'Price' and placeholder '$'), condition selector (radio buttons or select for 'New' and 'Used'), category selector (dropdown with options: Parts, Wheels, Audio, Exterior, Interior, Other), and a native file input for image upload (accepts image/*, max 1.5 MB). Validate file size on change and show an error toast if exceeded. Convert the selected image to a base64 data URL and display a preview below the file input. On form submit, call the useCreateListing mutation hook with all form fields (including base64 imageUrl). Disable the submit button while pending. On success, invalidate the getAllListings cache and navigate to /marketplace using the router. On error, display a user-facing error message via toast or inline alert. Ensure the submit button always re-enables after the mutation resolves (success or error). Style the form with the automotive theme using dark inputs, amber accent buttons, and glass card containers."
-        }
-      ]
-    },
-    {
-      "id": "REQ-61",
-      "summary": "Wire marketplace routes, add marketplace entry to CreatePostSheet, and add marketplace shortcut to DiscoverPage",
-      "acceptanceCriteria": [
-        "Navigating to /marketplace renders MarketplacePage.",
-        "Navigating to /marketplace/create renders CreateListingPage.",
-        "The CreatePostSheet shows a 'Marketplace' / 'List for Sale' option that navigates to /marketplace/create.",
-        "The Discover page has a visible entry point (tab, button, or chip) linking to /marketplace."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/CreateReelPage.tsx",
           "operation": "modify",
-          "description": "Register two new routes in the TanStack Router configuration: (1) /marketplace pointing to MarketplacePage component, and (2) /marketplace/create pointing to CreateListingPage component. Import both page components at the top of the file. Add these routes within the existing router structure alongside the other application routes."
-        },
-        {
-          "path": "frontend/src/components/CreatePostSheet.tsx",
-          "operation": "modify",
-          "description": "Add a fifth content creation option to the CreatePostSheet labeled 'List for Sale' or 'Marketplace Item' with an appropriate icon (e.g., ShoppingBag, Tag, or Store from lucide-react). This option should navigate to /marketplace/create when tapped. Position it after the existing four options (Feed Post, Reel, Build Showcase, Mechanic Question) in the sheet's option list. Style it consistently with the other options using the amber accent color."
-        },
-        {
-          "path": "frontend/src/pages/DiscoverPage.tsx",
-          "operation": "modify",
-          "description": "Add a 'Marketplace' entry point to the DiscoverPage. Insert a new tab or filter chip in the existing tab navigation (alongside Posts, Builds, Reels, Mechanics, Events) that links to /marketplace when clicked. Alternatively, add a prominent shortcut button or card near the top of the page with an icon and label 'Browse Marketplace' that navigates to /marketplace. Use the automotive theme styling with amber accents to make the entry point visually distinct and inviting."
-        }
-      ]
-    },
-    {
-      "id": "REQ-62",
-      "summary": "Add React Query hooks for fetching all marketplace listings and creating new listings",
-      "acceptanceCriteria": [
-        "useGetAllListings fetches and returns all marketplace listings from the backend.",
-        "useCreateListing successfully calls backend createListing and invalidates the listings cache on success.",
-        "Both hooks are exported from useQueries.ts and usable in MarketplacePage and CreateListingPage."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add two new React Query hooks: (1) useGetAllListings - a query hook that calls actor.getAllListings() with queryKey ['marketplaceListings'], enabled when actor is available, returning the array of MarketplaceListing objects. (2) useCreateListing - a mutation hook that accepts listing parameters (title, description, price, condition, category, imageUrl as base64 string) and calls actor.createListing(...params). On success, invalidate the ['marketplaceListings'] query key to refresh the listings cache. Export both hooks from the file. Follow the existing pattern of other query and mutation hooks in this file for consistency (using useActor, useQuery, useMutation from their respective imports)."
+          "description": "Update the file size validation guard in the handleFileSelect function from the current 1.5 MB limit (1.5 * 1024 * 1024 bytes) to 10 MB (10 * 1024 * 1024 bytes). Replace the error message to read 'File too large — please select a file under 10 MB' or similar. Ensure the file preview logic (video element for video files, img element for images), base64 encoding via FileReader, and the submission flow through useCreatePost all continue to function correctly for files up to the new 10 MB threshold. Verify that the reel category selector, caption, and tags fields remain unaffected."
         }
       ]
     }
