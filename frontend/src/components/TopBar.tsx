@@ -1,5 +1,5 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { MessageCircle, Bell, Info } from 'lucide-react';
+import { MessageCircle, Bell, Info, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -12,6 +12,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/mechanics': 'MECHANICS',
   '/builds': 'BUILDS',
   '/about': 'ABOUT',
+  '/tuner-shop': 'ALTERED IMPORTS',
 };
 
 export default function TopBar() {
@@ -28,11 +29,13 @@ export default function TopBar() {
     if (pathname.startsWith('/events')) return 'EVENTS';
     if (pathname.startsWith('/create')) return 'CREATE';
     if (pathname.startsWith('/marketplace')) return 'MARKETPLACE';
+    if (pathname.startsWith('/tuner-shop')) return 'ALTERED IMPORTS';
     return 'REVGRID';
   };
 
   const isHome = pathname === '/';
   const isAbout = pathname === '/about';
+  const isTunerShop = pathname === '/tuner-shop';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-background/95 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
@@ -57,6 +60,15 @@ export default function TopBar() {
           className="text-foreground hover:text-primary"
         >
           <Bell className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate({ to: '/tuner-shop' })}
+          className={isTunerShop ? 'text-primary' : 'text-foreground hover:text-primary'}
+          title="Altered Imports Tuner Shop"
+        >
+          <Wrench className="w-5 h-5" />
         </Button>
         <Button
           variant="ghost"

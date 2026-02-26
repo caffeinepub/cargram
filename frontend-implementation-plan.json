@@ -1,70 +1,49 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Increase file upload size limits across all post creation flows",
+  "title": "Add Altered Imports Tuner Shop Page",
   "requirements": [
     {
-      "id": "REQ-68",
-      "summary": "Increase CreateFeedPostPage file upload limit from ~1.5 MB to 10 MB with updated validation and error messaging",
+      "id": "REQ-73",
+      "summary": "Create a static Tuner Shop page displaying all content for 'Altered Imports' with hero, about, services, tagline, location, and contact sections styled with the app's dark asphalt/amber automotive theme",
       "acceptanceCriteria": [
-        "CreateFeedPostPage accepts image files up to 10 MB without rejecting them",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the limit",
-        "The error message reflects the new 10 MB limit",
-        "Base64 encoding and post submission work correctly for files up to 10 MB"
+        "Page exists at frontend/src/pages/TunerShopPage.tsx and renders without errors.",
+        "Hero section displays 'Altered Imports' as a prominent heading.",
+        "About/mission paragraph is fully displayed.",
+        "Services section lists all 7 specializations as styled cards or list items.",
+        "Closing paragraph and 'Build different. Build altered.' tagline are displayed.",
+        "Location 'Wenatchee' is displayed under a location heading.",
+        "Instagram @mr.altered links to https://www.instagram.com/mr.altered in a new tab.",
+        "Phone 509-679-1389 is displayed as a tappable tel: link.",
+        "Page is styled consistently with the app's dark asphalt/amber automotive theme (dark backgrounds, amber accents, white text, Rajdhani/Inter fonts)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CreateFeedPostPage.tsx",
-          "operation": "modify",
-          "description": "Update the file size validation guard from the current ~1.5 MB limit to 10 MB (10 * 1024 * 1024 bytes). Update the user-facing error message to state 'File too large — please select a file under 10 MB'. Ensure the base64 encoding logic and submission flow via useCreatePost continue to work correctly for files up to the new limit. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
+          "path": "frontend/src/pages/TunerShopPage.tsx",
+          "operation": "create",
+          "description": "Create a new page component that displays all Altered Imports tuner shop content. Include: (1) Hero section with the generated banner image 'frontend/public/assets/generated/tuner-shop-hero.dim_1920x600.jpg', shop name 'Altered Imports', and subheading. (2) About/mission section with the full description text. (3) Services section with 'What We Specialize In' heading and 7 service items (Honda & Acura Performance, Custom Engine Swaps, Full & Partial Engine Rebuilds, Custom Modifications & Vehicle Customization, ECU Chipping & Engine Management, Dyno Tuning & Street Tuning, Transmission Rebuilds & Drivetrain Services). (4) Closing paragraph. (5) Tagline 'Build different. Build altered.' styled prominently with amber/orange accent. (6) Location section with '📍 Location' heading displaying 'Wenatchee'. (7) Contact section with '📩 Contact' heading, Instagram link (@mr.altered to https://www.instagram.com/mr.altered with target='_blank' rel='noopener noreferrer'), and phone link (509-679-1389 as tel:509-679-1389). Use the existing dark asphalt/amber theme from frontend/src/index.css (dark backgrounds, amber accents, white text, Rajdhani/Inter fonts). Reference the generated hero image using its exact workspace path."
         }
       ]
     },
     {
-      "id": "REQ-69",
-      "summary": "Increase CreateMechanicQuestionPage file upload limit to 10 MB with validation and error messaging",
+      "id": "REQ-74",
+      "summary": "Register the Tuner Shop page as an authenticated route at /tuner-shop and add a navigation entry point accessible from within the app",
       "acceptanceCriteria": [
-        "CreateMechanicQuestionPage accepts image files up to 10 MB",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
-        "Base64 encoding and submission work correctly for files up to 10 MB"
+        "Route `/tuner-shop` is registered in App.tsx and renders TunerShopPage.",
+        "A 'Tuner Shop' navigation entry point is visible and accessible from within the authenticated app (TopBar or Profile page).",
+        "Tapping the entry point navigates to `/tuner-shop`.",
+        "The route is protected behind AuthGate (authenticated users only)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add or update file size validation on any image file input to enforce a 10 MB limit (10 * 1024 * 1024 bytes). Reject files exceeding the limit with a user-facing error message stating 'File too large — please select a file under 10 MB'. Ensure base64 encoding and submission via useCreatePost work correctly for files up to 10 MB. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
-        }
-      ]
-    },
-    {
-      "id": "REQ-70",
-      "summary": "Increase CreateBuildPage file upload limit to 10 MB per image with validation and error messaging",
-      "acceptanceCriteria": [
-        "CreateBuildPage accepts image files up to 10 MB per image input",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
-        "Base64 encoding and submission work correctly for files up to 10 MB"
-      ],
-      "file_operations": [
+          "description": "Add a new authenticated route for '/tuner-shop' that renders the TunerShopPage component. Import TunerShopPage from './pages/TunerShopPage'. Place the route within the AuthGate-protected routes alongside other authenticated pages. Ensure the route follows the same pattern as existing routes (home, reels, profile, etc.)."
+        },
         {
-          "path": "frontend/src/pages/CreateBuildPage.tsx",
+          "path": "frontend/src/components/TopBar.tsx",
           "operation": "modify",
-          "description": "Add or update file size validation on all image file inputs to enforce a 10 MB limit (10 * 1024 * 1024 bytes) per image. Reject files exceeding the limit with a user-facing error message stating 'File too large — please select a file under 10 MB'. Ensure base64 encoding and submission via useCreateBuild work correctly for files up to 10 MB. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
-        }
-      ]
-    },
-    {
-      "id": "REQ-71",
-      "summary": "Increase CreateListingPage file upload limit from ~1.5 MB to 10 MB with updated validation and error messaging",
-      "acceptanceCriteria": [
-        "CreateListingPage accepts image files up to 10 MB",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
-        "Base64 encoding and submission work correctly for files up to 10 MB"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/CreateListingPage.tsx",
-          "operation": "modify",
-          "description": "Update the file size validation guard from the current ~1.5 MB limit to 10 MB (10 * 1024 * 1024 bytes). Update the user-facing error message to state 'File too large — please select a file under 10 MB'. Ensure the base64 encoding logic and submission flow via useCreateListing continue to work correctly for files up to the new limit. Add a comment noting that the ICP ingress message limit (~2 MB) applies to the final encoded payload."
+          "description": "Add a 'Tuner Shop' navigation button to the TopBar alongside the existing Messages, Notifications, and About buttons. The button should navigate to '/tuner-shop' when clicked. Style it consistently with other TopBar navigation buttons. This provides a visible entry point for users to access the Tuner Shop page from any authenticated view."
         }
       ]
     }

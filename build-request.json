@@ -1,113 +1,72 @@
 {
   "kind": "build_request",
-  "title": "Increase file upload size limits across all post creation flows",
+  "title": "Add Altered Imports Tuner Shop Page",
   "projectName": "RevGrid",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-68",
-      "text": "Increase the maximum allowed file size on CreateFeedPostPage (frontend/src/pages/CreateFeedPostPage.tsx) from the current ~1.5 MB cap to at least 10 MB. Update the file size validation guard and the user-facing error message to reflect the new limit (e.g., 'File too large — please select a file under 10 MB'). The base64 encoding and submission flow must continue to work correctly for larger files.",
+      "id": "REQ-73",
+      "text": "Create a Tuner Shop page at `frontend/src/pages/TunerShopPage.tsx` displaying all content for 'Altered Imports'. The page must include the following sections, styled with the app's dark asphalt/amber automotive theme (dark backgrounds, amber/orange accent colors, high-contrast white text, Rajdhani/Inter fonts):\n\n1. **Hero section**: Shop name 'Altered Imports' as a large heading, with the subheading 'Performance-focused automotive shop built for enthusiasts who demand more from their cars.'\n\n2. **About/Mission section**: Full description — 'We specialize in Honda and Acura platforms, delivering everything from stock rebuilds to full custom motor swaps, precision tuning, and complete drivetrain solutions. Our mission is simple: build reliable, powerful, and personalized vehicles that match our customers' vision—whether that's a clean daily driver, a street-focused build, or a track-ready setup. We combine hands-on experience with modern tuning technology to deliver real, measurable results.'\n\n3. **Services section** with a 'What We Specialize In' heading, displaying the following as styled cards or a list:\n   - Honda & Acura Performance\n   - Custom Engine Swaps\n   - Full & Partial Engine Rebuilds\n   - Custom Modifications & Vehicle Customization\n   - ECU Chipping & Engine Management\n   - Dyno Tuning & Street Tuning\n   - Transmission Rebuilds & Drivetrain Services\n\n4. **Closing paragraph**: 'From precise ECU calibration to complete powertrain transformations, every build at Altered Imports is handled with attention to detail, reliability, and performance-first thinking. We don't believe in shortcuts—only clean work, proven setups, and honest results. Whether you're upgrading, rebuilding, or starting from scratch, Altered Imports is where passion meets precision.'\n\n5. **Tagline**: 'Build different. Build altered.' displayed prominently in amber/orange accent styling.\n\n6. **Location section** with a '📍 Location' heading: Display 'Wenatchee'\n\n7. **Contact section** with a '📩 Contact' heading: Display Instagram handle as a styled link — **Instagram: @mr.altered** (links to https://www.instagram.com/mr.altered in a new tab), and phone number as a styled tappable link — **Phone: 509-679-1389** (links to tel:509-679-1389).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Increase the photo upload size and all that all the post sizes like for machanics etc etc"
+          "Altered Imports is a performance-focused automotive shop built for enthusiasts who demand more from their cars.",
+          "Build different. Build altered.",
+          "📍 Location\nWenatchee",
+          "📩 Contact\nInstagram: @mr.altered\nPhone: 509-679-1389"
         ]
       },
       "acceptanceCriteria": [
-        "CreateFeedPostPage accepts image files up to 10 MB without rejecting them",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the limit",
-        "The error message reflects the new 10 MB limit",
-        "Base64 encoding and post submission work correctly for files up to 10 MB"
+        "Page exists at frontend/src/pages/TunerShopPage.tsx and renders without errors.",
+        "Hero section displays 'Altered Imports' as a prominent heading.",
+        "About/mission paragraph is fully displayed.",
+        "Services section lists all 7 specializations as styled cards or list items.",
+        "Closing paragraph and 'Build different. Build altered.' tagline are displayed.",
+        "Location 'Wenatchee' is displayed under a location heading.",
+        "Instagram @mr.altered links to https://www.instagram.com/mr.altered in a new tab.",
+        "Phone 509-679-1389 is displayed as a tappable tel: link.",
+        "Page is styled consistently with the app's dark asphalt/amber automotive theme (dark backgrounds, amber accents, white text, Rajdhani/Inter fonts)."
       ]
     },
     {
-      "id": "REQ-69",
-      "text": "Increase the maximum allowed file size on CreateMechanicQuestionPage (frontend/src/pages/CreateMechanicQuestionPage.tsx) to at least 10 MB. Add or update the file size validation guard on any image file input present, reject files exceeding the limit with a clear user-facing error message (e.g., 'File too large — please select a file under 10 MB'), and ensure the base64 encoding and submission flow works correctly for larger files.",
+      "id": "REQ-74",
+      "text": "Register the Tuner Shop page in `frontend/src/App.tsx` as a new authenticated route at `/tuner-shop` pointing to `TunerShopPage.tsx`. Add a 'Tuner Shop' entry point accessible from the app — either as a link in the Profile page (`frontend/src/pages/ProfilePage.tsx`) when viewing the current user's own profile (alongside the existing 'About RevGrid' link), or as a menu item in the TopBar (`frontend/src/components/TopBar.tsx`). The entry point must be clearly labelled 'Tuner Shop' and navigate to `/tuner-shop`.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Increase the photo upload size and all that all the post sizes like for machanics etc etc"
+          "Add a tuner shop page"
         ]
       },
       "acceptanceCriteria": [
-        "CreateMechanicQuestionPage accepts image files up to 10 MB",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
-        "Base64 encoding and submission work correctly for files up to 10 MB"
-      ]
-    },
-    {
-      "id": "REQ-70",
-      "text": "Increase the maximum allowed file size on CreateBuildPage (frontend/src/pages/CreateBuildPage.tsx) to at least 10 MB per image. Add or update the file size validation guard on all image file inputs, reject files exceeding the limit with a clear user-facing error message (e.g., 'File too large — please select a file under 10 MB'), and ensure the base64 encoding and submission flow works correctly for larger files.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Increase the photo upload size and all that all the post sizes like for machanics etc etc"
-        ]
-      },
-      "acceptanceCriteria": [
-        "CreateBuildPage accepts image files up to 10 MB per image input",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
-        "Base64 encoding and submission work correctly for files up to 10 MB"
-      ]
-    },
-    {
-      "id": "REQ-71",
-      "text": "Increase the maximum allowed file size on CreateListingPage (frontend/src/pages/CreateListingPage.tsx) from the current ~1.5 MB cap to at least 10 MB. Update the file size validation guard and the user-facing error message to reflect the new limit. The base64 encoding and submission flow must continue to work correctly for larger files.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Increase the photo upload size and all that all the post sizes like for machanics etc etc"
-        ]
-      },
-      "acceptanceCriteria": [
-        "CreateListingPage accepts image files up to 10 MB",
-        "Files larger than 10 MB are rejected with a clear user-facing error message stating the 10 MB limit",
-        "Base64 encoding and submission work correctly for files up to 10 MB"
-      ]
-    },
-    {
-      "id": "REQ-72",
-      "text": "Update the backend createPost function in backend/main.mo to ensure it does not trap or return an error for mediaData (base64-encoded text) payloads up to the ICP ingress message limit (~2 MB per call). Remove any artificial size cap or assertion on the mediaData or imageUrl Text fields. Add a comment documenting the effective payload limit. This ensures the backend is consistent with the increased frontend file size limits.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Increase the photo upload size and all that all the post sizes like for machanics etc etc"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The backend createPost function does not trap on mediaData payloads up to the ICP ingress message size limit",
-        "No artificial size assertion or cap is imposed on the mediaData or imageUrl Text fields in the post record or createPost function",
-        "A comment documents the effective limit near the mediaData field",
-        "The backend returns a structured #err result (not a trap) if any validation fails"
+        "Route `/tuner-shop` is registered in App.tsx and renders TunerShopPage.",
+        "A 'Tuner Shop' navigation entry point is visible and accessible from within the authenticated app (TopBar or Profile page).",
+        "Tapping the entry point navigates to `/tuner-shop`.",
+        "The route is protected behind AuthGate (authenticated users only)."
       ]
     }
   ],
   "constraints": [
-    "Do not exceed the ICP ingress message size limit (~2 MB per call) for backend submissions — the frontend 10 MB limit applies to file selection/preview; actual upload payload must remain within ICP limits",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
+    "All text content for the Tuner Shop page must match exactly what was provided by the user — do not alter shop name, service names, location, contact details, tagline, or descriptions.",
+    "Instagram link must open https://www.instagram.com/mr.altered in a new tab.",
+    "Phone number must use a tel: link (tel:509-679-1389).",
+    "Page must use the existing dark asphalt/amber design system — no new color tokens or fonts."
   ],
   "nonGoals": [
-    "Implementing chunked or asset canister storage for files exceeding the ICP ingress limit",
-    "Changing the CreateReelPage file size limit (already set to 10 MB in a prior feature)",
-    "Adding new file upload fields to pages that do not currently have them"
+    "No backend changes required — this is a purely static frontend page.",
+    "Do not add a booking or appointment form.",
+    "Do not add the Tuner Shop to the bottom navigation bar (BottomNav).",
+    "Do not modify any immutable frontend paths."
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Dark, moody cinematic banner image of a Honda/Acura sports car engine bay or a performance tuned import car in a garage setting with amber workshop lighting, gritty automotive atmosphere (tuner-shop-hero.dim_1920x600.jpg)"
+    ],
     "edits": []
   }
 }

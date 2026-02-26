@@ -1,13 +1,18 @@
 # Specification
 
 ## Summary
-**Goal:** Increase the file upload size limit from ~1.5 MB to 10 MB across all post creation pages in RevGrid.
+**Goal:** Add a static "Altered Imports" Tuner Shop page to the RevGrid app with full shop content, styled in the existing dark asphalt/amber automotive theme.
 
 **Planned changes:**
-- Update file size validation on `CreateFeedPostPage` to allow files up to 10 MB and show a clear error message for files exceeding the limit
-- Update file size validation on `CreateMechanicQuestionPage` to allow files up to 10 MB with the same error messaging
-- Update file size validation on `CreateBuildPage` to allow files up to 10 MB per image input with the same error messaging
-- Update file size validation on `CreateListingPage` to allow files up to 10 MB with the same error messaging
-- Remove any artificial size cap or assertion on `mediaData`/`imageUrl` fields in the backend `createPost` function, and add a comment documenting the ICP ingress message size limit
+- Create `frontend/src/pages/TunerShopPage.tsx` with the following sections:
+  - Hero section with shop name "Altered Imports" and subheading
+  - About/Mission section with full shop description
+  - Services section ("What We Specialize In") displaying 7 specializations as styled cards/list
+  - Closing paragraph
+  - Amber-styled tagline: "Build different. Build altered."
+  - Location section showing "Wenatchee"
+  - Contact section with Instagram @mr.altered link (opens in new tab) and tappable phone link (tel:509-679-1389)
+- Register an authenticated route `/tuner-shop` in `frontend/src/App.tsx` pointing to `TunerShopPage`
+- Add a "Tuner Shop" navigation entry point in the TopBar or Profile page linking to `/tuner-shop`
 
-**User-visible outcome:** Users can upload image files up to 10 MB when creating feed posts, mechanic questions, builds, and marketplace listings. Files over 10 MB are rejected with a clear error message stating the limit.
+**User-visible outcome:** Authenticated users can navigate to a "Tuner Shop" page that displays all content for Altered Imports, including services, location, and contact info, styled consistently with the rest of the app.
