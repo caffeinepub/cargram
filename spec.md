@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the text-based eBay affiliate banner with an image banner and display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row.
+**Goal:** Replace the BullBoost Performance banner image in the sponsor row with the newly uploaded logo.
 
 **Planned changes:**
-- Create a new eBay banner image by compositing the slammed orange Honda Civic rear photo with the RevGrid logo overlaid, saved as `ebay-banner.dim_940x313.jpg`
-- Replace the existing text-based eBay affiliate banner in `Layout.tsx` with the new image banner linked to the eBay affiliate URL
-- Arrange all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in one horizontal row, each as a clickable image linking to their respective URLs in a new tab
-- Style the banner row with the app's dark asphalt/amber automotive theme
+- Save the cropped/resized BullBoost Performance logo as `frontend/public/assets/generated/bullboost-logo.dim_760x200.png`
+- Update the BullBoost banner in `Layout.tsx` to use the new image, keeping it as a clickable link to `https://bullboostperformance.com/?ref=xprbexxu` with `target="_blank"` and `rel="noopener noreferrer"`
 
-**User-visible outcome:** Users see a horizontal strip with all three sponsor banners displayed as images side-by-side on every authenticated page, replacing the previous text-based eBay banner.
+**User-visible outcome:** The BullBoost Performance sponsor banner displays the correct new logo, shown alongside the eBay and Enjuku Racing banners in the horizontal sponsor row.

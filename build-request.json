@@ -1,65 +1,43 @@
 {
   "kind": "build_request",
-  "title": "Replace eBay text banner with image banner and display all three sponsor banners side-by-side",
+  "title": "Replace BullBoost Performance banner image with newly uploaded logo",
   "projectName": "RevGrid",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-151",
-      "text": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg. This image will be used as the base for the eBay affiliate banner after the RevGrid logo is incorporated into it.",
+      "id": "REQ-153",
+      "text": "Save the newly uploaded BullBoost Performance logo image as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png, replacing the existing file at that path. Update the BullBoost banner in frontend/src/components/Layout.tsx to display this new image. The banner must remain a clickable anchor tag linking to https://bullboostperformance.com/?ref=xprbexxu with target='_blank' and rel='noopener noreferrer', displayed alongside the existing eBay and Enjuku Racing sponsor banners in the horizontal sponsor row.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "use this pic for the eBay link with our revgrid logo incorporated into it matching"
+          "Fix the bull boost image and use this one instead"
         ]
       },
       "acceptanceCriteria": [
-        "The uploaded car photo is saved as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg",
-        "The file is accessible from the frontend at that path"
-      ]
-    },
-    {
-      "id": "REQ-152",
-      "text": "In frontend/src/components/Layout.tsx, replace the existing text-based eBay affiliate banner with an image-based banner that displays the generated eBay banner image (frontend/public/assets/generated/ebay-banner.dim_940x313.jpg). The banner must be wrapped in an anchor tag linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 with target='_blank' and rel='noopener noreferrer'. Display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row, each as a clickable image banner. Style the row consistently with the app's dark automotive theme (dark/asphalt background, equal-width or proportional columns, slim clickable strip). The banners must remain in their existing placement position (between the TopBar and main content area or above the BottomNav).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Make the eBay link picture like the affiliate links put them next to each other and use this pic for the eBay link with our revgrid logo incorporated into it matching"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The eBay banner is displayed as an image (not text) in the Layout component",
-        "The eBay image banner links to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 opening in a new tab",
-        "The BullBoost banner image (bullboost-logo.dim_760x200.png) is displayed alongside the eBay banner",
-        "The Enjuku Racing banner image (enjuku-racing-banner.dim_940x627.jpg) is displayed alongside the eBay and BullBoost banners",
-        "All three banners are displayed side-by-side in the same horizontal row",
-        "The row is styled with the app's dark asphalt/amber automotive theme",
-        "All three banners are individually clickable and open their respective links in a new tab",
-        "The banner row appears on every authenticated page inside the Layout component"
+        "The new BullBoost Performance logo (white text on black background, 1600x900 source) is saved as frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
+        "The BullBoost banner in Layout.tsx renders the new image instead of the old one",
+        "Clicking the BullBoost banner opens https://bullboostperformance.com/?ref=xprbexxu in a new tab",
+        "The banner row still displays all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side",
+        "The banner is styled consistently with the app's dark automotive theme"
       ]
     }
   ],
   "constraints": [
-    "Do not change any files listed under frontend.immutablePaths",
-    "The eBay affiliate URL must remain exactly: https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1",
-    "The BullBoost link must remain: https://bullboostperformance.com/?ref=xprbexxu",
-    "The Enjuku Racing link must remain: https://enjukuracing.com"
+    "The BullBoost affiliate link https://bullboostperformance.com/?ref=xprbexxu must not be changed",
+    "The existing eBay and Enjuku Racing banners must not be affected"
   ],
   "nonGoals": [
-    "Changing the BullBoost or Enjuku Racing banner images",
-    "Adding new sponsor banners beyond the three existing ones",
-    "Modifying the backend"
+    "Changing the layout or position of the sponsor banner row",
+    "Modifying any other sponsor banners",
+    "Any backend changes"
   ],
   "imageRequirements": {
     "required": [],
     "edits": [
-      "Composite the uploaded slammed orange Honda Civic rear photo with the RevGrid logo (amber/orange text, dark asphalt style) overlaid in the lower-right or center area, add a dark amber-tinted gradient overlay so the logo is readable, final output sized as a wide banner (free-photo-of-rear-end-of-a-car.jpeg > ebay-banner.dim_940x313.jpg)"
+      "Crop and resize the uploaded Bull Boost Performance logo (black background, white script 'Bull Boost' + 'PERFORMANCE' text) to banner dimensions (bullboost-logo.dim_760x200.png > bullboost-logo.dim_760x200.png)"
     ]
   }
 }

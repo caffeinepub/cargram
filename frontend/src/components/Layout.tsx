@@ -36,9 +36,10 @@ function SponsorBannerRow() {
         style={{ minWidth: 0 }}
       >
         <img
-          src="/assets/generated/bullboost-logo.dim_760x200.png"
+          src="/assets/683892f33f52abb30a48532909b689c7.w1600.h900.jpg"
           alt="Bull Boost Performance"
-          className="w-full h-16 object-contain object-center px-2"
+          className="w-full h-16 object-contain object-center px-1"
+          style={{ objectPosition: 'center 30%' }}
         />
       </a>
 

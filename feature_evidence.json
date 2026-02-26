@@ -2,26 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-save-the-uploaded-car-photo-rear-of-a-slammed-orange-honda-civic-as-a-static-asset-at-frontend-public-assets-generated-ebay-banner-dim-940x313-jpg-this-image-will-be-used-as-the-base-for-the-ebay-affiliate-banner-after-the-revgrid-logo-is-incorporated-into-it",
-      "featureTitle": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg. This image will be used as the base for the eBay affiliate banner after the RevGrid logo is incorporated into it.",
-      "files": [],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-151"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-in-frontend-src-components-layout-tsx-replace-the-existing-text-based-ebay-affiliate-banner-with-an-image-based-banner-that-displays-the-generated-ebay-banner-image-frontend-public-assets-generated-ebay-banner-dim-940x313-jpg-the-banner-must-be-wrapped-in-an-anchor-tag-linking-to-https-ebay-com-inf-revreel-mkcid-1-mkrid-711-53200-19255-0-siteid-0-campid-5339143418-toolid-80008-mkevt-1-with-target-blank-and-rel-noopener-noreferrer-display-all-three-sponsor-banners-ebay-bullboost-enjuku-racing-side-by-side-in-a-single-horizontal-row-each-as-a-clickable-image-banner-style-the-row-consistently-with-the-app-s-dark-automotive-theme-dark-asphalt-background-equal-width-or-proportional-columns-slim-clickable-strip-the-banners-must-remain-in-their-existing-placement-position-between-the-topbar-and-main-content-area-or-above-the-bottomnav",
-      "featureTitle": "In frontend/src/components/Layout.tsx, replace the existing text-based eBay affiliate banner with an image-based banner that displays the generated eBay banner image (frontend/public/assets/generated/ebay-banner.dim_940x313.jpg). The banner must be wrapped in an anchor tag linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 with target='_blank' and rel='noopener noreferrer'. Display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row, each as a clickable image banner. Style the row consistently with the app's dark automotive theme (dark/asphalt background, equal-width or proportional columns, slim clickable strip). The banners must remain in their existing placement position (between the TopBar and main content area or above the BottomNav).",
+      "featureId": "feature-save-the-newly-uploaded-bullboost-performance-logo-image-as-a-static-asset-at-frontend-public-assets-generated-bullboost-logo-dim-760x200-png-replacing-the-existing-file-at-that-path-update-the-bullboost-banner-in-frontend-src-components-layout-tsx-to-display-this-new-image-the-banner-must-remain-a-clickable-anchor-tag-linking-to-https-bullboostperformance-com-ref-xprbexxu-with-target-blank-and-rel-noopener-noreferrer-displayed-alongside-the-existing-ebay-and-enjuku-racing-sponsor-banners-in-the-horizontal-sponsor-row",
+      "featureTitle": "Save the newly uploaded BullBoost Performance logo image as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png, replacing the existing file at that path. Update the BullBoost banner in frontend/src/components/Layout.tsx to display this new image. The banner must remain a clickable anchor tag linking to https://bullboostperformance.com/?ref=xprbexxu with target='_blank' and rel='noopener noreferrer', displayed alongside the existing eBay and Enjuku Racing sponsor banners in the horizontal sponsor row.",
       "files": [
         "frontend/src/components/Layout.tsx"
       ],
@@ -35,7 +17,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-152"
+        "REQ-153"
       ],
       "confidence": "high"
     }
