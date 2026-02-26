@@ -1,28 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project where posts should persist across page loads and refreshes without being erased.",
-  "architectural_notes": [
-    "Posts must persist across page loads and site refreshes — ensure durable storage (not in-memory or local state only)."
-  ],
-  "known_issues": [
-    "Posts may be getting erased after loading or refreshing the site — needs investigation and fix."
-  ],
-  "isFixRequest": true,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-audit-and-fix-the-frontend-react-query-configuration-to-ensure-the-query-cache-does-not-discard-post-data-prematurely-on-page-reload-or-navigation-verify-that-staletime-cachetime-and-refetch-strategies-for-the-feed-and-post-queries-are-set-appropriately-so-posts-are-re-fetched-from-the-backend-not-lost-when-the-page-loads-or-refreshes",
-      "title": "Audit and fix the frontend React Query configuration to ensure the query cache does not discard post data prematurely on page reload or navigation. Verify that staleTime, cacheTime, and refetch strategies for the feed and post queries are set appropriately so posts are re-fetched from the backend (not lost) when the page loads or refreshes.",
+      "id": "feature-add-a-visible-entry-point-to-the-install-page-from-within-the-app-for-example-a-menu-item-or-button-in-the-topbar-or-bottomnav-or-an-install-app-option-in-a-settings-about-area-so-users-can-easily-discover-and-navigate-to-the-install-page",
+      "title": "Add a visible entry point to the `/install` page from within the app — for example, a menu item or button in the TopBar or BottomNav (or an 'Install App' option in a settings/about area) — so users can easily discover and navigate to the install page.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-investigate-and-fix-any-logic-in-the-post-creation-flow-createfeedpostpage-createreelpage-createmechanicquestionpage-or-the-backend-createpost-endpoint-that-could-cause-posts-to-be-silently-dropped-overwritten-or-stored-in-a-non-stable-transient-data-structure",
-      "title": "Investigate and fix any logic in the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) or the backend createPost endpoint that could cause posts to be silently dropped, overwritten, or stored in a non-stable (transient) data structure.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -30,7 +18,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Audit the backend Motoko actor to ensure posts are stored in stable variables so they persist across canister upgrades and redeployments. Confirm that the posts map/state uses `stable` keyword and is not reset on canister reinstall or upgrade.",
+      "summary": "Add a dedicated download/install page (e.g. /install or /download) for the PWA",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a `/install` route to the TanStack Router configuration in `frontend/src/App.tsx` that renders the existing `InstallPage` component from `frontend/src/pages/InstallPage.tsx`.",
       "reqIds": [
         "REQ-1"
       ],

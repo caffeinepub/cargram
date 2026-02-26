@@ -1,13 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Fix post persistence so that posts survive page refreshes, browser reloads, and canister upgrades in the RevGrid application.
+**Goal:** Add a dedicated `/install` route to the RevGrid app that renders the existing `InstallPage` component, and add a visible navigation entry point so users can discover and access it.
 
 **Planned changes:**
-- Audit and update the backend Motoko actor (`backend/main.mo`) to ensure posts and all core state (users, comments, messages, events, builds, marketplace listings) are stored in `stable` variables so data survives canister upgrades and redeployments.
-- Audit and fix the frontend React Query configuration (staleTime, cacheTime, refetch strategies) for feed and post queries so posts are properly re-fetched from the backend on page load or refresh.
-- Investigate and fix the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) and the backend `createPost` endpoint to prevent posts from being silently dropped, overwritten, or stored in transient (non-stable) structures.
-- Ensure post IDs are never reused or overwritten by subsequent creates.
-- Add error surfacing on post creation mutations so failures are shown to the user instead of being silently discarded.
+- Register a `/install` route in the TanStack Router configuration (`App.tsx`) that renders the existing `InstallPage` component, nested under the root layout so TopBar and BottomNav remain visible.
+- Add an "Install App" or "Download App" navigation element (link, button, or menu item) in the TopBar, BottomNav, or settings/about area that routes users to `/install`.
 
-**User-visible outcome:** Posts created by users remain visible in the feed after refreshing the browser, navigating away and back, or after a canister upgrade — no posts are lost between sessions.
+**User-visible outcome:** Users can navigate to `/install` directly or via an in-app link to access the PWA install/download page.

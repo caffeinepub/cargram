@@ -1,67 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix post persistence across page loads and refreshes",
+  "title": "Add dedicated PWA install/download page at /install route",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Audit and fix the frontend React Query configuration to ensure posts persist across page reloads by properly re-fetching from the backend on mount",
+      "id": "REQ-1",
+      "summary": "Add /install route to TanStack Router that renders the existing InstallPage component",
       "acceptanceCriteria": [
-        "Refreshing the browser or navigating away and back to the feed still shows all previously created posts.",
-        "The feed query in useQueries.ts correctly re-fetches from the backend actor on mount after a page reload.",
-        "No posts visible before refresh are missing after refresh, assuming the backend state is intact."
+        "Navigating to /install in the browser renders the InstallPage component without errors.",
+        "The /install route is nested under the root layout so TopBar and BottomNav are visible.",
+        "The route is accessible from any browser without authentication if appropriate, or within the AuthGate flow consistent with other routes."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Audit and adjust React Query configuration for useGetAllPosts and useGetFeed hooks. Ensure staleTime and gcTime (formerly cacheTime) are set appropriately so that on page reload, queries re-fetch from the backend actor rather than relying on stale cache. Set refetchOnMount to true if not already default, and ensure refetchOnWindowFocus is configured to refetch posts when the user returns to the tab. Verify that the enabled flag properly waits for the actor to be available before executing queries."
-        },
-        {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "modify",
-          "description": "Review the infinite-scroll feed implementation to ensure that on initial page load (including after a refresh), the feed query is invoked and posts are fetched from the backend. Verify that the IntersectionObserver sentinel and pagination logic do not interfere with initial data loading. Confirm that loading and error states properly display while the feed is being fetched."
-        },
-        {
-          "path": "frontend/src/pages/ReelsPage.tsx",
-          "operation": "modify",
-          "description": "Audit the reels feed query logic to ensure that reels are re-fetched from the backend on page load or refresh. Verify that the full-screen vertical scrolling feed properly initializes with backend data and does not rely solely on cached data that may be cleared on refresh."
-        },
-        {
-          "path": "frontend/src/pages/MechanicsPage.tsx",
-          "operation": "modify",
-          "description": "Audit the mechanic questions feed query (useGetFeed with PostType.mechanic) to ensure questions are re-fetched from the backend on page load or refresh. Confirm that the query configuration does not cause questions to be lost when the page is reloaded."
+          "description": "Add a new /install route to the TanStack Router configuration that renders the InstallPage component from frontend/src/pages/InstallPage.tsx. Nest it under the root layout (wrapped in AuthGate) to ensure TopBar and BottomNav are visible, consistent with other app routes."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Investigate and fix any logic in the frontend post creation flow that could cause posts to be silently dropped, overwritten, or not properly submitted to the backend",
+      "id": "REQ-2",
+      "summary": "Add visible navigation entry point to the /install page within the app UI",
       "acceptanceCriteria": [
-        "A post created by a user is retrievable via the feed endpoint after a canister upgrade or page refresh.",
-        "No post IDs are reused or overwritten by subsequent creates.",
-        "Error handling on post creation mutations surfaces failures to the user rather than silently discarding the post."
+        "There is at least one in-app navigation element (link, button, or menu item) that routes the user to /install.",
+        "The entry point is labeled clearly, e.g. 'Install App' or 'Download App'.",
+        "Clicking the entry point navigates to /install without a full page reload."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CreateFeedPostPage.tsx",
+          "path": "frontend/src/components/TopBar.tsx",
           "operation": "modify",
-          "description": "Audit the feed post creation form submission logic. Ensure that the createPost mutation is invoked with all required fields (caption, tags, postType, reelCategory, mediaData). Verify that the mutation's onSuccess and onError callbacks properly handle backend responses and surface errors to the user (e.g., via toast notifications or error messages). Confirm that the form does not silently fail or discard data if the backend returns an error or null. Ensure that after a successful post creation, the feed query is invalidated so the new post appears immediately."
-        },
-        {
-          "path": "frontend/src/pages/CreateReelPage.tsx",
-          "operation": "modify",
-          "description": "Audit the reel creation form submission logic. Ensure that the createPost mutation is invoked with the correct postType (PostType.reel) and that the reel's media (video or image) is properly encoded as base64 JSON in the caption or mediaData field before submission. Verify that the mutation's onSuccess and onError callbacks properly handle backend responses and surface errors to the user. Confirm that the form does not silently fail or discard data. Ensure that after a successful reel creation, the reels feed query is invalidated so the new reel appears immediately."
-        },
-        {
-          "path": "frontend/src/pages/CreateMechanicQuestionPage.tsx",
-          "operation": "modify",
-          "description": "Audit the mechanic question creation form submission logic. Ensure that the createPost mutation is invoked with the correct postType (PostType.mechanic) and that the question's media (if any) is properly encoded as base64 JSON before submission. Verify that the mutation's onSuccess and onError callbacks properly handle backend responses and surface errors to the user. Confirm that the form does not silently fail or discard data. Ensure that after a successful question creation, the mechanics feed query is invalidated so the new question appears immediately."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Audit the useCreatePost mutation hook. Ensure that the mutation properly awaits the backend actor's createPost call and returns the PostRecord or null response. Verify that the mutation's onSuccess callback invalidates all relevant query keys (feed, reels, mechanics, user posts) so that newly created posts appear in all affected views. Add robust error handling in the onError callback to surface backend errors (e.g., Runtime.trap messages) to the user via toast notifications or error state. Confirm that the mutation does not swallow errors or return success when the backend returns null."
+          "description": "Add an 'Install App' icon button to the TopBar navigation that routes to /install using a TanStack Router Link. Position it logically among existing navigation icons, ensuring clear visual affordance for users to discover the install page."
         }
       ]
     }

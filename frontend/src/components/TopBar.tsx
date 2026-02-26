@@ -1,5 +1,5 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { MessageCircle, Bell, Info, Wrench, PlayCircle } from 'lucide-react';
+import { MessageCircle, Bell, Info, Wrench, PlayCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -15,6 +15,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/about': 'ABOUT',
   '/tuner-shop': 'ALTERED IMPORTS',
   '/streettube': 'STREETTUBE',
+  '/install': 'INSTALL APP',
 };
 
 export default function TopBar() {
@@ -34,12 +35,14 @@ export default function TopBar() {
     if (pathname.startsWith('/tuner-shop')) return 'ALTERED IMPORTS';
     if (pathname.startsWith('/streettube')) return 'STREETTUBE';
     if (pathname.startsWith('/leaderboard')) return 'RACE BOARD';
+    if (pathname.startsWith('/install')) return 'INSTALL APP';
     return 'REVGRID';
   };
 
   const isAbout = pathname === '/about';
   const isTunerShop = pathname.startsWith('/tuner-shop');
   const isStreetTube = pathname.startsWith('/streettube');
+  const isInstall = pathname.startsWith('/install');
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-background/95 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
@@ -82,6 +85,15 @@ export default function TopBar() {
           title="Altered Imports Tuner Shop"
         >
           <Wrench className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate({ to: '/install' })}
+          className={isInstall ? 'text-primary' : 'text-foreground hover:text-primary'}
+          title="Install App"
+        >
+          <Download className="w-5 h-5" />
         </Button>
         <Button
           variant="ghost"

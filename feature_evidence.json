@@ -2,13 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-audit-and-fix-the-frontend-react-query-configuration-to-ensure-the-query-cache-does-not-discard-post-data-prematurely-on-page-reload-or-navigation-verify-that-staletime-cachetime-and-refetch-strategies-for-the-feed-and-post-queries-are-set-appropriately-so-posts-are-re-fetched-from-the-backend-not-lost-when-the-page-loads-or-refreshes",
-      "featureTitle": "Audit and fix the frontend React Query configuration to ensure the query cache does not discard post data prematurely on page reload or navigation. Verify that staleTime, cacheTime, and refetch strategies for the feed and post queries are set appropriately so posts are re-fetched from the backend (not lost) when the page loads or refreshes.",
+      "featureId": "feature-add-a-visible-entry-point-to-the-install-page-from-within-the-app-for-example-a-menu-item-or-button-in-the-topbar-or-bottomnav-or-an-install-app-option-in-a-settings-about-area-so-users-can-easily-discover-and-navigate-to-the-install-page",
+      "featureTitle": "Add a visible entry point to the `/install` page from within the app — for example, a menu item or button in the TopBar or BottomNav (or an 'Install App' option in a settings/about area) — so users can easily discover and navigate to the install page.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/HomePage.tsx",
-        "frontend/src/pages/MechanicsPage.tsx",
-        "frontend/src/pages/ReelsPage.tsx"
+        "frontend/src/components/TopBar.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,29 +18,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-investigate-and-fix-any-logic-in-the-post-creation-flow-createfeedpostpage-createreelpage-createmechanicquestionpage-or-the-backend-createpost-endpoint-that-could-cause-posts-to-be-silently-dropped-overwritten-or-stored-in-a-non-stable-transient-data-structure",
-      "featureTitle": "Investigate and fix any logic in the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) or the backend createPost endpoint that could cause posts to be silently dropped, overwritten, or stored in a non-stable (transient) data structure.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/CreateFeedPostPage.tsx",
-        "frontend/src/pages/CreateMechanicQuestionPage.tsx",
-        "frontend/src/pages/CreateReelPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }

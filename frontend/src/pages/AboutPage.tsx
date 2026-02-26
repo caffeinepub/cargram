@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Check, Copy, Instagram, Heart, Flame, Zap, Users, Car, Compass } from 'lucide-react';
+import { Check, Copy, Instagram, Heart, Flame, Zap, Users, Car, Compass, Download } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -29,6 +30,7 @@ const features = [
 
 export default function AboutPage() {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const handleCopyCashApp = () => {
     navigator.clipboard.writeText('$alteredsol').then(() => {
@@ -118,6 +120,28 @@ export default function AboutPage() {
           </p>
         </section>
 
+        {/* Install App Section */}
+        <section className="relative overflow-hidden rounded-xl border border-primary/50 p-5 bg-gradient-to-br from-amber-900/25 to-background">
+          <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl" />
+          <div className="pl-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Download className="w-5 h-5 text-primary" />
+              <h2 className="font-heading text-xl font-bold text-foreground tracking-wider">GET THE APP</h2>
+            </div>
+            <p className="text-foreground/70 text-sm leading-relaxed mb-4">
+              Install RevGrid on your phone for a full-screen, native-like experience — no app store required.
+              Works on Android and iPhone.
+            </p>
+            <Button
+              onClick={() => navigate({ to: '/install' })}
+              className="w-full bg-primary text-black font-heading font-bold tracking-wider hover:bg-primary/90 gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Install RevGrid
+            </Button>
+          </div>
+        </section>
+
         {/* Support Section */}
         <section className="glass-card rounded-xl p-5 border border-border/50">
           <div className="flex items-center gap-2 mb-3">
@@ -174,26 +198,24 @@ export default function AboutPage() {
             </div>
             <div>
               <p className="text-muted-foreground text-xs uppercase tracking-widest font-heading">Instagram</p>
-              <p className="font-heading text-lg font-bold text-primary tracking-wide group-hover:text-amber-400 transition-colors">
+              <p className="font-heading text-lg font-bold text-primary tracking-wide group-hover:text-primary/80 transition-colors">
                 @boddysum
               </p>
-            </div>
-            <div className="ml-auto text-muted-foreground group-hover:text-primary transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
             </div>
           </a>
         </section>
 
-        {/* Footer attribution */}
-        <footer className="text-center py-4 text-muted-foreground text-xs">
-          <p>
-            © {new Date().getFullYear()} RevGrid. Built with{' '}
+        {/* Footer */}
+        <footer className="text-center py-4 space-y-1">
+          <p className="text-muted-foreground text-xs">
+            © {new Date().getFullYear()} RevGrid. All rights reserved.
+          </p>
+          <p className="text-muted-foreground text-xs">
+            Built with{' '}
             <Heart className="w-3 h-3 inline text-primary" />{' '}
             using{' '}
             <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname || 'revgrid')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"

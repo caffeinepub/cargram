@@ -29,6 +29,7 @@ import AboutPage from './pages/AboutPage';
 import TunerShopPage from './pages/TunerShopPage';
 import StreetTubePage from './pages/StreetTubePage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import InstallPage from './pages/InstallPage';
 import AuthGate from './components/AuthGate';
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
@@ -134,6 +135,7 @@ const marketplaceCreateRoute = createRoute({ getParentRoute: () => rootRoute, pa
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage });
 const tunerShopRoute = createRoute({ getParentRoute: () => rootRoute, path: '/tuner-shop', component: TunerShopPage });
 const streetTubeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/streettube', component: StreetTubePage });
+const installRoute = createRoute({ getParentRoute: () => rootRoute, path: '/install', component: InstallPage });
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -163,6 +165,7 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   tunerShopRoute,
   streetTubeRoute,
+  installRoute,
 ]);
 
 const router = createRouter({ routeTree });

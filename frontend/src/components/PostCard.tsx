@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { Heart, MessageCircle, Trash2, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Trash2 } from 'lucide-react';
 import { PostRecord } from '../backend';
 import { useGetLikeCount, useLikePost, useUnlikePost, useGetCallerUserProfile, useGetUser } from '../hooks/useQueries';
 import CommentsSheet from './CommentsSheet';
+import ClickableUsername from './ClickableUsername';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,6 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onDeleteRequest }: PostCardProps) {
-  const navigate = useNavigate();
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [liked, setLiked] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -37,6 +36,8 @@ export default function PostCard({ post, onDeleteRequest }: PostCardProps) {
   const authorAvatarUrl = authorUser?.profilePicData
     ? `data:image/jpeg;base64,${authorUser.profilePicData}`
     : '/assets/generated/default-avatar.dim_128x128.png';
+
+  const authorDisplayName = authorUser?.displayName || post.authorId;
 
   const handleLike = async () => {
     if (liked) {
@@ -62,22 +63,23 @@ export default function PostCard({ post, onDeleteRequest }: PostCardProps) {
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {/* Author Header */}
         <div className="flex items-center justify-between px-4 py-3">
-          <button
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
-            onClick={() => navigate({ to: `/profile/${post.authorId}` })}
-          >
+          <div className="flex items-center gap-2.5">
             <img
               src={authorAvatarUrl}
               alt={post.authorId}
-              className="w-9 h-9 rounded-full object-cover border border-border"
+              className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0"
             />
             <div className="text-left">
-              <p className="text-sm font-semibold text-foreground leading-tight">{post.authorId}</p>
+              <ClickableUsername
+                userId={post.authorId}
+                displayName={authorDisplayName}
+                className="text-sm leading-tight block"
+              />
               {post.reelCategory && (
                 <p className="text-xs text-primary">{post.reelCategory}</p>
               )}
             </div>
-          </button>
+          </div>
 
           {isAuthor && onDeleteRequest && (
             <button
@@ -93,6 +95,17 @@ export default function PostCard({ post, onDeleteRequest }: PostCardProps) {
         {imageUrl && (
           <div className="aspect-square w-full bg-muted">
             <img src={imageUrl} alt={post.caption} className="w-full h-full object-cover" />
+          </div>
+        )}
+
+        {/* Media (base64) */}
+        {!imageUrl && post.mediaData && (
+          <div className="aspect-square w-full bg-muted">
+            <img
+              src={`data:image/jpeg;base64,${post.mediaData}`}
+              alt={post.caption}
+              className="w-full h-full object-cover"
+            />
           </div>
         )}
 
@@ -121,7 +134,11 @@ export default function PostCard({ post, onDeleteRequest }: PostCardProps) {
         {post.caption && (
           <div className="px-4 pb-3">
             <p className="text-sm text-foreground">
-              <span className="font-semibold mr-1">{post.authorId}</span>
+              <ClickableUsername
+                userId={post.authorId}
+                displayName={authorDisplayName}
+                className="mr-1"
+              />
               {post.caption}
             </p>
           </div>

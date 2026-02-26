@@ -12,9 +12,7 @@ import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   include MixinStorage();
   let accessControlState = AccessControl.initState();
@@ -109,7 +107,6 @@ actor {
     sold : Bool;
   };
 
-  // Stable data stores (now private)
   let principalProfiles = Map.empty<Principal, UserProfile>();
   let users = Map.empty<UserId, User>();
   let posts = Map.empty<PostId, PostRecord>();
@@ -121,7 +118,6 @@ actor {
   let follows = Map.empty<UserId, Set.Set<UserId>>();
   let likes = Map.empty<PostId, Set.Set<UserId>>();
 
-  // User profile management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can get their profile");
@@ -129,9 +125,10 @@ actor {
     principalProfiles.get(caller);
   };
 
+  // Any authenticated user can view any other user's profile (social app requirement)
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
     };
     principalProfiles.get(user);
   };
@@ -200,7 +197,6 @@ actor {
     users.get(userId);
   };
 
-  // Post management
   public shared ({ caller }) func createPost(
     caption : Text,
     tags : [Text],
@@ -266,7 +262,6 @@ actor {
     };
   };
 
-  // Comments
   public shared ({ caller }) func addComment(postId : PostId, text : Text) : async CommentId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can add comments");
@@ -295,7 +290,6 @@ actor {
     count;
   };
 
-  // Follow functionality
   public shared ({ caller }) func followUser(followeeId : UserId) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can follow others");
@@ -389,7 +383,6 @@ actor {
     };
   };
 
-  // Messaging
   public shared ({ caller }) func sendMessage(receiverId : UserId, text : Text) : async MessageId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can send messages");
@@ -427,7 +420,6 @@ actor {
     );
   };
 
-  // Event management
   public shared ({ caller }) func createEvent(title : Text, description : Text, location : Text, date : Int) : async EventId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create events");
@@ -471,7 +463,6 @@ actor {
     };
   };
 
-  // Build showcase
   public shared ({ caller }) func createBuild(title : Text, description : Text, specs : Text) : async BuildId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create builds");
@@ -502,7 +493,6 @@ actor {
     builds.values().toArray();
   };
 
-  // Likes
   public shared ({ caller }) func likePost(postId : PostId) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can like posts");
@@ -550,7 +540,6 @@ actor {
     posts.values().toArray();
   };
 
-  // Search functionality
   public query func searchUsers(searchQuery : Text) : async [User] {
     users.values().toArray().filter(
       func(u : User) : Bool {
@@ -578,7 +567,6 @@ actor {
     );
   };
 
-  // Marketplace listings
   public shared ({ caller }) func createListing(
     title : Text,
     description : Text,
@@ -713,7 +701,6 @@ actor {
     );
   };
 
-  // Leaderboard
   type LeaderboardUser = {
     username : Text;
     displayName : Text;
@@ -760,7 +747,6 @@ actor {
     };
   };
 
-  // Automotive Assistant Query
   public query func askAutomotiveAssistant(question : Text) : async Text {
     "Automotive AI Response for Question: \n".concat(
       "<h2>Car Building Topics: </h2>" #

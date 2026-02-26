@@ -4,9 +4,10 @@ import { ArrowLeft, Send, Loader2, Car, ChevronLeft, ChevronRight } from 'lucide
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { useGetBuild, useGetComments, useAddComment, useGetCallerUserProfile } from '../hooks/useQueries';
+import { useGetBuild, useGetComments, useAddComment, useGetCallerUserProfile, useGetUser } from '../hooks/useQueries';
 import { formatDistanceToNow } from '../lib/utils';
 import { toast } from 'sonner';
+import ClickableUsername from '../components/ClickableUsername';
 
 export default function BuildDetailPage() {
   const { buildId } = useParams({ from: '/builds/$buildId' });
@@ -17,6 +18,7 @@ export default function BuildDetailPage() {
   const { data: build, isLoading: buildLoading } = useGetBuild(buildId);
   const { data: comments = [] } = useGetComments(buildId);
   const { data: currentProfile } = useGetCallerUserProfile();
+  const { data: authorUser } = useGetUser(build?.authorId);
   const addComment = useAddComment();
 
   const handleAddComment = async () => {
@@ -53,6 +55,12 @@ export default function BuildDetailPage() {
 
   const images = build.images;
   const hasImages = images.length > 0;
+
+  const authorAvatarUrl = authorUser?.profilePicData
+    ? `data:image/jpeg;base64,${authorUser.profilePicData}`
+    : '/assets/generated/default-avatar.dim_128x128.png';
+
+  const authorDisplayName = authorUser?.displayName || build.authorId;
 
   return (
     <div className="max-w-lg mx-auto">
@@ -114,13 +122,18 @@ export default function BuildDetailPage() {
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="w-9 h-9">
-            <AvatarImage src="/assets/generated/default-avatar.dim_128x128.png" />
+            <AvatarImage src={authorAvatarUrl} />
             <AvatarFallback className="bg-secondary text-xs font-bold text-foreground">
               {build.authorId.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold text-sm text-foreground">@{build.authorId}</p>
+            <ClickableUsername
+              userId={build.authorId}
+              displayName={authorDisplayName}
+              showAt
+              className="text-sm"
+            />
             <p className="text-xs text-muted-foreground">{formatDistanceToNow(build.createdAt)}</p>
           </div>
         </div>
@@ -158,7 +171,10 @@ export default function BuildDetailPage() {
               </Avatar>
               <div>
                 <p className="text-sm text-foreground">
-                  <span className="font-semibold mr-1">{comment.authorId}</span>
+                  <ClickableUsername
+                    userId={comment.authorId}
+                    className="mr-1 text-sm"
+                  />
                   {comment.text}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">{formatDistanceToNow(comment.createdAt)}</p>

@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Trophy, Flag, Zap, Users, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetLeaderboard } from '../hooks/useQueries';
+import ClickableUsername from '../components/ClickableUsername';
 
 // Checkered flag pattern as SVG inline
 function CheckeredFlag({ className }: { className?: string }) {
@@ -74,25 +75,30 @@ function PodiumCard({
     : '/assets/generated/default-avatar.dim_128x128.png';
 
   return (
-    <button
-      onClick={onClick}
-      className={`flex flex-col items-center gap-2 p-3 rounded-lg border ${style.bg} ${style.glow} transition-transform active:scale-95 hover:scale-105 cursor-pointer w-full`}
+    <div
+      className={`flex flex-col items-center gap-2 p-3 rounded-lg border ${style.bg} ${style.glow} transition-transform w-full`}
     >
       <span className="text-2xl">{style.icon}</span>
-      <div className={`relative w-14 h-14 rounded-full ring-2 ${style.ringColor} overflow-hidden`}>
-        <img src={avatarSrc} alt={user.username} className="w-full h-full object-cover" />
-      </div>
+      <button
+        onClick={onClick}
+        className="relative w-14 h-14 rounded-full ring-2 overflow-hidden hover:opacity-80 transition-opacity"
+        style={{ ['--tw-ring-color' as string]: undefined }}
+      >
+        <img src={avatarSrc} alt={user.username} className={`w-full h-full object-cover ring-2 ${style.ringColor} rounded-full`} />
+      </button>
       <div className="text-center">
-        <p className={`font-heading font-bold text-sm tracking-wide ${style.textColor}`}>
-          @{user.username}
-        </p>
+        <ClickableUsername
+          userId={user.username}
+          displayName={`@${user.username}`}
+          className={`font-heading font-bold text-sm tracking-wide ${style.textColor}`}
+        />
         <p className="text-xs text-muted-foreground truncate max-w-[80px]">{user.displayName}</p>
       </div>
       <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${style.badge}`}>
         {Number(user.followersCount).toLocaleString()} followers
       </div>
       <div className={`${style.height} w-full rounded-sm mt-1 ${style.badge} opacity-30`} />
-    </button>
+    </div>
   );
 }
 
@@ -112,9 +118,8 @@ function RaceRow({
   const isTop10 = rank <= 10;
 
   return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-lg hover:border-primary/50 hover:bg-card/80 transition-all active:scale-[0.99] group"
+    <div
+      className="w-full flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-lg hover:border-primary/50 hover:bg-card/80 transition-all group"
     >
       {/* Rank number */}
       <div className={`w-8 h-8 flex items-center justify-center rounded-sm font-heading font-bold text-sm flex-shrink-0 ${
@@ -130,16 +135,18 @@ function RaceRow({
         <div className="w-2 h-0.5 bg-primary rounded-full" />
       </div>
 
-      {/* Avatar */}
-      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-border group-hover:ring-primary/40 transition-all">
+      {/* Avatar — clicking avatar navigates to profile */}
+      <button onClick={onClick} className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-border group-hover:ring-primary/40 transition-all">
         <img src={avatarSrc} alt={user.username} className="w-full h-full object-cover" />
-      </div>
+      </button>
 
       {/* User info */}
       <div className="flex-1 text-left min-w-0">
-        <p className="font-heading font-bold text-sm text-foreground tracking-wide truncate">
-          @{user.username}
-        </p>
+        <ClickableUsername
+          userId={user.username}
+          displayName={`@${user.username}`}
+          className="font-heading font-bold text-sm tracking-wide truncate block"
+        />
         <p className="text-xs text-muted-foreground truncate">{user.displayName}</p>
       </div>
 
@@ -157,7 +164,7 @@ function RaceRow({
 
       {/* Chevron */}
       <Zap className="w-4 h-4 text-primary/40 group-hover:text-primary transition-colors flex-shrink-0" />
-    </button>
+    </div>
   );
 }
 
@@ -219,127 +226,63 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {/* Racing stripe divider */}
-      <div className="h-1.5 racing-stripe opacity-60" />
-
-      <div className="px-4 pt-4 space-y-6">
-
-        {/* Loading state */}
-        {isLoading && (
-          <>
-            {/* Podium skeleton */}
-            <div className="flex items-end justify-center gap-3 pt-2">
-              <Skeleton className="flex-1 h-48 rounded-lg" />
-              <Skeleton className="flex-1 h-56 rounded-lg" />
-              <Skeleton className="flex-1 h-44 rounded-lg" />
-            </div>
-            {/* Row skeletons */}
-            <div className="space-y-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <SkeletonRow key={i} />
-              ))}
-            </div>
-          </>
-        )}
-
+      <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
         {/* Error state */}
-        {error && !isLoading && (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <Flag className="w-12 h-12 text-destructive opacity-60" />
-            <p className="text-muted-foreground text-sm">Failed to load leaderboard</p>
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!isLoading && !error && leaderboard?.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <div className="relative">
-              <Trophy className="w-16 h-16 text-primary opacity-40" />
-              <CheckeredFlag className="w-8 h-8 text-muted-foreground absolute -bottom-2 -right-2" />
-            </div>
-            <div className="text-center">
-              <p className="font-heading text-lg font-bold text-foreground tracking-wide">NO RACERS YET</p>
-              <p className="text-muted-foreground text-sm mt-1">Be the first to join the grid!</p>
-            </div>
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-destructive text-sm">Failed to load leaderboard</p>
           </div>
         )}
 
         {/* Podium — top 3 */}
-        {!isLoading && !error && top3.length > 0 && (
-          <section>
+        {!isLoading && top3.length > 0 && (
+          <div>
             <div className="flex items-center gap-2 mb-3">
-              <Trophy className="w-4 h-4 text-primary" />
-              <h2 className="font-heading text-sm font-bold text-primary tracking-widest uppercase">
-                Podium Finishers
-              </h2>
+              <Trophy className="w-4 h-4 text-amber-500" />
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Top Racers</p>
             </div>
-
-            {/* Podium layout: 2nd | 1st | 3rd */}
-            <div className="flex items-end justify-center gap-2">
-              {top3[1] && (
-                <div className="flex-1">
-                  <PodiumCard user={top3[1]} rank={2} onClick={() => handleUserClick(top3[1].username)} />
-                </div>
-              )}
-              {top3[0] && (
-                <div className="flex-1">
-                  <PodiumCard user={top3[0]} rank={1} onClick={() => handleUserClick(top3[0].username)} />
-                </div>
-              )}
-              {top3[2] && (
-                <div className="flex-1">
-                  <PodiumCard user={top3[2]} rank={3} onClick={() => handleUserClick(top3[2].username)} />
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Racing stripe divider */}
-        {!isLoading && !error && leaderboard && leaderboard.length > 3 && (
-          <div className="h-px racing-stripe opacity-40" />
-        )}
-
-        {/* Rest of the grid */}
-        {!isLoading && !error && rest.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-4 h-4 text-primary" />
-              <h2 className="font-heading text-sm font-bold text-primary tracking-widest uppercase">
-                Full Grid
-              </h2>
-              <span className="text-xs text-muted-foreground ml-auto">
-                {leaderboard?.length} racers
-              </span>
-            </div>
-            <div className="space-y-2">
-              {rest.map((user, idx) => (
-                <RaceRow
+            <div className="grid grid-cols-3 gap-2">
+              {top3.map((user, i) => (
+                <PodiumCard
                   key={user.username}
-                  user={user}
-                  rank={idx + 4}
+                  user={user as any}
+                  rank={i + 1}
                   onClick={() => handleUserClick(user.username)}
                 />
               ))}
             </div>
-          </section>
+          </div>
         )}
 
-        {/* Footer attribution */}
-        <footer className="pt-4 pb-2 text-center text-xs text-muted-foreground">
-          <p>
-            © {new Date().getFullYear()} RevGrid — Built with{' '}
-            <span className="text-red-500">♥</span> using{' '}
-            <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname || 'revgrid')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              caffeine.ai
-            </a>
-          </p>
-        </footer>
+        {/* Ranked list */}
+        <div>
+          {top3.length > 0 && (
+            <div className="flex items-center gap-2 mb-3">
+              <Flag className="w-4 h-4 text-primary" />
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Full Grid</p>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {isLoading ? (
+              Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)
+            ) : rest.length > 0 ? (
+              rest.map((user, i) => (
+                <RaceRow
+                  key={user.username}
+                  user={user as any}
+                  rank={i + 4}
+                  onClick={() => handleUserClick(user.username)}
+                />
+              ))
+            ) : !isLoading && leaderboard?.length === 0 ? (
+              <div className="text-center py-12">
+                <Trophy className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">No racers yet. Be the first!</p>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );

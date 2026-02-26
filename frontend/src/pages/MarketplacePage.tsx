@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useGetAllListings, useGetUser } from '../hooks/useQueries';
 import { type MarketplaceListing, Variant_new_used } from '../backend';
+import ClickableUsername from '../components/ClickableUsername';
 
 const CATEGORIES = ['All', 'Parts', 'Wheels', 'Audio', 'Exterior', 'Interior', 'Other'];
 
@@ -54,22 +55,27 @@ function ListingCard({ listing }: { listing: MarketplaceListing }) {
       <div className="p-3 flex flex-col gap-1.5 flex-1">
         <p className="font-heading font-bold text-foreground text-sm leading-tight line-clamp-2">{listing.title}</p>
         <p className="text-primary font-bold text-base">{listing.price}</p>
-        <div className="flex items-center gap-1.5 mt-auto pt-1">
+        <div className="flex items-center gap-1.5 mt-auto pt-1" onClick={(e) => e.stopPropagation()}>
           {seller?.profilePicData ? (
             <img
-              src={seller.profilePicData}
+              src={`data:image/jpeg;base64,${seller.profilePicData}`}
               alt={seller.displayName}
-              className="w-5 h-5 rounded-full object-cover border border-border"
+              className="w-5 h-5 rounded-full object-cover border border-border flex-shrink-0"
             />
           ) : (
             <img
               src="/assets/generated/default-avatar.dim_128x128.png"
               alt="avatar"
-              className="w-5 h-5 rounded-full object-cover border border-border"
+              className="w-5 h-5 rounded-full object-cover border border-border flex-shrink-0"
             />
           )}
-          <span className="text-xs text-muted-foreground truncate">@{listing.authorId}</span>
-          <span className="ml-auto text-[10px] text-muted-foreground/60 bg-secondary px-1.5 py-0.5 rounded-full">
+          <ClickableUsername
+            userId={listing.authorId}
+            displayName={seller?.displayName || listing.authorId}
+            showAt
+            className="text-xs font-normal text-muted-foreground truncate"
+          />
+          <span className="ml-auto text-[10px] text-muted-foreground/60 bg-secondary px-1.5 py-0.5 rounded-full flex-shrink-0">
             {listing.category}
           </span>
         </div>

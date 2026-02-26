@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Send } from 'lucide-react';
 import { useGetComments, useAddComment, useGetUser } from '../hooks/useQueries';
 import { Comment } from '../backend';
+import ClickableUsername from './ClickableUsername';
 
 interface CommentsSheetProps {
   postId: string;
@@ -19,6 +20,8 @@ function CommentItem({ comment }: { comment: Comment }) {
     ? `data:image/jpeg;base64,${authorUser.profilePicData}`
     : '/assets/generated/default-avatar.dim_128x128.png';
 
+  const displayName = authorUser?.displayName || comment.authorId;
+
   return (
     <div className="flex items-start gap-3 py-2">
       <img
@@ -28,7 +31,11 @@ function CommentItem({ comment }: { comment: Comment }) {
       />
       <div className="flex-1 min-w-0">
         <p className="text-sm">
-          <span className="font-semibold text-foreground mr-1">{comment.authorId}</span>
+          <ClickableUsername
+            userId={comment.authorId}
+            displayName={displayName}
+            className="mr-1 text-sm"
+          />
           <span className="text-foreground">{comment.text}</span>
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
