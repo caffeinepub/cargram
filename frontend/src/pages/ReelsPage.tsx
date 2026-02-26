@@ -44,7 +44,7 @@ interface ReelItemProps {
 function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -72,12 +72,19 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
     : (externalMediaUrl?.includes('.mp4') || externalMediaUrl?.includes('.webm') || externalMediaUrl?.includes('.mov')) ?? false;
 
   useEffect(() => {
-    if (videoRef.current) {
-      if (isActive) {
-        videoRef.current.play().catch(() => {});
-      } else {
-        videoRef.current.pause();
-      }
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isActive) {
+      video.muted = false;
+      video.play().catch(() => {
+        // Autoplay with sound blocked — fall back to muted
+        video.muted = true;
+        setMuted(true);
+        video.play().catch(() => {});
+      });
+    } else {
+      video.pause();
     }
   }, [isActive]);
 
@@ -102,7 +109,6 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
               src={mediaSource}
               className="w-full h-full object-cover"
               loop
-              muted={muted}
               playsInline
             />
           ) : (
@@ -128,7 +134,13 @@ function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
 
           {isVideo && (
             <button
-              onClick={() => setMuted(!muted)}
+              onClick={() => {
+                const video = videoRef.current;
+                if (video) {
+                  video.muted = !muted;
+                }
+                setMuted(!muted);
+              }}
               className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
             >
               {muted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}

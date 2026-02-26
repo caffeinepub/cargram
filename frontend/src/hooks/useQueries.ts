@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { PostType, type UserProfile, type Variant_new_used } from '../backend';
+import { PostType, type UserProfile, type Variant_new_used, type PostRecord } from '../backend';
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -84,6 +84,48 @@ export function useGetAllPosts() {
   });
 }
 
+const FEED_PAGE_SIZE = 20;
+
+/**
+ * Infinite scroll hook for the home feed.
+ * Fetches all posts once and paginates them client-side in pages of 20.
+ * getNextPageParam returns the next offset when more posts are available.
+ */
+export function useInfiniteFeed() {
+  const { actor, isFetching } = useActor();
+
+  return useInfiniteQuery<PostRecord[], Error, { pages: PostRecord[][] }, ['infiniteFeed'], number>({
+    queryKey: ['infiniteFeed'],
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      if (!actor) return [];
+      try {
+        // Fetch all posts once; React Query caches the full list.
+        // We slice client-side to avoid re-fetching on every page load.
+        const allPosts = await actor.getAllPosts();
+        // Sort newest-first by createdAt
+        const sorted = [...allPosts].sort((a, b) => {
+          const diff = Number(b.createdAt) - Number(a.createdAt);
+          return diff;
+        });
+        const offset = pageParam as number;
+        return sorted.slice(offset, offset + FEED_PAGE_SIZE);
+      } catch (err) {
+        console.error('[useInfiniteFeed] Error:', err);
+        return [];
+      }
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < FEED_PAGE_SIZE) return undefined;
+      return allPages.reduce((sum, page) => sum + page.length, 0);
+    },
+    enabled: !!actor && !isFetching,
+    retry: 1,
+    // Keep previous data so the feed doesn't flash on refetch
+    staleTime: 30_000,
+  });
+}
+
 export function useGetPost(postId: string | undefined) {
   const { actor, isFetching } = useActor();
 
@@ -127,6 +169,7 @@ export function useCreatePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['allPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['infiniteFeed'] });
     },
     onError: (error: Error) => {
       console.error('[useCreatePost] Error:', error.message);
@@ -146,6 +189,7 @@ export function useDeletePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['allPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['infiniteFeed'] });
     },
     onError: (error: Error) => {
       console.error('[useDeletePost] Error:', error.message);
@@ -719,24 +763,5 @@ export function useMarkListingAsSold() {
     onError: (error: Error) => {
       console.error('[useMarkListingAsSold] Error:', error.message);
     },
-  });
-}
-
-export function useSearchListings(query: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery({
-    queryKey: ['searchListings', query],
-    queryFn: async () => {
-      if (!actor || !query.trim()) return [];
-      try {
-        return await actor.searchListings(query);
-      } catch (err) {
-        console.error('[useSearchListings] Error:', err);
-        return [];
-      }
-    },
-    enabled: !!actor && !isFetching && !!query.trim(),
-    retry: 1,
   });
 }

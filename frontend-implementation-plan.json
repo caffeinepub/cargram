@@ -1,24 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add BullBoost Performance clickable image banner on every authenticated page",
+  "title": "Add Google site verification meta tag to index.html",
   "requirements": [
     {
-      "id": "REQ-110",
-      "summary": "Add a persistent clickable BullBoost Performance logo banner on every authenticated page inside the Layout component. The banner displays the uploaded logo image from frontend/public/assets/generated/bullboost-logo.dim_760x200.png and navigates to https://bullboostperformance.com/?ref=xprbexxu in a new tab when clicked. The banner is styled consistently with the app's dark automotive theme and positioned similar to the existing eBay affiliate banner.",
+      "id": "REQ-127",
+      "summary": "Add Google site verification meta tag to frontend/index.html",
       "acceptanceCriteria": [
-        "The BullBoost Performance logo image is visible on every authenticated page inside the Layout",
-        "Clicking/tapping the image opens https://bullboostperformance.com/?ref=xprbexxu in a new browser tab",
-        "The banner does not appear on the unauthenticated landing/intro page",
-        "The banner is styled with the app's dark automotive theme, consistent with existing banners",
-        "The image is rendered from the static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
-        "The anchor tag includes rel='noopener noreferrer' for security"
+        "The `<head>` section of `frontend/index.html` contains exactly `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">`.",
+        "All existing SEO metadata tags (description, Open Graph, Twitter Card, keywords, theme-color, robots) remain intact and unmodified.",
+        "The page title and all other existing head elements are preserved."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Layout.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Add a BullBoost Performance clickable banner between the TopBar and the main content area (before the existing eBay affiliate banner). The banner must render an anchor tag with target='_blank' and rel='noopener noreferrer' wrapping an img element that displays frontend/public/assets/generated/bullboost-logo.dim_760x200.png. The anchor href must be exactly https://bullboostperformance.com/?ref=xprbexxu. Style the banner as a slim clickable strip or card with a dark/asphalt background consistent with the app's automotive theme, using similar styling to the existing affiliate banner. Ensure the banner is non-intrusive but visible, positioned logically within the authenticated Layout flow."
+          "description": "Add the Google site verification meta tag `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` inside the `<head>` section. Insert it after the existing viewport meta tag and before the Open Graph tags. Preserve all existing meta tags, title, and other head elements exactly as they are."
         }
       ]
     }

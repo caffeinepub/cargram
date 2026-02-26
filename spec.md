@@ -1,13 +1,9 @@
 # Specification
 
 ## Summary
-**Goal:** Add a persistent, clickable BullBoost Performance logo banner to every authenticated page in the RevGrid app.
+**Goal:** Add a Google Search Console site verification meta tag to the frontend's `index.html`.
 
 **Planned changes:**
-- Save the BullBoost Performance logo as a static asset at `frontend/public/assets/generated/bullboost-logo.dim_760x200.png`
-- Add a clickable banner strip inside the Layout component, visible on all authenticated routes
-- Wrap the logo image in an anchor tag linking to `https://bullboostperformance.com/?ref=xprbexxu` with `target="_blank"` and `rel="noopener noreferrer"`
-- Style the banner with a dark/asphalt background consistent with the app's automotive theme, placed between the TopBar and main content (or above the BottomNav), similar to the existing eBay affiliate banner
-- Banner does not appear on unauthenticated/landing/intro pages
+- Add `<meta name="google-site-verification" content="ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag">` inside the `<head>` section of `frontend/index.html`
 
-**User-visible outcome:** On every authenticated page, users see a slim BullBoost Performance banner. Clicking it opens the BullBoost Performance website in a new tab.
+**User-visible outcome:** The site will be verifiable via Google Search Console using the HTML meta tag method, with no other changes to the page.

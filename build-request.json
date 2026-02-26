@@ -1,45 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Add BullBoost Performance clickable image banner on every authenticated page",
+  "title": "Add Google site verification meta tag to index.html",
   "projectName": "RevGrid",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-110",
-      "text": "Add a persistent clickable BullBoost Performance logo banner on every authenticated page (all routes inside the Layout component at frontend/src/components/Layout.tsx). The banner must display the uploaded BullBoost Performance logo image (saved as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png). Clicking the image navigates to https://bullboostperformance.com/?ref=xprbexxu in a new tab. The banner should be styled consistently with the app's dark automotive theme (dark/asphalt background, styled as a slim clickable strip or card). Place it in a non-intrusive but visible position — either between the TopBar and the main content area, or as a fixed strip above the BottomNav — similar in placement to the existing eBay affiliate banner. The image must be wrapped in an anchor tag with target='_blank' and rel='noopener noreferrer'.",
+      "id": "REQ-127",
+      "text": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent"
         ],
         "quotes": [
-          "Add this link with this picture click able on every page click the image to go to the site https://bullboostperformance.com/?ref=xprbexxu"
+          "Put this in the dns configuration google-site-verification=ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag"
         ]
       },
       "acceptanceCriteria": [
-        "The BullBoost Performance logo image is visible on every authenticated page inside the Layout",
-        "Clicking/tapping the image opens https://bullboostperformance.com/?ref=xprbexxu in a new browser tab",
-        "The banner does not appear on the unauthenticated landing/intro page",
-        "The banner is styled with the app's dark automotive theme, consistent with existing banners",
-        "The image is rendered from the static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
-        "The anchor tag includes rel='noopener noreferrer' for security"
+        "The `<head>` section of `frontend/index.html` contains exactly `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">`.",
+        "All existing SEO metadata tags (description, Open Graph, Twitter Card, keywords, theme-color, robots) remain intact and unmodified.",
+        "The page title and all other existing head elements are preserved."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files listed in frontend.immutablePaths",
-    "The BullBoost banner must use the provided logo image as a static asset, not fetched from an external URL",
-    "The link URL must be exactly https://bullboostperformance.com/?ref=xprbexxu with no modification"
+    "Do not modify any other tags or content in frontend/index.html beyond adding the google-site-verification meta tag.",
+    "Do not make any backend changes."
   ],
   "nonGoals": [
-    "Replacing or removing the existing eBay aftermarket parts affiliate banner",
-    "Adding the banner to unauthenticated routes or the flash intro/landing page",
-    "Any backend changes"
+    "Adding a DNS TXT record — the requirement is fulfilled via the HTML meta tag approach.",
+    "Any other SEO or metadata changes beyond the single verification tag."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": [
-      "Save the uploaded BullBoost Performance logo on a pure black background, optimized for use as a banner strip (bullboost-logo.dim_760x200.png)"
-    ]
+    "edits": []
   }
 }

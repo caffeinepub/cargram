@@ -1,8 +1,8 @@
-import { useRef, useCallback } from 'react';
-import { useGetAllPosts } from '../hooks/useQueries';
+import { useRef, useCallback, useEffect } from 'react';
+import { useInfiniteFeed } from '../hooks/useQueries';
 import PostCard from '../components/PostCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car } from 'lucide-react';
+import { Car, Loader2 } from 'lucide-react';
 import { type PostRecord } from '../backend';
 
 function PostCardWrapper({ post }: { post: PostRecord }) {
@@ -10,9 +10,41 @@ function PostCardWrapper({ post }: { post: PostRecord }) {
 }
 
 export default function HomePage() {
-  const { data: posts = [], isLoading, refetch } = useGetAllPosts();
-  const refreshing = useRef(false);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useInfiniteFeed();
 
+  // Flatten all pages into a single list
+  const posts = data?.pages.flat() ?? [];
+
+  // Sentinel element ref for IntersectionObserver
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Observe the sentinel to trigger next page fetch
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const refreshing = useRef(false);
   const handleRefresh = useCallback(async () => {
     if (refreshing.current) return;
     refreshing.current = true;
@@ -63,9 +95,28 @@ export default function HomePage() {
           Refresh
         </button>
       </div>
+
       {posts.map(post => (
         <PostCardWrapper key={post.id} post={post} />
       ))}
+
+      {/* Sentinel element — triggers next page fetch when visible */}
+      <div ref={sentinelRef} className="h-4" />
+
+      {/* Loading indicator for next page */}
+      {isFetchingNextPage && (
+        <div className="flex items-center justify-center py-6 gap-2 text-muted-foreground">
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <span className="text-sm">Loading more posts…</span>
+        </div>
+      )}
+
+      {/* End of feed indicator */}
+      {!hasNextPage && posts.length > 0 && (
+        <div className="flex items-center justify-center py-6">
+          <p className="text-xs text-muted-foreground">You're all caught up 🏁</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Volume2, VolumeX } from 'lucide-react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
+import { useLandingMusic } from '../hooks/useLandingMusic';
 
 const INTRO_IMAGES = [
   '/assets/generated/intro-car-1.dim_1920x1080.jpg',
@@ -30,6 +31,10 @@ export default function LandingPage({
   const { login, loginStatus } = useInternetIdentity();
   const isLoggingIn = loginStatus === 'logging-in';
 
+  // Local loading state so we can reset it on error/cancel independently of hook state
+  const [isHandlingLogin, setIsHandlingLogin] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const [phase, setPhase] = useState<'intro' | 'login'>(
     skipIntroImmediately ? 'login' : 'intro'
   );
@@ -39,6 +44,9 @@ export default function LandingPage({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const introTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Music
+  const { isMuted, toggleMute, startPlayback, fadeOutAndStop } = useLandingMusic();
+
   // Preload images
   useEffect(() => {
     INTRO_IMAGES.forEach((src) => {
@@ -47,17 +55,25 @@ export default function LandingPage({
     });
   }, []);
 
+  // Start music playback when intro begins
+  useEffect(() => {
+    if (phase === 'intro') {
+      startPlayback();
+    }
+  }, [phase, startPlayback]);
+
   // When phase transitions to 'login', check if user is already authenticated
   // and auto-forward them into the app without showing the login button.
   useEffect(() => {
     if (phase === 'login' && isAuthenticated) {
       // Small delay to let the fade-in animation play before forwarding
       const forwardTimer = setTimeout(() => {
+        fadeOutAndStop(800);
         onIntroComplete?.();
       }, 300);
       return () => clearTimeout(forwardTimer);
     }
-  }, [phase, isAuthenticated, onIntroComplete]);
+  }, [phase, isAuthenticated, onIntroComplete, fadeOutAndStop]);
 
   // Slideshow logic
   useEffect(() => {
@@ -103,10 +119,59 @@ export default function LandingPage({
     setTimeout(() => setPhase('login'), TRANSITION_DURATION);
   };
 
+  const handleLogin = async () => {
+    // Prevent double-clicks but never silently block the first click
+    if (isHandlingLogin || isLoggingIn) return;
+    setLoginError(null);
+    setIsHandlingLogin(true);
+    try {
+      await login();
+      // Login succeeded — fade out music and signal AuthGate to proceed
+      fadeOutAndStop(1200);
+      onIntroComplete?.();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // User cancelled the popup — don't show an error for that
+      const isCancelled =
+        msg.toLowerCase().includes('cancel') ||
+        msg.toLowerCase().includes('closed') ||
+        msg.toLowerCase().includes('user closed') ||
+        msg.toLowerCase().includes('aborted');
+      if (!isCancelled) {
+        console.error('[LandingPage] Login error:', err);
+        setLoginError('Login failed. Please try again.');
+      }
+    } finally {
+      setIsHandlingLogin(false);
+    }
+  };
+
+  const showLoginSpinner = isHandlingLogin || isLoggingIn;
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center bg-black">
       {/* Amber accent line at top */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-primary z-30" />
+
+      {/* ── MUTE / UNMUTE TOGGLE ── */}
+      <button
+        onClick={toggleMute}
+        aria-label={isMuted ? 'Unmute music' : 'Mute music'}
+        className="absolute top-4 right-4 z-40 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/60 border border-primary/40 text-primary hover:bg-black/80 hover:border-primary/70 transition-all duration-200 backdrop-blur-sm"
+        style={{ boxShadow: '0 0 12px rgba(255,160,0,0.2)' }}
+      >
+        {isMuted ? (
+          <>
+            <VolumeX className="w-4 h-4" />
+            <span className="text-xs font-heading tracking-widest uppercase hidden sm:inline">Sound Off</span>
+          </>
+        ) : (
+          <>
+            <Volume2 className="w-4 h-4 animate-pulse" />
+            <span className="text-xs font-heading tracking-widest uppercase hidden sm:inline">Sound On</span>
+          </>
+        )}
+      </button>
 
       {/* ── INTRO PHASE ── */}
       {phase === 'intro' && (
@@ -251,12 +316,12 @@ export default function LandingPage({
               <>
                 {/* Login button for unauthenticated users */}
                 <Button
-                  onClick={login}
-                  disabled={isLoggingIn}
+                  onClick={handleLogin}
+                  disabled={showLoginSpinner}
                   className="w-full max-w-xs h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-heading text-xl font-bold tracking-widest rounded-sm transition-all duration-200 hover:scale-105 active:scale-95"
                   style={{ boxShadow: '0 0 24px rgba(255,160,0,0.4)' }}
                 >
-                  {isLoggingIn ? (
+                  {showLoginSpinner ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
                       Connecting...
@@ -265,6 +330,13 @@ export default function LandingPage({
                     'LOGIN'
                   )}
                 </Button>
+
+                {/* Error message */}
+                {loginError && (
+                  <p className="text-red-400 text-sm font-body max-w-xs">
+                    {loginError}
+                  </p>
+                )}
 
                 <p className="text-white/40 text-xs font-body">
                   Powered by Internet Identity — secure, decentralized login

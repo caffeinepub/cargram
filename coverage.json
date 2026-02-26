@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T10:45:31.359Z",
+  "generatedAt": "2026-02-26T12:41:12.654Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,14 +11,14 @@
     "implemented": 1,
     "items": [
       {
-        "id": "REQ-110",
-        "summary": "Add a persistent clickable BullBoost Performance logo banner on every authenticated page (all routes inside the Layout component at frontend/src/components/Layout.tsx). The banner must display the uploaded BullBoost Performance logo image (saved as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png). Clicking the image navigates to https://bullboostperformance.com/?ref=xprbexxu in a new tab. The banner should be styled consistently with the app's dark automotive theme (dark/asphalt background, styled as a slim clickable strip or card). Place it in a non-intrusive but visible position — either between the TopBar and the main content area, or as a fixed strip above the BottomNav — similar in placement to the existing eBay affiliate banner. The image must be wrapped in an anchor tag with target='_blank' and rel='noopener noreferrer'.",
+        "id": "REQ-127",
+        "summary": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Layout.tsx"
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/components/Layout.tsx"
+          "frontend/index.html"
         ]
       }
     ]
@@ -28,7 +28,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/Layout.tsx",
+    "frontend/index.html",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 57,
+  "projectStateVersion": 75,
   "summary": "A full-featured car enthusiast social media app inspired by Instagram/TikTok, built exclusively for car culture under the brand 'RevGrid'. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, the ability for users to delete their own posts and reels, and an About RevGrid page with platform description, support/donation info, and contact details.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
@@ -9,7 +9,8 @@
     "App has a gated landing page — users must press login before accessing the main app",
     "Marketplace entity needed: listings (id, sellerId, title, description, price, imageUrls, category, status, createdAt)",
     "Reels support category tags: Street, Stance, JDM, Drift, and other car culture subgenres — stored on the post/reel entity",
-    "Larger media uploads may require chunked upload strategy or asset canister (ICP) to bypass the ~2 MB ingress message limit"
+    "Larger media uploads may require chunked upload strategy or asset canister (ICP) to bypass the ~2 MB ingress message limit",
+    "Scalability target: design for millions of concurrent users — consider multi-canister sharding, pagination on all queries, and avoiding O(n) full-table scans in main.mo"
   ],
   "known_issues": [
     "App header/topbar still displays 'CarGram' instead of the preferred 'RevReel' branding",
@@ -18,10 +19,10 @@
     "Post/reel creation flow gets stuck in a loading state and does not complete the upload — users cannot successfully submit new posts",
     "Discovery/Explore page is missing or not accessible — users cannot navigate to it from the bottom nav or any other entry point",
     "App shows infinite loading spinner on mobile — possible startup/initialization error or auth check hang on mobile browsers",
-    "Flash intro/landing page is skipped for users with an existing account — returning authenticated users bypass the intro and go directly to the main app instead of seeing the intro first"
+    "Flash intro/landing page is skipped for users with an existing account — returning authenticated users bypass the intro and go directly to the main app instead of seeing the intro first",
+    "Landing page login button is unresponsive — clicking it does nothing and does not trigger Internet Identity authentication"
   ],
   "isFixRequest": false,
-  "imageRequirements": "## Edit Images\n- Save the uploaded BullBoost Performance logo on a pure black background, optimized for use as a banner strip (bullboost-logo.dim_760x200.png)",
   "existing_features": [
     {
       "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
@@ -508,6 +509,102 @@
       "title": "Add a persistent clickable BullBoost Performance logo banner on every authenticated page (all routes inside the Layout component at frontend/src/components/Layout.tsx). The banner must display the uploaded BullBoost Performance logo image (saved as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png). Clicking the image navigates to https://bullboostperformance.com/?ref=xprbexxu in a new tab. The banner should be styled consistently with the app's dark automotive theme (dark/asphalt background, styled as a slim clickable strip or card). Place it in a non-intrusive but visible position — either between the TopBar and the main content area, or as a fixed strip above the BottomNav — similar in placement to the existing eBay affiliate banner. The image must be wrapped in an anchor tag with target='_blank' and rel='noopener noreferrer'.",
       "reqIds": [
         "REQ-110"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-diagnose-and-fix-the-internet-identity-login-button-on-the-landingpage-frontend-src-components-landingpage-tsx-so-that-tapping-clicking-it-reliably-triggers-the-internet-identity-authentication-popup-ensure-the-login-handler-correctly-calls-the-login-function-from-the-useinternetidentity-hook-awaits-the-result-and-handles-both-success-and-error-outcomes-the-button-must-not-remain-in-a-disabled-or-loading-state-after-a-failed-attempt-and-must-visibly-respond-to-user-interaction-on-both-desktop-and-mobile-browsers",
+      "title": "Diagnose and fix the Internet Identity login button on the LandingPage (frontend/src/components/LandingPage.tsx) so that tapping/clicking it reliably triggers the Internet Identity authentication popup. Ensure the login handler correctly calls the `login` function from the `useInternetIdentity` hook, awaits the result, and handles both success and error outcomes. The button must not remain in a disabled or loading state after a failed attempt, and must visibly respond to user interaction on both desktop and mobile browsers.",
+      "reqIds": [
+        "REQ-111"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-audit-the-authgate-component-frontend-src-components-authgate-tsx-and-the-landingpage-flash-intro-flow-frontend-src-components-landingpage-tsx-for-any-wiring-issues-that-prevent-the-internet-identity-login-call-from-being-invoked-specifically-verify-the-login-function-from-useinternetidentity-is-correctly-imported-and-passed-to-the-landingpage-login-button-s-onclick-handler-ensure-the-onloginsuccess-onauthenticated-callback-correctly-transitions-the-app-state-out-of-the-landing-intro-phase-and-confirm-there-are-no-conditional-guards-e-g-actor-not-ready-intro-not-complete-that-silently-block-the-login-call-from-executing",
+      "title": "Audit the AuthGate component (frontend/src/components/AuthGate.tsx) and the LandingPage flash intro flow (frontend/src/components/LandingPage.tsx) for any wiring issues that prevent the Internet Identity `login` call from being invoked. Specifically: verify the `login` function from `useInternetIdentity` is correctly imported and passed to the LandingPage login button's `onClick` handler; ensure the `onLoginSuccess` / `onAuthenticated` callback correctly transitions the app state out of the landing/intro phase; and confirm there are no conditional guards (e.g., actor not ready, intro not complete) that silently block the login call from executing.",
+      "reqIds": [
+        "REQ-112"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-save-the-uploaded-enjuku-racing-banner-image-as-a-static-asset-at-frontend-public-assets-generated-enjuku-racing-banner-dim-940x627-jpg-for-use-in-the-authenticated-layout",
+      "title": "Save the uploaded Enjuku Racing banner image as a static asset at frontend/public/assets/generated/enjuku-racing-banner.dim_940x627.jpg for use in the authenticated layout.",
+      "reqIds": [
+        "REQ-113"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-persistent-clickable-enjuku-racing-banner-on-every-authenticated-page-all-routes-inside-the-layout-component-at-frontend-src-components-layout-tsx-the-banner-must-display-the-enjuku-racing-image-saved-at-frontend-public-assets-generated-enjuku-racing-banner-dim-940x627-jpg-clicking-the-banner-must-open-https-enjukuracing-com-in-a-new-tab-the-banner-should-be-styled-consistently-with-the-app-s-dark-automotive-theme-dark-asphalt-background-slim-clickable-strip-or-card-place-it-alongside-the-existing-ebay-and-bullboost-sponsor-banners-either-between-the-topbar-and-the-main-content-area-or-as-a-fixed-strip-above-the-bottomnav-the-image-must-be-wrapped-in-an-anchor-tag-with-target-blank-and-rel-noopener-noreferrer",
+      "title": "Add a persistent clickable Enjuku Racing banner on every authenticated page (all routes inside the Layout component at frontend/src/components/Layout.tsx). The banner must display the Enjuku Racing image saved at frontend/public/assets/generated/enjuku-racing-banner.dim_940x627.jpg. Clicking the banner must open https://enjukuracing.com in a new tab. The banner should be styled consistently with the app's dark automotive theme (dark/asphalt background, slim clickable strip or card). Place it alongside the existing eBay and BullBoost sponsor banners — either between the TopBar and the main content area or as a fixed strip above the BottomNav. The image must be wrapped in an anchor tag with target='_blank' and rel='noopener noreferrer'.",
+      "reqIds": [
+        "REQ-114"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-to-pass-page-offset-parameters-to-the-paginated-backend-endpoints-introduced-in-req-117-implement-cursor-based-infinite-scroll-on-the-home-feed-frontend-src-pages-homepage-tsx-using-react-query-s-useinfinitequery-fetching-the-next-page-when-the-user-scrolls-to-the-bottom-each-page-should-request-20-posts-display-a-loading-indicator-at-the-bottom-while-the-next-page-loads",
+      "title": "Update the frontend React Query hooks in frontend/src/hooks/useQueries.ts to pass page/offset parameters to the paginated backend endpoints introduced in REQ-117. Implement cursor-based infinite scroll on the Home Feed (frontend/src/pages/HomePage.tsx) using React Query's useInfiniteQuery, fetching the next page when the user scrolls to the bottom. Each page should request 20 posts. Display a loading indicator at the bottom while the next page loads.",
+      "reqIds": [
+        "REQ-120"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-background-music-to-the-landing-page-frontend-src-components-landingpage-tsx-that-fits-the-automotive-car-culture-theme-embed-at-least-one-royalty-free-audio-track-sourced-from-a-public-cdn-url-or-bundled-as-a-static-asset-under-frontend-public-assets-audio-that-plays-during-the-flash-intro-slideshow-and-continues-through-the-login-screen-the-audio-must-1-start-playing-automatically-when-the-intro-begins-with-a-muted-by-default-fallback-to-satisfy-browser-autoplay-policies-unmute-on-first-user-interaction-2-include-a-visible-mute-unmute-toggle-button-overlaid-on-the-landing-page-styled-with-the-app-s-amber-asphalt-theme-3-stop-or-fade-out-when-the-user-proceeds-into-the-main-authenticated-app-4-not-block-or-delay-the-intro-animation-or-the-internet-identity-login-flow-in-any-way",
+      "title": "Add background music to the landing page (frontend/src/components/LandingPage.tsx) that fits the automotive/car culture theme. Embed at least one royalty-free audio track (sourced from a public CDN URL or bundled as a static asset under frontend/public/assets/audio/) that plays during the flash intro slideshow and continues through the login screen. The audio must: (1) start playing automatically when the intro begins (with a muted-by-default fallback to satisfy browser autoplay policies — unmute on first user interaction), (2) include a visible mute/unmute toggle button overlaid on the landing page (styled with the app's amber/asphalt theme), (3) stop or fade out when the user proceeds into the main authenticated app, (4) not block or delay the intro animation or the Internet Identity login flow in any way.",
+      "reqIds": [
+        "REQ-121"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-reelspage-tsx-remove-the-muted-attribute-from-all-video-elements-used-to-display-reel-content-ensure-that-every-video-reel-plays-with-audio-enabled-unmuted-by-default-when-it-becomes-the-active-reel-in-the-vertical-snap-scroll-feed-do-not-add-any-muted-by-default-fallback-or-autoplay-workaround-that-silences-the-audio",
+      "title": "In frontend/src/pages/ReelsPage.tsx, remove the `muted` attribute from all video elements used to display reel content. Ensure that every video reel plays with audio enabled (unmuted) by default when it becomes the active reel in the vertical snap-scroll feed. Do not add any muted-by-default fallback or autoplay workaround that silences the audio.",
+      "reqIds": [
+        "REQ-122"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-uselandingmusic-ts-and-frontend-src-components-landingpage-tsx-change-the-landing-page-background-music-to-start-unmuted-by-default-remove-any-logic-that-initializes-the-audio-in-a-muted-state-or-that-requires-user-interaction-before-unmuting-the-audio-should-play-at-full-or-a-reasonable-volume-immediately-when-the-intro-begins-without-waiting-for-a-tap-or-click-to-unmute",
+      "title": "In frontend/src/hooks/useLandingMusic.ts and frontend/src/components/LandingPage.tsx, change the landing page background music to start unmuted by default. Remove any logic that initializes the audio in a muted state or that requires user interaction before unmuting. The audio should play at full (or a reasonable) volume immediately when the intro begins, without waiting for a tap or click to unmute.",
+      "reqIds": [
+        "REQ-123"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-diagnose-and-fix-the-internet-identity-login-button-on-the-landingpage-frontend-src-components-landingpage-tsx-so-that-clicking-or-tapping-it-reliably-triggers-the-internet-identity-authentication-popup-trace-the-full-wiring-from-the-button-s-onclick-handler-through-to-the-login-function-provided-by-the-useinternetidentity-hook-ensure-1-the-login-function-is-correctly-imported-from-useinternetidentity-and-is-not-undefined-or-null-at-the-time-the-button-is-clicked-2-no-conditional-guards-e-g-intro-not-complete-actor-not-ready-isloading-state-silently-prevent-the-handler-from-executing-3-the-handler-awaits-the-login-call-and-handles-both-success-and-error-outcomes-4-the-button-visibly-responds-to-interaction-shows-a-loading-pending-state-while-the-login-is-in-progress-5-the-button-exits-any-disabled-or-loading-state-after-a-failed-or-cancelled-attempt-so-users-can-retry-6-on-successful-login-the-app-transitions-correctly-into-the-authenticated-main-app-and-7-the-fix-applies-on-both-desktop-and-mobile-browsers",
+      "title": "Diagnose and fix the Internet Identity login button on the LandingPage (frontend/src/components/LandingPage.tsx) so that clicking or tapping it reliably triggers the Internet Identity authentication popup. Trace the full wiring from the button's onClick handler through to the `login` function provided by the `useInternetIdentity` hook. Ensure: (1) the `login` function is correctly imported from `useInternetIdentity` and is not undefined or null at the time the button is clicked, (2) no conditional guards (e.g., intro not complete, actor not ready, isLoading state) silently prevent the handler from executing, (3) the handler awaits the login call and handles both success and error outcomes, (4) the button visibly responds to interaction (shows a loading/pending state while the login is in progress), (5) the button exits any disabled or loading state after a failed or cancelled attempt so users can retry, (6) on successful login the app transitions correctly into the authenticated main app, and (7) the fix applies on both desktop and mobile browsers.",
+      "reqIds": [
+        "REQ-124"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-index-html-to-include-comprehensive-seo-metadata-in-the-head-section-1-set-a-descriptive-title-tag-revgrid-the-car-enthusiast-social-platform-reels-builds-car-meets-2-add-a-meta-name-description-tag-with-the-content-revgrid-is-the-ultimate-social-platform-for-car-enthusiasts-share-reels-showcase-builds-post-car-meets-browse-a-parts-marketplace-and-connect-with-jdm-drift-stance-and-muscle-car-communities-worldwide-3-add-open-graph-tags-og-title-og-description-same-as-meta-description-og-type-set-to-website-og-site-name-set-to-revgrid-4-add-a-twitter-card-meta-tag-twitter-card-set-to-summary-large-image-5-add-meta-name-keywords-with-automotive-relevant-terms-such-as-car-enthusiasts-jdm-drift-stance-build-showcase-car-meets-car-reels-automotive-social-media-car-community-modified-cars-6-add-meta-name-robots-content-index-follow-to-explicitly-allow-crawling-and-7-add-a-meta-name-theme-color-content-f59e0b-using-the-app-s-amber-accent-color",
+      "title": "Update `frontend/index.html` to include comprehensive SEO metadata in the `<head>` section: (1) set a descriptive `<title>` tag — 'RevGrid — The Car Enthusiast Social Platform | Reels, Builds & Car Meets', (2) add a `<meta name=\"description\">` tag with the content: 'RevGrid is the ultimate social platform for car enthusiasts. Share reels, showcase builds, post car meets, browse a parts marketplace, and connect with JDM, drift, stance, and muscle car communities worldwide.', (3) add Open Graph tags: `og:title`, `og:description` (same as meta description), `og:type` set to 'website', `og:site_name` set to 'RevGrid', (4) add a Twitter Card meta tag `twitter:card` set to 'summary_large_image', (5) add `<meta name=\"keywords\">` with automotive-relevant terms such as 'car enthusiasts, JDM, drift, stance, build showcase, car meets, car reels, automotive social media, car community, modified cars', (6) add `<meta name=\"robots\" content=\"index, follow\">` to explicitly allow crawling, and (7) add a `<meta name=\"theme-color\" content=\"#f59e0b\">` using the app's amber accent color.",
+      "reqIds": [
+        "REQ-125"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-static-sitemap-xml-file-at-frontend-public-sitemap-xml-that-lists-all-publicly-accessible-routes-in-the-revgrid-app-include-the-following-urls-using-a-relative-base-or-a-canonical-domain-placeholder-landing-home-feed-reels-discover-events-marketplace-about-tuner-shop-reels-search-set-changefreq-to-weekly-and-priority-values-appropriate-to-each-page-e-g-1-0-for-the-root-0-8-for-main-feed-reels-discover-0-6-for-secondary-pages-use-the-standard-xml-sitemap-schema-xmlns-http-www-sitemaps-org-schemas-sitemap-0-9",
+      "title": "Create a static `sitemap.xml` file at `frontend/public/sitemap.xml` that lists all publicly accessible routes in the RevGrid app. Include the following URLs (using a relative base or a canonical domain placeholder): `/` (landing/home), `/feed`, `/reels`, `/discover`, `/events`, `/marketplace`, `/about`, `/tuner-shop`, `/reels-search`. Set `<changefreq>` to `weekly` and `<priority>` values appropriate to each page (e.g., 1.0 for the root, 0.8 for main feed/reels/discover, 0.6 for secondary pages). Use the standard XML sitemap schema (xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\").",
+      "reqIds": [
+        "REQ-126"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-meta-name-google-site-verification-content-ajqpdh5gawtpw4gtsstghaocxr99ggbnovtx1vckcag-tag-inside-the-head-section-of-frontend-index-html-to-enable-google-search-console-site-verification",
+      "title": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
+      "reqIds": [
+        "REQ-127"
       ],
       "version": 1
     }
@@ -1160,6 +1257,82 @@
     {
       "id": "AR-118",
       "summary": "Add a clickable image/banner on every page (all authenticated routes) that links to https://bullboostperformance.com/?ref=xprbexxu, opening in a new tab. Styled consistently with the app's automotive theme.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-119",
+      "summary": "Scale the app infrastructure to handle millions of users — optimize backend data structures, query performance, and ICP canister architecture for high-throughput concurrent access",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-120",
+      "summary": "Audit and optimize all stable data structures in backend/main.mo for scalability. Replace any linear-scan lookups (e.g., iterating over all posts, all users, all comments) with indexed HashMap or TrieMap lookups keyed by the primary access pattern (e.g., posts by authorId, comments by postId, follows by followerId/followeeId, messages by conversationKey). This reduces per-query time complexity from O(n) to O(1) or O(log n) for the most common read paths.",
+      "reqIds": [
+        "REQ-115"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-121",
+      "summary": "Add secondary index maps in backend/main.mo for the most frequent query patterns: (1) a postsByAuthor map (Principal -> [Nat]) so a user's posts can be fetched without scanning all posts, (2) a commentsByPost map (Nat -> [Nat]) so comments for a post can be retrieved directly, (3) a likesByPost map (Nat -> Set<Principal>) and a likedByUser map (Principal -> Set<Nat>) so like counts and user like state are O(1), (4) a followersByUser map (Principal -> Set<Principal>) and a followingByUser map (Principal -> Set<Principal>) so follow counts and lists are O(1). Keep these indexes in sync with every create/delete mutation.",
+      "reqIds": [
+        "REQ-116"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-122",
+      "summary": "Add pagination support to all high-volume list endpoints in backend/main.mo that currently return unbounded arrays. At minimum, add offset/limit parameters (both ?Nat) to: getPosts / getFeed, getComments, getAllListings, getFollowers, getFollowing, and getAllEvents. When limit is provided, return only that slice of results. When limit is absent, preserve current behavior for backward compatibility. Document the maximum recommended page size in a comment (e.g., 50 records).",
+      "reqIds": [
+        "REQ-117"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-123",
+      "summary": "Ensure all stable variable declarations in backend/main.mo use TrieMap or HashMap with explicit initial capacity hints where possible, and replace any Array-backed mutable state used as a lookup table with a map type. Add a comment at the top of main.mo documenting the data model's index strategy and the rationale for each stable structure choice.",
+      "reqIds": [
+        "REQ-118"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-124",
+      "summary": "Update the Home Feed query in backend/main.mo to return posts in reverse-chronological order (newest first) using the indexed postsByAuthor and followingByUser maps rather than sorting a full post array on every call. The feed should first retrieve posts from followed users (personalized) and fall back to all recent posts when the following list is empty, using the pagination parameters added in REQ-117.",
+      "reqIds": [
+        "REQ-119"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-125",
+      "summary": "Add background music to the landing page that fits the automotive/car culture theme — auto-play or user-triggered audio that plays during the flash intro and/or login screen",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-126",
+      "summary": "Make all sound/audio on reels and throughout the app always play unmuted by default — remove any muted-by-default behavior on video reels and landing page audio",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-127",
+      "summary": "Add SEO metadata to make the website detectable by Google — include a good meta description, title tags, Open Graph tags, and any other relevant SEO improvements in the HTML head (frontend/index.html)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-128",
+      "summary": "Add a sitemap.xml to the project to help Google and other search engines discover and index all pages of the RevGrid app",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-129",
+      "summary": "Add Google site verification meta tag or DNS TXT record: google-site-verification=ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag — add as a <meta name=\"google-site-verification\"> tag in frontend/index.html",
       "reqIds": [],
       "status": "pending"
     }

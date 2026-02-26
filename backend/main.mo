@@ -1,3 +1,12 @@
+// ============================================================================
+// System Design Notes (Persisted State)
+// ============================================================================
+// - All actor-wide stable variables use Map, Set or Array data
+//   structures (with explicit initial capacity hints)
+// - All type recursive structures are unions/records (without cycles)
+// - Utilizes Array only for low-volume [Storage.ExternalBlob] types
+//   because they never grow beyond 10 items in a record.
+
 import Map "mo:core/Map";
 import Set "mo:core/Set";
 import Text "mo:core/Text";
@@ -11,8 +20,6 @@ import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
-
-
 
 actor {
   // Mixin core components
@@ -794,4 +801,3 @@ actor {
     );
   };
 };
-

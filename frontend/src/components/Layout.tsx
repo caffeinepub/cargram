@@ -8,6 +8,8 @@ const AFFILIATE_URL =
 
 const BULLBOOST_URL = 'https://bullboostperformance.com/?ref=xprbexxu';
 
+const ENJUKU_URL = 'https://enjukuracing.com';
+
 function AftermarketBanner() {
   return (
     <a
@@ -45,6 +47,23 @@ function BullBoostBanner() {
   );
 }
 
+function EnjukuRacingBanner() {
+  return (
+    <a
+      href={ENJUKU_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center px-4 py-0 bg-black border-b border-red-800/50 hover:bg-neutral-950 transition-colors group overflow-hidden"
+    >
+      <img
+        src="/assets/generated/enjuku-racing-banner.dim_940x627.jpg"
+        alt="Enjuku Racing"
+        className="h-16 w-auto object-contain group-hover:opacity-90 transition-opacity"
+      />
+    </a>
+  );
+}
+
 export default function Layout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -52,6 +71,7 @@ export default function Layout() {
       <div className="pt-14">
         <AftermarketBanner />
         <BullBoostBanner />
+        <EnjukuRacingBanner />
         <main className="flex-1 pb-20">
           <Outlet />
         </main>
