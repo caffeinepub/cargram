@@ -109,6 +109,7 @@ export interface User {
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
+    coverPhotoData?: string;
 }
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
@@ -182,6 +183,7 @@ export interface UserProfile {
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
+    coverPhotoData?: string;
 }
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
@@ -233,9 +235,9 @@ export interface backendInterface {
     createListing(title: string, description: string, price: string, condition: Variant_new_used, category: string, imageUrl: string): Promise<MarketplaceListingId>;
     /**
      * / Create a post; authorId is derived from the caller's stored profile
-     * / Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
+     * / Allows up to 2MB of mediaData (base64-encoded image data as Text).
      */
-    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null, imageUrl: string): Promise<PostId>;
+    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null): Promise<PostId>;
     /**
      * / Create a user record (authenticated users only)
      */
@@ -322,7 +324,7 @@ export interface backendInterface {
      */
     getUser(userId: UserId): Promise<User | null>;
     /**
-     * / Get another user's profile (caller must be the user themselves or an admin)
+     * / Get any user's profile by principal (public read — this is a social platform)
      */
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -347,7 +349,7 @@ export interface backendInterface {
      */
     searchListings(searchQuery: string): Promise<Array<MarketplaceListing>>;
     /**
-     * / Search reels by category or username (authenticated users only)
+     * / Search reels by category or username (public read — content discovery is open on this social platform)
      */
     searchReels(searchQuery: string): Promise<Array<PostRecord>>;
     /**
@@ -366,6 +368,7 @@ export interface backendInterface {
      * / Unlike a post; userId is derived from the caller's profile
      */
     unlikePost(postId: PostId): Promise<void>;
+    updateCoverPhoto(coverPhotoData: string | null): Promise<void>;
     /**
      * / Update a listing (author only)
      */
@@ -560,17 +563,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createPost(arg0: string, arg1: Array<string>, arg2: PostType, arg3: string | null, arg4: string | null, arg5: string): Promise<PostId> {
+    async createPost(arg0: string, arg1: Array<string>, arg2: PostType, arg3: string | null, arg4: string | null): Promise<PostId> {
         if (this.processError) {
             try {
-                const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4), arg5);
+                const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4), arg5);
+            const result = await this.actor.createPost(arg0, arg1, to_candid_PostType_n11(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg4));
             return result;
         }
     }
@@ -1050,6 +1053,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateCoverPhoto(arg0: string | null): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateCoverPhoto(to_candid_opt_n13(this._uploadFile, this._downloadFile, arg0));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateCoverPhoto(to_candid_opt_n13(this._uploadFile, this._downloadFile, arg0));
+            return result;
+        }
+    }
     async updateListing(arg0: MarketplaceListingId, arg1: string, arg2: string, arg3: string, arg4: Variant_new_used, arg5: string, arg6: string): Promise<void> {
         if (this.processError) {
             try {
@@ -1280,6 +1297,7 @@ async function from_candid_record_n36(_uploadFile: (file: ExternalBlob) => Promi
     carInfo: string;
     followingCount: bigint;
     profilePic: [] | [_ExternalBlob];
+    coverPhotoData: [] | [string];
 }): Promise<{
     id: UserId;
     bio: string;
@@ -1291,6 +1309,7 @@ async function from_candid_record_n36(_uploadFile: (file: ExternalBlob) => Promi
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
+    coverPhotoData?: string;
 }> {
     return {
         id: value.id,
@@ -1302,7 +1321,8 @@ async function from_candid_record_n36(_uploadFile: (file: ExternalBlob) => Promi
         profilePicData: record_opt_to_undefined(from_candid_opt_n32(_uploadFile, _downloadFile, value.profilePicData)),
         carInfo: value.carInfo,
         followingCount: value.followingCount,
-        profilePic: record_opt_to_undefined(await from_candid_opt_n22(_uploadFile, _downloadFile, value.profilePic))
+        profilePic: record_opt_to_undefined(await from_candid_opt_n22(_uploadFile, _downloadFile, value.profilePic)),
+        coverPhotoData: record_opt_to_undefined(from_candid_opt_n32(_uploadFile, _downloadFile, value.coverPhotoData))
     };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
@@ -1403,6 +1423,7 @@ async function to_candid_record_n45(_uploadFile: (file: ExternalBlob) => Promise
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
+    coverPhotoData?: string;
 }): Promise<{
     id: _UserId;
     bio: string;
@@ -1414,6 +1435,7 @@ async function to_candid_record_n45(_uploadFile: (file: ExternalBlob) => Promise
     carInfo: string;
     followingCount: bigint;
     profilePic: [] | [_ExternalBlob];
+    coverPhotoData: [] | [string];
 }> {
     return {
         id: value.id,
@@ -1425,7 +1447,8 @@ async function to_candid_record_n45(_uploadFile: (file: ExternalBlob) => Promise
         profilePicData: value.profilePicData ? candid_some(value.profilePicData) : candid_none(),
         carInfo: value.carInfo,
         followingCount: value.followingCount,
-        profilePic: value.profilePic ? candid_some(await to_candid_ExternalBlob_n46(_uploadFile, _downloadFile, value.profilePic)) : candid_none()
+        profilePic: value.profilePic ? candid_some(await to_candid_ExternalBlob_n46(_uploadFile, _downloadFile, value.profilePic)) : candid_none(),
+        coverPhotoData: value.coverPhotoData ? candid_some(value.coverPhotoData) : candid_none()
     };
 }
 function to_candid_variant_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Variant_new_used): {

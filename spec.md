@@ -1,18 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a static "Altered Imports" Tuner Shop page to the RevGrid app with full shop content, styled in the existing dark asphalt/amber automotive theme.
+**Goal:** Add a persistent, clickable BullBoost Performance logo banner to every authenticated page in the RevGrid app.
 
 **Planned changes:**
-- Create `frontend/src/pages/TunerShopPage.tsx` with the following sections:
-  - Hero section with shop name "Altered Imports" and subheading
-  - About/Mission section with full shop description
-  - Services section ("What We Specialize In") displaying 7 specializations as styled cards/list
-  - Closing paragraph
-  - Amber-styled tagline: "Build different. Build altered."
-  - Location section showing "Wenatchee"
-  - Contact section with Instagram @mr.altered link (opens in new tab) and tappable phone link (tel:509-679-1389)
-- Register an authenticated route `/tuner-shop` in `frontend/src/App.tsx` pointing to `TunerShopPage`
-- Add a "Tuner Shop" navigation entry point in the TopBar or Profile page linking to `/tuner-shop`
+- Save the BullBoost Performance logo as a static asset at `frontend/public/assets/generated/bullboost-logo.dim_760x200.png`
+- Add a clickable banner strip inside the Layout component, visible on all authenticated routes
+- Wrap the logo image in an anchor tag linking to `https://bullboostperformance.com/?ref=xprbexxu` with `target="_blank"` and `rel="noopener noreferrer"`
+- Style the banner with a dark/asphalt background consistent with the app's automotive theme, placed between the TopBar and main content (or above the BottomNav), similar to the existing eBay affiliate banner
+- Banner does not appear on unauthenticated/landing/intro pages
 
-**User-visible outcome:** Authenticated users can navigate to a "Tuner Shop" page that displays all content for Altered Imports, including services, location, and contact info, styled consistently with the rest of the app.
+**User-visible outcome:** On every authenticated page, users see a slim BullBoost Performance banner. Clicking it opens the BullBoost Performance website in a new tab.

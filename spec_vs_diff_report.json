@@ -1,25 +1,23 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T05:59:10.120Z",
-  "summary": "The diff implements both REQ-73 and REQ-74 largely as specified. TunerShopPage.tsx is created with hero, about/mission, services, closing paragraph, tagline, location, and contact sections. The route is registered in App.tsx and a Tuner Shop entry point (Wrench icon) is added to TopBar.tsx. However, the hero section's subheading text differs from the spec — it uses 'Honda & Acura Specialists · Wenatchee, WA' instead of the required subheading 'Performance-focused automotive shop built for enthusiasts who demand more from their cars.' The file is truncated so full verification of the closing paragraph, tagline, location, and contact sections is limited.",
+  "generatedAt": "2026-02-26T10:45:31.353Z",
+  "summary": "The diff implements REQ-110 by adding a BullBoostBanner component in Layout.tsx with the correct URL, static asset path, target='_blank', rel='noopener noreferrer', dark background styling, and placement between the existing eBay banner and main content. The static image asset itself is not shown as added in the diff (no ADDED FILES), but all code-level requirements are met.",
   "missing_requirements": [
     {
-      "id": "REQ-73",
-      "requirement": "Hero section subheading must read exactly: 'Performance-focused automotive shop built for enthusiasts who demand more from their cars.'",
-      "reason": "The hero section in TunerShopPage.tsx shows 'Honda & Acura Specialists · Wenatchee, WA' as the subheading instead of the required subheading text.",
+      "id": "REQ-110",
+      "requirement": "The BullBoost Performance logo image must be saved as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
+      "reason": "The diff shows no added files. The image asset itself does not appear in the ADDED FILES section, so it is unclear whether the static asset was actually committed.",
       "evidence": [
-        "frontend/src/pages/TunerShopPage.tsx"
+        "frontend/src/components/Layout.tsx"
       ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.72,
+  "confidence": 0.8,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/TopBar.tsx",
-    "frontend/src/pages/TunerShopPage.tsx",
+    "frontend/src/components/Layout.tsx",
     "project_state.json"
   ]
 }

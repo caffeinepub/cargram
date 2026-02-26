@@ -9,7 +9,12 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      try {
+        return await actor.getCallerUserProfile();
+      } catch (err) {
+        console.error('[useGetCallerUserProfile] Error:', err);
+        return null;
+      }
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -29,9 +34,15 @@ export function useGetUser(userId: string | undefined) {
     queryKey: ['user', userId],
     queryFn: async () => {
       if (!actor || !userId) return null;
-      return actor.getUser(userId);
+      try {
+        return await actor.getUser(userId);
+      } catch (err) {
+        console.error('[useGetUser] Error:', err);
+        return null;
+      }
     },
     enabled: !!actor && !isFetching && !!userId,
+    retry: 1,
   });
 }
 
@@ -42,9 +53,15 @@ export function useGetFeed(postType: PostType) {
     queryKey: ['feed', postType],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getFeed(postType);
+      try {
+        return await actor.getFeed(postType);
+      } catch (err) {
+        console.error('[useGetFeed] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching,
+    retry: 1,
   });
 }
 
@@ -55,9 +72,15 @@ export function useGetAllPosts() {
     queryKey: ['allPosts'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllPosts();
+      try {
+        return await actor.getAllPosts();
+      } catch (err) {
+        console.error('[useGetAllPosts] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching,
+    retry: 1,
   });
 }
 
@@ -68,9 +91,15 @@ export function useGetPost(postId: string | undefined) {
     queryKey: ['post', postId],
     queryFn: async () => {
       if (!actor || !postId) return null;
-      return actor.getPost(postId);
+      try {
+        return await actor.getPost(postId);
+      } catch (err) {
+        console.error('[useGetPost] Error:', err);
+        return null;
+      }
     },
     enabled: !!actor && !isFetching && !!postId,
+    retry: 1,
   });
 }
 
@@ -85,21 +114,22 @@ export function useCreatePost() {
       postType,
       reelCategory,
       mediaData,
-      imageUrl,
     }: {
       caption: string;
       tags: string[];
       postType: PostType;
       reelCategory?: string | null;
       mediaData?: string | null;
-      imageUrl?: string;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createPost(caption, tags, postType, reelCategory ?? null, mediaData ?? null, imageUrl ?? '');
+      return actor.createPost(caption, tags, postType, reelCategory ?? null, mediaData ?? null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['allPosts'] });
+    },
+    onError: (error: Error) => {
+      console.error('[useCreatePost] Error:', error.message);
     },
   });
 }
@@ -117,6 +147,9 @@ export function useDeletePost() {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['allPosts'] });
     },
+    onError: (error: Error) => {
+      console.error('[useDeletePost] Error:', error.message);
+    },
   });
 }
 
@@ -127,9 +160,15 @@ export function useGetComments(postId: string | undefined) {
     queryKey: ['comments', postId],
     queryFn: async () => {
       if (!actor || !postId) return [];
-      return actor.getComments(postId);
+      try {
+        return await actor.getComments(postId);
+      } catch (err) {
+        console.error('[useGetComments] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching && !!postId,
+    retry: 1,
   });
 }
 
@@ -145,6 +184,9 @@ export function useAddComment() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['comments', variables.postId] });
     },
+    onError: (error: Error) => {
+      console.error('[useAddComment] Error:', error.message);
+    },
   });
 }
 
@@ -155,9 +197,15 @@ export function useGetLikeCount(postId: string | undefined) {
     queryKey: ['likeCount', postId],
     queryFn: async () => {
       if (!actor || !postId) return BigInt(0);
-      return actor.getLikeCount(postId);
+      try {
+        return await actor.getLikeCount(postId);
+      } catch (err) {
+        console.error('[useGetLikeCount] Error:', err);
+        return BigInt(0);
+      }
     },
     enabled: !!actor && !isFetching && !!postId,
+    retry: 1,
   });
 }
 
@@ -173,6 +221,9 @@ export function useLikePost() {
     onSuccess: (_data, postId) => {
       queryClient.invalidateQueries({ queryKey: ['likeCount', postId] });
     },
+    onError: (error: Error) => {
+      console.error('[useLikePost] Error:', error.message);
+    },
   });
 }
 
@@ -187,6 +238,9 @@ export function useUnlikePost() {
     },
     onSuccess: (_data, postId) => {
       queryClient.invalidateQueries({ queryKey: ['likeCount', postId] });
+    },
+    onError: (error: Error) => {
+      console.error('[useUnlikePost] Error:', error.message);
     },
   });
 }
@@ -206,6 +260,9 @@ export function useFollowUser() {
       queryClient.invalidateQueries({ queryKey: ['following'] });
       queryClient.invalidateQueries({ queryKey: ['isFollowing'] });
     },
+    onError: (error: Error) => {
+      console.error('[useFollowUser] Error:', error.message);
+    },
   });
 }
 
@@ -224,6 +281,9 @@ export function useUnfollowUser() {
       queryClient.invalidateQueries({ queryKey: ['following'] });
       queryClient.invalidateQueries({ queryKey: ['isFollowing'] });
     },
+    onError: (error: Error) => {
+      console.error('[useUnfollowUser] Error:', error.message);
+    },
   });
 }
 
@@ -234,9 +294,15 @@ export function useGetFollowers(userId: string | undefined) {
     queryKey: ['followers', userId],
     queryFn: async () => {
       if (!actor || !userId) return [];
-      return actor.getFollowers(userId);
+      try {
+        return await actor.getFollowers(userId);
+      } catch (err) {
+        console.error('[useGetFollowers] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching && !!userId,
+    retry: 1,
   });
 }
 
@@ -247,9 +313,15 @@ export function useGetFollowing(userId: string | undefined) {
     queryKey: ['following', userId],
     queryFn: async () => {
       if (!actor || !userId) return [];
-      return actor.getFollowing(userId);
+      try {
+        return await actor.getFollowing(userId);
+      } catch (err) {
+        console.error('[useGetFollowing] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching && !!userId,
+    retry: 1,
   });
 }
 
@@ -260,9 +332,15 @@ export function useIsFollowing(userId: string | undefined) {
     queryKey: ['isFollowing', userId],
     queryFn: async () => {
       if (!actor || !userId) return false;
-      return actor.isFollowing(userId);
+      try {
+        return await actor.isFollowing(userId);
+      } catch (err) {
+        console.error('[useIsFollowing] Error:', err);
+        return false;
+      }
     },
     enabled: !!actor && !isFetching && !!userId,
+    retry: 1,
   });
 }
 
@@ -277,6 +355,9 @@ export function useSaveCallerUserProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
+    onError: (error: Error) => {
+      console.error('[useSaveCallerUserProfile] Error:', error.message);
     },
   });
 }
@@ -295,7 +376,7 @@ export function useUpdateProfilePic() {
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: (error: Error) => {
-      console.error('Failed to update profile picture:', error.message);
+      console.error('[useUpdateProfilePic] Error:', error.message);
     },
   });
 }
@@ -322,6 +403,9 @@ export function useCreateUser() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
+    onError: (error: Error) => {
+      console.error('[useCreateUser] Error:', error.message);
+    },
   });
 }
 
@@ -332,9 +416,15 @@ export function useSearchUsers(query: string) {
     queryKey: ['searchUsers', query],
     queryFn: async () => {
       if (!actor || !query.trim()) return [];
-      return actor.searchUsers(query);
+      try {
+        return await actor.searchUsers(query);
+      } catch (err) {
+        console.error('[useSearchUsers] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching && !!query.trim(),
+    retry: 1,
   });
 }
 
@@ -345,9 +435,15 @@ export function useSearchReels(query: string) {
     queryKey: ['searchReels', query],
     queryFn: async () => {
       if (!actor || !query.trim()) return [];
-      return actor.searchReels(query);
+      try {
+        return await actor.searchReels(query);
+      } catch (err) {
+        console.error('[useSearchReels] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching && !!query.trim(),
+    retry: 1,
   });
 }
 
@@ -363,6 +459,9 @@ export function useSendMessage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
+    onError: (error: Error) => {
+      console.error('[useSendMessage] Error:', error.message);
+    },
   });
 }
 
@@ -373,10 +472,16 @@ export function useGetMessages(conversationId: string | undefined) {
     queryKey: ['messages', conversationId],
     queryFn: async () => {
       if (!actor || !conversationId) return [];
-      return actor.getMessages(conversationId);
+      try {
+        return await actor.getMessages(conversationId);
+      } catch (err) {
+        console.error('[useGetMessages] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching && !!conversationId,
     refetchInterval: 3000,
+    retry: 1,
   });
 }
 
@@ -387,9 +492,15 @@ export function useGetAllEvents() {
     queryKey: ['events'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllEvents();
+      try {
+        return await actor.getAllEvents();
+      } catch (err) {
+        console.error('[useGetAllEvents] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching,
+    retry: 1,
   });
 }
 
@@ -400,9 +511,15 @@ export function useGetEvent(eventId: string | undefined) {
     queryKey: ['event', eventId],
     queryFn: async () => {
       if (!actor || !eventId) return null;
-      return actor.getEvent(eventId);
+      try {
+        return await actor.getEvent(eventId);
+      } catch (err) {
+        console.error('[useGetEvent] Error:', err);
+        return null;
+      }
     },
     enabled: !!actor && !isFetching && !!eventId,
+    retry: 1,
   });
 }
 
@@ -428,6 +545,9 @@ export function useCreateEvent() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
     },
+    onError: (error: Error) => {
+      console.error('[useCreateEvent] Error:', error.message);
+    },
   });
 }
 
@@ -443,6 +563,9 @@ export function useAttendEvent() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
     },
+    onError: (error: Error) => {
+      console.error('[useAttendEvent] Error:', error.message);
+    },
   });
 }
 
@@ -453,9 +576,15 @@ export function useGetAllBuilds() {
     queryKey: ['builds'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllBuilds();
+      try {
+        return await actor.getAllBuilds();
+      } catch (err) {
+        console.error('[useGetAllBuilds] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching,
+    retry: 1,
   });
 }
 
@@ -466,9 +595,15 @@ export function useGetBuild(buildId: string | undefined) {
     queryKey: ['build', buildId],
     queryFn: async () => {
       if (!actor || !buildId) return null;
-      return actor.getBuild(buildId);
+      try {
+        return await actor.getBuild(buildId);
+      } catch (err) {
+        console.error('[useGetBuild] Error:', err);
+        return null;
+      }
     },
     enabled: !!actor && !isFetching && !!buildId,
+    retry: 1,
   });
 }
 
@@ -492,6 +627,9 @@ export function useCreateBuild() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['builds'] });
     },
+    onError: (error: Error) => {
+      console.error('[useCreateBuild] Error:', error.message);
+    },
   });
 }
 
@@ -504,9 +642,15 @@ export function useGetAllListings() {
     queryKey: ['marketplaceListings'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllListings();
+      try {
+        return await actor.getAllListings();
+      } catch (err) {
+        console.error('[useGetAllListings] Error:', err);
+        return [];
+      }
     },
     enabled: !!actor && !isFetching,
+    retry: 1,
   });
 }
 
@@ -536,5 +680,63 @@ export function useCreateListing() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketplaceListings'] });
     },
+    onError: (error: Error) => {
+      console.error('[useCreateListing] Error:', error.message);
+    },
+  });
+}
+
+export function useDeleteListing() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteListing(listingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['marketplaceListings'] });
+    },
+    onError: (error: Error) => {
+      console.error('[useDeleteListing] Error:', error.message);
+    },
+  });
+}
+
+export function useMarkListingAsSold() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.markListingAsSold(listingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['marketplaceListings'] });
+    },
+    onError: (error: Error) => {
+      console.error('[useMarkListingAsSold] Error:', error.message);
+    },
+  });
+}
+
+export function useSearchListings(query: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['searchListings', query],
+    queryFn: async () => {
+      if (!actor || !query.trim()) return [];
+      try {
+        return await actor.searchListings(query);
+      } catch (err) {
+        console.error('[useSearchListings] Error:', err);
+        return [];
+      }
+    },
+    enabled: !!actor && !isFetching && !!query.trim(),
+    retry: 1,
   });
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 43,
+  "projectStateVersion": 57,
   "summary": "A full-featured car enthusiast social media app inspired by Instagram/TikTok, built exclusively for car culture under the brand 'RevGrid'. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, the ability for users to delete their own posts and reels, and an About RevGrid page with platform description, support/donation info, and contact details.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
@@ -16,10 +16,12 @@
     "Follow/unfollow button is missing or not visible next to the profile picture on the user profile page",
     "CreateReelPage is missing the video/file upload input — users cannot upload a video when creating a reel",
     "Post/reel creation flow gets stuck in a loading state and does not complete the upload — users cannot successfully submit new posts",
-    "Discovery/Explore page is missing or not accessible — users cannot navigate to it from the bottom nav or any other entry point"
+    "Discovery/Explore page is missing or not accessible — users cannot navigate to it from the bottom nav or any other entry point",
+    "App shows infinite loading spinner on mobile — possible startup/initialization error or auth check hang on mobile browsers",
+    "Flash intro/landing page is skipped for users with an existing account — returning authenticated users bypass the intro and go directly to the main app instead of seeing the intro first"
   ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Dark, moody cinematic banner image of a Honda/Acura sports car engine bay or a performance tuned import car in a garage setting with amber workshop lighting, gritty automotive atmosphere (tuner-shop-hero.dim_1920x600.jpg)",
+  "imageRequirements": "## Edit Images\n- Save the uploaded BullBoost Performance logo on a pure black background, optimized for use as a banner strip (bullboost-logo.dim_760x200.png)",
   "existing_features": [
     {
       "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
@@ -436,6 +438,78 @@
         "REQ-74"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-audit-the-authgate-component-frontend-src-components-authgate-tsx-and-the-useinternetidentity-hook-initialization-sequence-for-any-errors-or-unresolved-promises-that-could-cause-the-app-to-hang-indefinitely-on-a-loading-spinner-particularly-on-mobile-browsers-ensure-the-auth-check-has-a-finite-timeout-or-fallback-so-that-if-identity-initialization-stalls-the-app-falls-back-to-the-unauthenticated-landing-page-state-rather-than-spinning-forever",
+      "title": "Audit the AuthGate component (frontend/src/components/AuthGate.tsx) and the useInternetIdentity hook initialization sequence for any errors or unresolved promises that could cause the app to hang indefinitely on a loading spinner, particularly on mobile browsers. Ensure the auth check has a finite timeout or fallback so that if identity initialization stalls, the app falls back to the unauthenticated (landing page) state rather than spinning forever.",
+      "reqIds": [
+        "REQ-75"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-audit-the-useactor-hook-frontend-src-hooks-useactor-ts-for-any-conditions-where-actor-creation-can-fail-silently-or-stall-such-as-missing-canister-ids-network-errors-or-unresolved-async-calls-during-initialization-ensure-errors-are-caught-logged-and-the-hook-returns-a-defined-possibly-anonymous-state-rather-than-hanging-indefinitely",
+      "title": "Audit the useActor hook (frontend/src/hooks/useActor.ts) for any conditions where actor creation can fail silently or stall — such as missing canister IDs, network errors, or unresolved async calls during initialization. Ensure errors are caught, logged, and the hook returns a defined (possibly anonymous) state rather than hanging indefinitely.",
+      "reqIds": [
+        "REQ-76"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-app-tsx-verify-that-all-registered-routes-reference-components-that-exist-and-are-correctly-imported-fix-any-broken-imports-missing-page-components-or-route-misconfigurations-that-would-cause-a-runtime-error-during-initial-render-resulting-in-a-blank-screen-or-infinite-spinner",
+      "title": "In frontend/src/App.tsx, verify that all registered routes reference components that exist and are correctly imported. Fix any broken imports, missing page components, or route misconfigurations that would cause a runtime error during initial render, resulting in a blank screen or infinite spinner.",
+      "reqIds": [
+        "REQ-78"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-top-level-react-error-boundary-around-the-app-in-frontend-src-main-tsx-or-as-a-wrapper-in-app-tsx-that-catches-any-uncaught-render-errors-and-displays-a-user-friendly-fallback-message-e-g-something-went-wrong-please-refresh-the-page-instead-of-a-blank-white-screen-or-perpetual-spinner",
+      "title": "Add a top-level React error boundary around the app in frontend/src/main.tsx (or as a wrapper in App.tsx) that catches any uncaught render errors and displays a user-friendly fallback message (e.g., 'Something went wrong — please refresh the page') instead of a blank white screen or perpetual spinner.",
+      "reqIds": [
+        "REQ-79"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-editprofilemodal-frontend-src-components-editprofilemodal-tsx-add-a-profile-picture-upload-field-a-circular-avatar-preview-showing-either-the-current-profile-picture-or-a-placeholder-a-native-file-input-accepts-image-max-10-mb-that-replaces-the-preview-with-the-selected-image-when-a-file-is-chosen-base64-encodes-the-selected-image-and-on-save-calls-the-backend-updateprofilepic-function-with-the-encoded-data-show-a-clear-error-message-if-the-file-exceeds-10-mb-the-submit-save-button-must-exit-its-loading-state-in-all-outcomes-success-and-error",
+      "title": "In the EditProfileModal (frontend/src/components/EditProfileModal.tsx), add a profile picture upload field: a circular avatar preview showing either the current profile picture or a placeholder, a native file input (accepts image/*, max 10 MB) that replaces the preview with the selected image when a file is chosen, base64-encodes the selected image, and on save calls the backend `updateProfilePic` function with the encoded data. Show a clear error message if the file exceeds 10 MB. The submit/save button must exit its loading state in all outcomes (success and error).",
+      "reqIds": [
+        "REQ-80"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-static-landing-page-in-frontend-src-components-landingpage-tsx-with-an-animated-flash-intro-sequence-on-first-load-display-a-full-screen-animated-slideshow-of-modified-import-car-images-at-least-4-images-cycling-automatically-before-transitioning-to-the-main-login-screen-the-intro-should-1-auto-play-through-the-car-images-with-smooth-fade-or-slide-transitions-each-image-displayed-for-approximately-1-5-2-seconds-2-overlay-the-revgrid-logo-brand-name-and-a-subtle-amber-tinted-gradient-on-top-of-each-image-3-after-the-sequence-completes-or-immediately-if-the-user-taps-clicks-fade-into-the-existing-login-ui-revgrid-branding-internet-identity-login-button-4-the-entire-intro-sequence-should-complete-within-8-seconds-maximum-5-the-login-button-and-internet-identity-flow-must-remain-fully-functional-after-the-intro-completes",
+      "title": "Replace the static landing page in `frontend/src/components/LandingPage.tsx` with an animated flash intro sequence. On first load, display a full-screen animated slideshow of modified import car images (at least 4 images cycling automatically) before transitioning to the main login screen. The intro should: (1) auto-play through the car images with smooth fade or slide transitions, each image displayed for approximately 1.5–2 seconds, (2) overlay the RevGrid logo/brand name and a subtle amber-tinted gradient on top of each image, (3) after the sequence completes (or immediately if the user taps/clicks), fade into the existing login UI (RevGrid branding + Internet Identity login button), (4) the entire intro sequence should complete within 8 seconds maximum, (5) the login button and Internet Identity flow must remain fully functional after the intro completes.",
+      "reqIds": [
+        "REQ-107"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-modify-the-authgate-component-frontend-src-components-authgate-tsx-and-the-landingpage-flash-intro-flow-frontend-src-components-landingpage-tsx-so-that-the-animated-flash-intro-sequence-is-always-shown-on-every-app-load-regardless-of-whether-the-user-already-has-an-existing-authenticated-session-even-if-internet-identity-auth-is-already-initialized-and-valid-the-intro-slideshow-must-play-through-or-be-skippable-by-tapping-before-proceeding-to-the-main-app-do-not-bypass-the-intro-for-returning-authenticated-users-every-visit-must-display-the-intro-first-then-transition-to-the-authenticated-app",
+      "title": "Modify the AuthGate component (frontend/src/components/AuthGate.tsx) and the LandingPage/flash intro flow (frontend/src/components/LandingPage.tsx) so that the animated flash intro sequence is always shown on every app load, regardless of whether the user already has an existing authenticated session. Even if Internet Identity auth is already initialized and valid, the intro slideshow must play through (or be skippable by tapping) before proceeding to the main app. Do not bypass the intro for returning authenticated users — every visit must display the intro first, then transition to the authenticated app.",
+      "reqIds": [
+        "REQ-108"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-modify-authgate-frontend-src-components-authgate-tsx-so-that-it-does-not-automatically-redirect-already-authenticated-users-past-the-flash-intro-into-the-main-app-the-introcomplete-state-must-start-as-false-on-every-app-load-and-authenticated-users-must-go-through-the-full-intro-sequence-or-skip-it-by-tapping-before-being-routed-to-the-main-app-identical-behavior-to-unauthenticated-users-during-the-intro-phase-remove-or-disable-any-logic-that-detects-an-existing-valid-session-and-bypasses-the-landingpage-intro-routing-directly-to-the-app",
+      "title": "Modify AuthGate (frontend/src/components/AuthGate.tsx) so that it does NOT automatically redirect already-authenticated users past the flash intro into the main app. The introComplete state must start as false on every app load, and authenticated users must go through the full intro sequence (or skip it by tapping) before being routed to the main app — identical behavior to unauthenticated users during the intro phase. Remove or disable any logic that detects an existing valid session and bypasses the LandingPage intro, routing directly to the app.",
+      "reqIds": [
+        "REQ-109"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-persistent-clickable-bullboost-performance-logo-banner-on-every-authenticated-page-all-routes-inside-the-layout-component-at-frontend-src-components-layout-tsx-the-banner-must-display-the-uploaded-bullboost-performance-logo-image-saved-as-a-static-asset-at-frontend-public-assets-generated-bullboost-logo-dim-760x200-png-clicking-the-image-navigates-to-https-bullboostperformance-com-ref-xprbexxu-in-a-new-tab-the-banner-should-be-styled-consistently-with-the-app-s-dark-automotive-theme-dark-asphalt-background-styled-as-a-slim-clickable-strip-or-card-place-it-in-a-non-intrusive-but-visible-position-either-between-the-topbar-and-the-main-content-area-or-as-a-fixed-strip-above-the-bottomnav-similar-in-placement-to-the-existing-ebay-affiliate-banner-the-image-must-be-wrapped-in-an-anchor-tag-with-target-blank-and-rel-noopener-noreferrer",
+      "title": "Add a persistent clickable BullBoost Performance logo banner on every authenticated page (all routes inside the Layout component at frontend/src/components/Layout.tsx). The banner must display the uploaded BullBoost Performance logo image (saved as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png). Clicking the image navigates to https://bullboostperformance.com/?ref=xprbexxu in a new tab. The banner should be styled consistently with the app's dark automotive theme (dark/asphalt background, styled as a slim clickable strip or card). Place it in a non-intrusive but visible position — either between the TopBar and the main content area, or as a fixed strip above the BottomNav — similar in placement to the existing eBay affiliate banner. The image must be wrapped in an anchor tag with target='_blank' and rel='noopener noreferrer'.",
+      "reqIds": [
+        "REQ-110"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -762,6 +836,330 @@
     {
       "id": "AR-70",
       "summary": "Create a Tuner Shop page for 'Altered Imports' — a performance automotive shop specializing in Honda/Acura platforms. Page must display: shop description/mission, list of services (Honda & Acura Performance, Custom Engine Swaps, Full & Partial Engine Rebuilds, Custom Modifications, ECU Chipping & Engine Management, Dyno Tuning & Street Tuning, Transmission Rebuilds & Drivetrain Services), closing tagline 'Build different. Build altered.', location (Wenatchee), and contact info (Instagram: @mr.altered, Phone: 509-679-1389). Styled with the app's dark asphalt/amber automotive theme.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-73",
+      "summary": "Audit the backend main.mo actor for any startup-time traps — such as top-level expressions, initializer blocks, or pre/post-upgrade hooks — that could cause the canister to fail to respond to queries, resulting in the frontend hanging on load. Ensure the actor initializes cleanly without trapping, and that all stable variable declarations and upgrade hooks are safe.",
+      "reqIds": [
+        "REQ-77"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-75",
+      "summary": "Ensure the uploaded profile picture (stored as base64 in the backend profilePicData field) is displayed throughout the app wherever the user's avatar is rendered: ProfilePage header, PostCard author avatar, CommentsSheet comment avatars, UserListItem avatar, and ReelsPage overlay username/avatar. When profilePicData is present on a user record, use it as the <img> src (as a data URL); fall back to the existing placeholder/initials avatar when it is absent.",
+      "reqIds": [
+        "REQ-81"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-76",
+      "summary": "Verify that the backend `updateProfilePic` function in backend/main.mo accepts a base64-encoded image string (?Text), stores it in the caller's UserProfile record under the `profilePicData` field, and is returned by all profile query functions (getProfile, getUserProfile, etc.) so the frontend can render it. If the function or field is missing or incomplete, add or fix it.",
+      "reqIds": [
+        "REQ-82"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-77",
+      "summary": "Add cover photo upload on the profile page (similar to profile picture upload)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-78",
+      "summary": "Add hashtag pages — tap a hashtag on any post to see all posts with that tag",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-79",
+      "summary": "Add a trending/popular posts section on the Discover page",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-80",
+      "summary": "Add a Save/Bookmark feature so users can save posts to view later",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-81",
+      "summary": "Add a 'Sold' button so marketplace sellers can mark listings as sold",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-82",
+      "summary": "Add a listing detail page with full description and contact options for the Marketplace",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-83",
+      "summary": "Allow multiple images per marketplace listing",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-84",
+      "summary": "Add an RSVP/attending list on events so users can see who else is going",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-85",
+      "summary": "Add a filter by upcoming vs. past events on the Events page",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-86",
+      "summary": "Add pull-to-refresh on the home feed",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-87",
+      "summary": "Add a notification badge on the Messages icon when there are unread messages",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-88",
+      "summary": "Add loading skeletons instead of spinners for a smoother feel across the app",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-89",
+      "summary": "Add the ability to mark a mechanic question as 'Solved' on the Mechanics Help section",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-90",
+      "summary": "Add upvote/helpful buttons on mechanic question answers",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-91",
+      "summary": "Show a 'Suggested Users' panel on the home feed",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-92",
+      "summary": "Add cover photo upload to the Profile page (frontend/src/pages/ProfilePage.tsx). When the current user views their own profile, display a camera/edit icon overlay on the cover photo area. Tapping it opens a native file input (accepts image/*, max 10 MB). Encode the selected image as base64 and call a backend `updateCoverPhoto` function to persist it. Display the uploaded cover photo as the profile header background wherever the user's profile is rendered.",
+      "reqIds": [
+        "REQ-83"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-93",
+      "summary": "Add a backend `updateCoverPhoto` function in backend/main.mo that accepts a base64-encoded image string (?Text), stores it in the caller's UserProfile record under a `coverPhotoData` field (?Text), and ensures all profile query functions (getProfile, getUserProfile, etc.) return the `coverPhotoData` field.",
+      "reqIds": [
+        "REQ-84"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-94",
+      "summary": "Add hashtag pages to the app. In PostCard (frontend/src/components/PostCard.tsx) and on any surface where hashtags/tags are rendered (ReelsPage, BuildDetailPage, MechanicThreadPage), make each hashtag a tappable link that navigates to a new HashtagPage at the route `/hashtag/:tag`. Create `frontend/src/pages/HashtagPage.tsx` that fetches and displays all posts whose tags include the given hashtag in a scrollable grid/list, styled with the dark asphalt/amber automotive theme.",
+      "reqIds": [
+        "REQ-85"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-95",
+      "summary": "Add a backend query `getPostsByTag` in backend/main.mo that accepts a tag string and returns all posts (across all post types) whose tags array contains that tag (case-insensitive match). Return the same Post record shape used by other post queries.",
+      "reqIds": [
+        "REQ-86"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-96",
+      "summary": "Add a 'Trending Posts' section to the Discover page (frontend/src/pages/DiscoverPage.tsx). Display a horizontally scrollable row or a dedicated section at the top of the page showing the top trending posts (sorted by likes count descending). Each card in the trending section shows the post thumbnail, like count, and author username. Fetch trending posts via a `useGetTrendingPosts` React Query hook that calls the backend `getTrendingPosts` function.",
+      "reqIds": [
+        "REQ-87"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-97",
+      "summary": "Add a backend query `getTrendingPosts` in backend/main.mo that returns the top N posts (e.g., top 20) sorted by likesCount descending across all post types. Return the same Post record shape used by other post queries.",
+      "reqIds": [
+        "REQ-88"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-98",
+      "summary": "Add a Save/Bookmark feature. On every PostCard (frontend/src/components/PostCard.tsx), add a bookmark icon button alongside the existing like/comment/share buttons. Tapping it toggles the saved state for the current user. Create a `frontend/src/pages/BookmarksPage.tsx` page that lists all posts the current user has saved, accessible via a new route `/bookmarks`. Add a 'Bookmarks' entry point from the Profile page when viewing the current user's own profile.",
+      "reqIds": [
+        "REQ-89"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-99",
+      "summary": "Add bookmark/save backend support in backend/main.mo: a `bookmarks` stable data structure mapping userId to a set of postIds. Expose `toggleBookmark(postId: Nat): async Result<Bool, Text>` (returns true if now bookmarked, false if removed) and `getBookmarks(): async [Post]` that returns all bookmarked posts for the caller.",
+      "reqIds": [
+        "REQ-90"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-100",
+      "summary": "Add a 'Sold' button to marketplace listing cards on MarketplacePage (frontend/src/pages/MarketplacePage.tsx). The button is only visible to the listing's author. Tapping it calls a backend `markListingSold` mutation and updates the listing card to show a 'SOLD' badge overlay. Sold listings remain visible in the marketplace grid but are clearly marked as sold.",
+      "reqIds": [
+        "REQ-91"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-101",
+      "summary": "Add a backend `markListingSold` function in backend/main.mo that accepts a listing ID, verifies the caller is the listing's author, sets the `sold` flag to true on the listing record, and returns a Result<(), Text>.",
+      "reqIds": [
+        "REQ-92"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-102",
+      "summary": "Create a Listing Detail page at `frontend/src/pages/ListingDetailPage.tsx`. The page displays the full listing: all images (in a swipeable gallery if multiple, or a single image), title, price, condition badge, category, full description, seller avatar and username (linking to their profile), and a 'Contact Seller' button that opens the chat thread with the seller (navigating to `/chat/:sellerId`). Register the route in App.tsx at `/marketplace/:id`. Make listing cards on MarketplacePage tappable, navigating to this detail page.",
+      "reqIds": [
+        "REQ-93"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-103",
+      "summary": "Allow multiple images per marketplace listing. Update CreateListingPage (frontend/src/pages/CreateListingPage.tsx) to support up to 4 image file inputs (dynamically add/remove). Encode each selected image as base64. Update the backend `createListing` function to accept an array of image data strings (`imageUrls: [Text]`) instead of a single imageUrl. Update ListingDetailPage to display all images in a swipeable carousel.",
+      "reqIds": [
+        "REQ-94"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-104",
+      "summary": "Add an RSVP attendees list to the Event Detail page (frontend/src/pages/EventDetailPage.tsx). Below the 'I'm Attending' button, display a list of user avatars and usernames of attendees who have RSVPed. Fetch the attendees list via a `useGetEventAttendees` React Query hook calling the backend `getEventAttendees` function. Show the count and the first N avatars in a row, with a 'See all' option if there are more than 5.",
+      "reqIds": [
+        "REQ-95"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-105",
+      "summary": "Add a backend `getEventAttendees` function in backend/main.mo that accepts an event ID and returns the list of UserProfile records for all users who have marked attendance for that event. Track attendees in a stable data structure mapping eventId to a list of principal IDs.",
+      "reqIds": [
+        "REQ-96"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-106",
+      "summary": "Add upcoming vs. past event filters to the Events page (frontend/src/pages/EventsPage.tsx). Add two filter tabs or toggle buttons: 'Upcoming' and 'Past'. 'Upcoming' shows events whose date is in the future; 'Past' shows events whose date has already passed. Default to the 'Upcoming' tab. Apply filtering on the client side using the event's date field.",
+      "reqIds": [
+        "REQ-97"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-107",
+      "summary": "Replace all loading spinners in the app with skeleton loading screens for a smoother feel. Add skeleton components to: HomePage (frontend/src/pages/HomePage.tsx) feed, DiscoverPage (frontend/src/pages/DiscoverPage.tsx) grid, MarketplacePage (frontend/src/pages/MarketplacePage.tsx) listing grid, ProfilePage (frontend/src/pages/ProfilePage.tsx) profile header and content tabs, and BuildsPage (frontend/src/pages/BuildsPage.tsx) grid. Skeletons should use the app's asphalt color palette with a subtle shimmer/pulse animation.",
+      "reqIds": [
+        "REQ-98"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-108",
+      "summary": "Add a 'Mark as Solved' button to mechanic question threads on MechanicThreadPage (frontend/src/pages/MechanicThreadPage.tsx). The button is only visible to the question's author. Tapping it calls a backend `markQuestionSolved` mutation and updates the thread header to display a green 'SOLVED' badge. Solved questions also show a 'SOLVED' badge on the question list in MechanicsPage.",
+      "reqIds": [
+        "REQ-99"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-109",
+      "summary": "Add a backend `markQuestionSolved` function in backend/main.mo that accepts a post ID, verifies the caller is the post's author and the post is of type `mechanic`, sets a `solved` flag (Bool) on the post record to true, and returns a Result<(), Text>. Ensure the `solved` field is included in the Post record type and returned by all post query functions.",
+      "reqIds": [
+        "REQ-100"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-110",
+      "summary": "Add upvote/helpful buttons on answers (comments) in the mechanic question thread on MechanicThreadPage (frontend/src/pages/MechanicThreadPage.tsx). Each answer (comment) displays a thumbs-up or 'Helpful' button with an upvote count. Tapping it calls a backend `upvoteAnswer` mutation. A user can only upvote an answer once (toggling removes the upvote). Display the upvote count next to the button.",
+      "reqIds": [
+        "REQ-101"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-111",
+      "summary": "Add a backend `upvoteAnswer` function in backend/main.mo that accepts a comment ID, toggles the caller's upvote on that comment (adds if not present, removes if already upvoted), and updates the comment's `helpfulCount` field (Int). Add a `helpfulCount: Int` field to the Comment record and a stable data structure tracking which users have upvoted which comments. Return `Result<Int, Text>` (the new count).",
+      "reqIds": [
+        "REQ-102"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-112",
+      "summary": "Add a 'Suggested Users' panel to the Home Feed page (frontend/src/pages/HomePage.tsx). Display a horizontally scrollable row of suggested users to follow (users the current user does not already follow) near the top of the feed, above the post list. Each card shows the user's avatar, display name, username, and a Follow button. Fetch suggested users via a `useGetSuggestedUsers` React Query hook calling the backend `getSuggestedUsers` function.",
+      "reqIds": [
+        "REQ-103"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-113",
+      "summary": "Add a backend `getSuggestedUsers` query in backend/main.mo that returns up to 10 UserProfile records for users the caller does not already follow, excluding the caller themselves. Select suggestions by returning recently registered or most-followed users.",
+      "reqIds": [
+        "REQ-104"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-114",
+      "summary": "Add a notification badge on the Messages icon in the TopBar (frontend/src/components/TopBar.tsx) when there are unread messages. Fetch the unread message count via a `useGetUnreadMessageCount` React Query hook that polls the backend `getUnreadMessageCount` function (every 30 seconds). Display the count as a small amber badge overlaid on the messages icon. Clear/hide the badge when the user opens the Messages page.",
+      "reqIds": [
+        "REQ-105"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-115",
+      "summary": "Add a backend `getUnreadMessageCount` query in backend/main.mo that returns the count of messages received by the caller that have not been read (i.e., received after the caller's last-read timestamp for each conversation). Add a `markConversationRead` function that updates the last-read timestamp for a conversation when called, so the unread count resets for that thread.",
+      "reqIds": [
+        "REQ-106"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-116",
+      "summary": "Turn the landing page into a flash/intro animation with pictures of modified import cars — display a sequence of car images as an animated intro before showing the main login screen.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-117",
+      "summary": "Always show the flash intro/landing page on app load, even if the user already has an existing account/session. Do not skip the intro for returning authenticated users — every visit should play through the intro sequence before proceeding to the main app.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-118",
+      "summary": "Add a clickable image/banner on every page (all authenticated routes) that links to https://bullboostperformance.com/?ref=xprbexxu, opening in a new tab. Styled consistently with the app's automotive theme.",
       "reqIds": [],
       "status": "pending"
     }

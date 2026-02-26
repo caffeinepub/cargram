@@ -1,4 +1,5 @@
-import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
+import React from 'react';
+import { createRouter, createRoute, createRootRoute, RouterProvider } from '@tanstack/react-router';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
 import Layout from './components/Layout';
@@ -27,6 +28,64 @@ import CreateListingPage from './pages/CreateListingPage';
 import AboutPage from './pages/AboutPage';
 import TunerShopPage from './pages/TunerShopPage';
 import AuthGate from './components/AuthGate';
+
+// ─── Error Boundary ───────────────────────────────────────────────────────────
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  errorMessage: string;
+}
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, errorMessage: '' };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, errorMessage: error?.message ?? 'Unknown error' };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[ErrorBoundary] Caught render error:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center">
+          <img
+            src="/assets/generated/revgrid-logo.dim_256x256.png"
+            alt="RevGrid"
+            className="w-20 h-20 object-contain mb-6 opacity-80"
+          />
+          <h1 className="text-amber-400 font-bold text-2xl mb-2 tracking-wider">SOMETHING WENT WRONG</h1>
+          <p className="text-gray-400 text-sm mb-6 max-w-xs">
+            An unexpected error occurred. Please refresh the page to try again.
+          </p>
+          {this.state.errorMessage && (
+            <p className="text-gray-600 text-xs mb-6 font-mono max-w-xs break-all">
+              {this.state.errorMessage}
+            </p>
+          )}
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-amber-400 text-black font-bold px-6 py-3 rounded-sm tracking-wider hover:bg-amber-300 transition-colors"
+          >
+            REFRESH PAGE
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// ─── Router ───────────────────────────────────────────────────────────────────
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -109,9 +168,11 @@ declare module '@tanstack/react-router' {
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <RouterProvider router={router} />
-      <Toaster richColors position="top-center" />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <RouterProvider router={router} />
+        <Toaster richColors position="top-center" />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }

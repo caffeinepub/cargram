@@ -6,6 +6,8 @@ import { ShoppingCart, ExternalLink } from 'lucide-react';
 const AFFILIATE_URL =
   'https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1';
 
+const BULLBOOST_URL = 'https://bullboostperformance.com/?ref=xprbexxu';
+
 function AftermarketBanner() {
   return (
     <a
@@ -26,12 +28,30 @@ function AftermarketBanner() {
   );
 }
 
+function BullBoostBanner() {
+  return (
+    <a
+      href={BULLBOOST_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center px-4 py-2 bg-black border-b border-red-700/40 hover:bg-neutral-950 transition-colors group"
+    >
+      <img
+        src="/assets/generated/bullboost-logo.dim_760x200.png"
+        alt="Bull Boost Performance"
+        className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+      />
+    </a>
+  );
+}
+
 export default function Layout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <TopBar />
       <div className="pt-14">
         <AftermarketBanner />
+        <BullBoostBanner />
         <main className="flex-1 pb-20">
           <Outlet />
         </main>

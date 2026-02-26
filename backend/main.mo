@@ -12,6 +12,8 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
 
+
+
 actor {
   // Mixin core components
   include MixinStorage();
@@ -27,6 +29,20 @@ actor {
   type BuildId = Text;
   type MarketplaceListingId = Text;
 
+  /// Type for internal persisted state
+  type PersistedActor = {
+    principalProfiles : Map.Map<Principal, UserProfile>;
+    users : Map.Map<UserId, User>;
+    posts : Map.Map<PostId, PostRecord>;
+    comments : Map.Map<CommentId, Comment>;
+    messages : Map.Map<MessageId, Message>;
+    events : Map.Map<EventId, Event>;
+    builds : Map.Map<BuildId, BuildShowcase>;
+    marketplaceListings : Map.Map<MarketplaceListingId, MarketplaceListing>;
+    follows : Map.Map<UserId, Set.Set<UserId>>;
+    likes : Map.Map<PostId, Set.Set<UserId>>;
+  };
+
   type UserProfile = {
     id : UserId;
     username : Text;
@@ -38,6 +54,7 @@ actor {
     followingCount : Nat;
     createdAt : Int;
     profilePicData : ?Text;
+    coverPhotoData : ?Text;
   };
 
   type User = UserProfile;
@@ -106,7 +123,7 @@ actor {
     sold : Bool;
   };
 
-  // State
+  // State (actor fields for main maps)
   let principalProfiles = Map.empty<Principal, UserProfile>();
   let users = Map.empty<UserId, User>();
   let posts = Map.empty<PostId, PostRecord>();
@@ -116,7 +133,7 @@ actor {
   let builds = Map.empty<BuildId, BuildShowcase>();
   let marketplaceListings = Map.empty<MarketplaceListingId, MarketplaceListing>();
   let follows = Map.empty<UserId, Set.Set<UserId>>();
-  let likes = Map.empty<PostId, Set.Set<UserId>>();
+  let likes = Map.empty<PostId, Set.Set<UserId>>(); // NOTE: Use PostId (Text) as key for likes
 
   // ─── Required profile functions ───────────────────────────────────────────
 
@@ -137,11 +154,8 @@ actor {
     users.add(profile.username, profile);
   };
 
-  /// Get another user's profile (caller must be the user themselves or an admin)
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
+  /// Get any user's profile by principal (public read — this is a social platform)
+  public query func getUserProfile(user : Principal) : async ?UserProfile {
     principalProfiles.get(user);
   };
 
@@ -156,6 +170,24 @@ actor {
         let updatedProfile : UserProfile = {
           profile with
           profilePicData = ?imageBase64;
+        };
+        principalProfiles.add(caller, updatedProfile);
+        users.add(profile.username, updatedProfile);
+      };
+      case (null) { Runtime.trap("User profile not found") };
+    };
+  };
+
+  public shared ({ caller }) func updateCoverPhoto(coverPhotoData : ?Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update cover photo");
+    };
+
+    switch (principalProfiles.get(caller)) {
+      case (?profile) {
+        let updatedProfile : UserProfile = {
+          profile with
+          coverPhotoData
         };
         principalProfiles.add(caller, updatedProfile);
         users.add(profile.username, updatedProfile);
@@ -183,6 +215,7 @@ actor {
       followingCount = 0;
       createdAt = Time.now();
       profilePicData = null;
+      coverPhotoData = null;
     };
     users.add(userId, newUser);
     principalProfiles.add(caller, newUser);
@@ -198,14 +231,13 @@ actor {
   // ─── Post operations ──────────────────────────────────────────────────────
 
   /// Create a post; authorId is derived from the caller's stored profile
-  /// Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
+  /// Allows up to 2MB of mediaData (base64-encoded image data as Text).
   public shared ({ caller }) func createPost(
     caption : Text,
     tags : [Text],
     postType : PostType,
     reelCategory : ?Text,
     mediaData : ?Text,
-    imageUrl : Text,
   ) : async PostId {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create posts");
@@ -217,7 +249,7 @@ actor {
     };
     let postId = authorId # Time.now().toText();
 
-    /// IMPORTANT: Payload size for mediaData and imageUrl must not exceed 2MB SYSTEM LIMIT!
+    /// IMPORTANT: Payload size for mediaData must not exceed 2MB SYSTEM LIMIT!
     /// This limit is imposed by the Internet Computer's consensus system.
     /// Larger payloads require chunked uploads or separate asset canisters.
 
@@ -231,7 +263,6 @@ actor {
       createdAt = Time.now();
       reelCategory;
       mediaData;
-      imageUrl;
     };
     posts.add(postId, newPost);
     postId;
@@ -264,7 +295,7 @@ actor {
         posts.remove(postId);
 
         // Remove all associated likes
-        ignore likes.remove(postId);
+        likes.remove(postId);
 
         // Remove all comments for this post
         let commentEntries = comments.entries();
@@ -600,12 +631,8 @@ actor {
     );
   };
 
-  /// Search reels by category or username (authenticated users only)
-  public query ({ caller }) func searchReels(searchQuery : Text) : async [PostRecord] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can search reels");
-    };
-
+  /// Search reels by category or username (public read — content discovery is open on this social platform)
+  public query func searchReels(searchQuery : Text) : async [PostRecord] {
     posts.values().toArray().filter(
       func(p : PostRecord) : Bool {
         if (p.postType == #reel) {
@@ -767,3 +794,4 @@ actor {
     );
   };
 };
+

@@ -89,6 +89,7 @@ export interface User {
   'carInfo' : string,
   'followingCount' : bigint,
   'profilePic' : [] | [ExternalBlob],
+  'coverPhotoData' : [] | [string],
 }
 export type UserId = string;
 export interface UserProfile {
@@ -102,6 +103,7 @@ export interface UserProfile {
   'carInfo' : string,
   'followingCount' : bigint,
   'profilePic' : [] | [ExternalBlob],
+  'coverPhotoData' : [] | [string],
 }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -168,10 +170,10 @@ export interface _SERVICE {
   >,
   /**
    * / Create a post; authorId is derived from the caller's stored profile
-   * / Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
+   * / Allows up to 2MB of mediaData (base64-encoded image data as Text).
    */
   'createPost' : ActorMethod<
-    [string, Array<string>, PostType, [] | [string], [] | [string], string],
+    [string, Array<string>, PostType, [] | [string], [] | [string]],
     PostId
   >,
   /**
@@ -260,7 +262,7 @@ export interface _SERVICE {
    */
   'getUser' : ActorMethod<[UserId], [] | [User]>,
   /**
-   * / Get another user's profile (caller must be the user themselves or an admin)
+   * / Get any user's profile by principal (public read — this is a social platform)
    */
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -285,7 +287,7 @@ export interface _SERVICE {
    */
   'searchListings' : ActorMethod<[string], Array<MarketplaceListing>>,
   /**
-   * / Search reels by category or username (authenticated users only)
+   * / Search reels by category or username (public read — content discovery is open on this social platform)
    */
   'searchReels' : ActorMethod<[string], Array<PostRecord>>,
   /**
@@ -304,6 +306,7 @@ export interface _SERVICE {
    * / Unlike a post; userId is derived from the caller's profile
    */
   'unlikePost' : ActorMethod<[PostId], undefined>,
+  'updateCoverPhoto' : ActorMethod<[[] | [string]], undefined>,
   /**
    * / Update a listing (author only)
    */

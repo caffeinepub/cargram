@@ -1,49 +1,24 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Altered Imports Tuner Shop Page",
+  "title": "Add BullBoost Performance clickable image banner on every authenticated page",
   "requirements": [
     {
-      "id": "REQ-73",
-      "summary": "Create a static Tuner Shop page displaying all content for 'Altered Imports' with hero, about, services, tagline, location, and contact sections styled with the app's dark asphalt/amber automotive theme",
+      "id": "REQ-110",
+      "summary": "Add a persistent clickable BullBoost Performance logo banner on every authenticated page inside the Layout component. The banner displays the uploaded logo image from frontend/public/assets/generated/bullboost-logo.dim_760x200.png and navigates to https://bullboostperformance.com/?ref=xprbexxu in a new tab when clicked. The banner is styled consistently with the app's dark automotive theme and positioned similar to the existing eBay affiliate banner.",
       "acceptanceCriteria": [
-        "Page exists at frontend/src/pages/TunerShopPage.tsx and renders without errors.",
-        "Hero section displays 'Altered Imports' as a prominent heading.",
-        "About/mission paragraph is fully displayed.",
-        "Services section lists all 7 specializations as styled cards or list items.",
-        "Closing paragraph and 'Build different. Build altered.' tagline are displayed.",
-        "Location 'Wenatchee' is displayed under a location heading.",
-        "Instagram @mr.altered links to https://www.instagram.com/mr.altered in a new tab.",
-        "Phone 509-679-1389 is displayed as a tappable tel: link.",
-        "Page is styled consistently with the app's dark asphalt/amber automotive theme (dark backgrounds, amber accents, white text, Rajdhani/Inter fonts)."
+        "The BullBoost Performance logo image is visible on every authenticated page inside the Layout",
+        "Clicking/tapping the image opens https://bullboostperformance.com/?ref=xprbexxu in a new browser tab",
+        "The banner does not appear on the unauthenticated landing/intro page",
+        "The banner is styled with the app's dark automotive theme, consistent with existing banners",
+        "The image is rendered from the static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
+        "The anchor tag includes rel='noopener noreferrer' for security"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/TunerShopPage.tsx",
-          "operation": "create",
-          "description": "Create a new page component that displays all Altered Imports tuner shop content. Include: (1) Hero section with the generated banner image 'frontend/public/assets/generated/tuner-shop-hero.dim_1920x600.jpg', shop name 'Altered Imports', and subheading. (2) About/mission section with the full description text. (3) Services section with 'What We Specialize In' heading and 7 service items (Honda & Acura Performance, Custom Engine Swaps, Full & Partial Engine Rebuilds, Custom Modifications & Vehicle Customization, ECU Chipping & Engine Management, Dyno Tuning & Street Tuning, Transmission Rebuilds & Drivetrain Services). (4) Closing paragraph. (5) Tagline 'Build different. Build altered.' styled prominently with amber/orange accent. (6) Location section with '📍 Location' heading displaying 'Wenatchee'. (7) Contact section with '📩 Contact' heading, Instagram link (@mr.altered to https://www.instagram.com/mr.altered with target='_blank' rel='noopener noreferrer'), and phone link (509-679-1389 as tel:509-679-1389). Use the existing dark asphalt/amber theme from frontend/src/index.css (dark backgrounds, amber accents, white text, Rajdhani/Inter fonts). Reference the generated hero image using its exact workspace path."
-        }
-      ]
-    },
-    {
-      "id": "REQ-74",
-      "summary": "Register the Tuner Shop page as an authenticated route at /tuner-shop and add a navigation entry point accessible from within the app",
-      "acceptanceCriteria": [
-        "Route `/tuner-shop` is registered in App.tsx and renders TunerShopPage.",
-        "A 'Tuner Shop' navigation entry point is visible and accessible from within the authenticated app (TopBar or Profile page).",
-        "Tapping the entry point navigates to `/tuner-shop`.",
-        "The route is protected behind AuthGate (authenticated users only)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/Layout.tsx",
           "operation": "modify",
-          "description": "Add a new authenticated route for '/tuner-shop' that renders the TunerShopPage component. Import TunerShopPage from './pages/TunerShopPage'. Place the route within the AuthGate-protected routes alongside other authenticated pages. Ensure the route follows the same pattern as existing routes (home, reels, profile, etc.)."
-        },
-        {
-          "path": "frontend/src/components/TopBar.tsx",
-          "operation": "modify",
-          "description": "Add a 'Tuner Shop' navigation button to the TopBar alongside the existing Messages, Notifications, and About buttons. The button should navigate to '/tuner-shop' when clicked. Style it consistently with other TopBar navigation buttons. This provides a visible entry point for users to access the Tuner Shop page from any authenticated view."
+          "description": "Add a BullBoost Performance clickable banner between the TopBar and the main content area (before the existing eBay affiliate banner). The banner must render an anchor tag with target='_blank' and rel='noopener noreferrer' wrapping an img element that displays frontend/public/assets/generated/bullboost-logo.dim_760x200.png. The anchor href must be exactly https://bullboostperformance.com/?ref=xprbexxu. Style the banner as a slim clickable strip or card with a dark/asphalt background consistent with the app's automotive theme, using similar styling to the existing affiliate banner. Ensure the banner is non-intrusive but visible, positioned logically within the authenticated Layout flow."
         }
       ]
     }

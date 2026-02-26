@@ -1,7 +1,6 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useState, useEffect, useRef } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetCallerUserProfile, useSaveCallerUserProfile, useCreateUser } from '../hooks/useQueries';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +13,8 @@ interface AuthGateProps {
   children: ReactNode;
 }
 
+const AUTH_TIMEOUT_MS = 10_000;
+
 export default function AuthGate({ children }: AuthGateProps) {
   const { clear, loginStatus, identity, isInitializing } = useInternetIdentity();
   const isAuthenticated = !!identity;
@@ -22,12 +23,70 @@ export default function AuthGate({ children }: AuthGateProps) {
   const saveProfile = useSaveCallerUserProfile();
   const createUser = useCreateUser();
 
+  // Always start as false — intro must play on every fresh page load
+  const [introComplete, setIntroComplete] = useState(false);
+
   const [showSetup, setShowSetup] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [carInfo, setCarInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Timeout state: if auth init takes too long, fall through to landing page
+  const [authTimedOut, setAuthTimedOut] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isInitializing && !authTimedOut) {
+      timeoutRef.current = setTimeout(() => {
+        console.warn('[AuthGate] Auth initialization timed out after 10s — falling back to landing page');
+        setAuthTimedOut(true);
+      }, AUTH_TIMEOUT_MS);
+    }
+
+    if (!isInitializing) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setAuthTimedOut(false);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [isInitializing, authTimedOut]);
+
+  // Profile loading timeout: if profile query stalls after auth, fall through
+  const [profileTimedOut, setProfileTimedOut] = useState(false);
+  const profileTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated && profileLoading && !isFetched && !profileTimedOut) {
+      profileTimeoutRef.current = setTimeout(() => {
+        console.warn('[AuthGate] Profile loading timed out after 10s — rendering app anyway');
+        setProfileTimedOut(true);
+      }, AUTH_TIMEOUT_MS);
+    }
+
+    if (!profileLoading || isFetched) {
+      if (profileTimeoutRef.current) {
+        clearTimeout(profileTimeoutRef.current);
+        profileTimeoutRef.current = null;
+      }
+    }
+
+    return () => {
+      if (profileTimeoutRef.current) {
+        clearTimeout(profileTimeoutRef.current);
+        profileTimeoutRef.current = null;
+      }
+    };
+  }, [isAuthenticated, profileLoading, isFetched, profileTimedOut]);
 
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
@@ -74,8 +133,20 @@ export default function AuthGate({ children }: AuthGateProps) {
     }
   };
 
-  // Initializing — show splash
-  if (isInitializing) {
+  // Step 1: Always show the intro slideshow first on every app load.
+  // Pass isAuthenticated={false} so LandingPage never auto-forwards during the intro.
+  // After the intro completes (onIntroComplete), AuthGate decides what to show next.
+  if (!introComplete) {
+    return (
+      <LandingPage
+        isAuthenticated={false}
+        onIntroComplete={() => setIntroComplete(true)}
+      />
+    );
+  }
+
+  // Step 2: Intro done. If still initializing auth (rare edge case), show a brief spinner.
+  if (isInitializing && !authTimedOut) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -86,12 +157,18 @@ export default function AuthGate({ children }: AuthGateProps) {
     );
   }
 
-  // Not authenticated — show full-screen landing page with car background
-  if (!isAuthenticated) {
-    return <LandingPage />;
+  // Step 3: Not authenticated — show landing page login UI (intro already done, skip straight to login)
+  if (!isAuthenticated || authTimedOut) {
+    return (
+      <LandingPage
+        isAuthenticated={false}
+        onIntroComplete={() => setIntroComplete(true)}
+        skipIntroImmediately
+      />
+    );
   }
 
-  // Profile setup
+  // Step 4: Profile setup for new users
   if (showSetup) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
@@ -167,11 +244,14 @@ export default function AuthGate({ children }: AuthGateProps) {
     );
   }
 
-  // Loading profile after auth
-  if (profileLoading && isAuthenticated) {
+  // Step 5: Loading profile after auth — with timeout fallback
+  if (profileLoading && isAuthenticated && !profileTimedOut) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <img src="/assets/generated/revgrid-logo.dim_256x256.png" alt="RevGrid" className="w-16 h-16 object-contain" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
       </div>
     );
   }

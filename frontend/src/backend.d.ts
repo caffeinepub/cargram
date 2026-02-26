@@ -34,6 +34,7 @@ export interface User {
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
+    coverPhotoData?: string;
 }
 export interface PostRecord {
     id: PostId;
@@ -100,6 +101,7 @@ export interface UserProfile {
     carInfo: string;
     followingCount: bigint;
     profilePic?: ExternalBlob;
+    coverPhotoData?: string;
 }
 export enum PostType {
     feed = "feed",
@@ -140,9 +142,9 @@ export interface backendInterface {
     createListing(title: string, description: string, price: string, condition: Variant_new_used, category: string, imageUrl: string): Promise<MarketplaceListingId>;
     /**
      * / Create a post; authorId is derived from the caller's stored profile
-     * / Allows up to 2MB of mediaData (base64-encoded image data as Text) and up to 2MB in the imageUrl field.
+     * / Allows up to 2MB of mediaData (base64-encoded image data as Text).
      */
-    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null, imageUrl: string): Promise<PostId>;
+    createPost(caption: string, tags: Array<string>, postType: PostType, reelCategory: string | null, mediaData: string | null): Promise<PostId>;
     /**
      * / Create a user record (authenticated users only)
      */
@@ -229,7 +231,7 @@ export interface backendInterface {
      */
     getUser(userId: UserId): Promise<User | null>;
     /**
-     * / Get another user's profile (caller must be the user themselves or an admin)
+     * / Get any user's profile by principal (public read — this is a social platform)
      */
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -254,7 +256,7 @@ export interface backendInterface {
      */
     searchListings(searchQuery: string): Promise<Array<MarketplaceListing>>;
     /**
-     * / Search reels by category or username (authenticated users only)
+     * / Search reels by category or username (public read — content discovery is open on this social platform)
      */
     searchReels(searchQuery: string): Promise<Array<PostRecord>>;
     /**
@@ -273,6 +275,7 @@ export interface backendInterface {
      * / Unlike a post; userId is derived from the caller's profile
      */
     unlikePost(postId: PostId): Promise<void>;
+    updateCoverPhoto(coverPhotoData: string | null): Promise<void>;
     /**
      * / Update a listing (author only)
      */

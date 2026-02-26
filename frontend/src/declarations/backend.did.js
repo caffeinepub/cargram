@@ -90,6 +90,7 @@ export const UserProfile = IDL.Record({
   'carInfo' : IDL.Text,
   'followingCount' : IDL.Nat,
   'profilePic' : IDL.Opt(ExternalBlob),
+  'coverPhotoData' : IDL.Opt(IDL.Text),
 });
 export const Comment = IDL.Record({
   'id' : CommentId,
@@ -117,6 +118,7 @@ export const User = IDL.Record({
   'carInfo' : IDL.Text,
   'followingCount' : IDL.Nat,
   'profilePic' : IDL.Opt(ExternalBlob),
+  'coverPhotoData' : IDL.Opt(IDL.Text),
 });
 
 export const idlService = IDL.Service({
@@ -175,7 +177,6 @@ export const idlService = IDL.Service({
         PostType,
         IDL.Opt(IDL.Text),
         IDL.Opt(IDL.Text),
-        IDL.Text,
       ],
       [PostId],
       [],
@@ -230,6 +231,7 @@ export const idlService = IDL.Service({
   'sendMessage' : IDL.Func([UserId, IDL.Text], [MessageId], []),
   'unfollowUser' : IDL.Func([UserId], [], []),
   'unlikePost' : IDL.Func([PostId], [], []),
+  'updateCoverPhoto' : IDL.Func([IDL.Opt(IDL.Text)], [], []),
   'updateListing' : IDL.Func(
       [
         MarketplaceListingId,
@@ -331,6 +333,7 @@ export const idlFactory = ({ IDL }) => {
     'carInfo' : IDL.Text,
     'followingCount' : IDL.Nat,
     'profilePic' : IDL.Opt(ExternalBlob),
+    'coverPhotoData' : IDL.Opt(IDL.Text),
   });
   const Comment = IDL.Record({
     'id' : CommentId,
@@ -358,6 +361,7 @@ export const idlFactory = ({ IDL }) => {
     'carInfo' : IDL.Text,
     'followingCount' : IDL.Nat,
     'profilePic' : IDL.Opt(ExternalBlob),
+    'coverPhotoData' : IDL.Opt(IDL.Text),
   });
   
   return IDL.Service({
@@ -416,7 +420,6 @@ export const idlFactory = ({ IDL }) => {
           PostType,
           IDL.Opt(IDL.Text),
           IDL.Opt(IDL.Text),
-          IDL.Text,
         ],
         [PostId],
         [],
@@ -471,6 +474,7 @@ export const idlFactory = ({ IDL }) => {
     'sendMessage' : IDL.Func([UserId, IDL.Text], [MessageId], []),
     'unfollowUser' : IDL.Func([UserId], [], []),
     'unlikePost' : IDL.Func([PostId], [], []),
+    'updateCoverPhoto' : IDL.Func([IDL.Opt(IDL.Text)], [], []),
     'updateListing' : IDL.Func(
         [
           MarketplaceListingId,
