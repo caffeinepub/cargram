@@ -99,6 +99,13 @@ export const Comment = IDL.Record({
   'text' : IDL.Text,
   'postId' : PostId,
 });
+export const LeaderboardUser = IDL.Record({
+  'postCount' : IDL.Nat,
+  'username' : IDL.Text,
+  'displayName' : IDL.Text,
+  'followersCount' : IDL.Nat,
+  'avatar' : IDL.Opt(ExternalBlob),
+});
 export const MessageId = IDL.Text;
 export const Message = IDL.Record({
   'id' : MessageId,
@@ -150,6 +157,7 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addComment' : IDL.Func([PostId, IDL.Text], [CommentId], []),
+  'askAutomotiveAssistant' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'attendEvent' : IDL.Func([EventId], [], []),
   'createBuild' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [BuildId], []),
@@ -202,6 +210,7 @@ export const idlService = IDL.Service({
   'getFeed' : IDL.Func([PostType], [IDL.Vec(PostRecord)], ['query']),
   'getFollowers' : IDL.Func([UserId], [IDL.Vec(UserId)], ['query']),
   'getFollowing' : IDL.Func([UserId], [IDL.Vec(UserId)], ['query']),
+  'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardUser)], ['query']),
   'getLikeCount' : IDL.Func([PostId], [IDL.Nat], ['query']),
   'getListing' : IDL.Func(
       [MarketplaceListingId],
@@ -342,6 +351,13 @@ export const idlFactory = ({ IDL }) => {
     'text' : IDL.Text,
     'postId' : PostId,
   });
+  const LeaderboardUser = IDL.Record({
+    'postCount' : IDL.Nat,
+    'username' : IDL.Text,
+    'displayName' : IDL.Text,
+    'followersCount' : IDL.Nat,
+    'avatar' : IDL.Opt(ExternalBlob),
+  });
   const MessageId = IDL.Text;
   const Message = IDL.Record({
     'id' : MessageId,
@@ -393,6 +409,7 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addComment' : IDL.Func([PostId, IDL.Text], [CommentId], []),
+    'askAutomotiveAssistant' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'attendEvent' : IDL.Func([EventId], [], []),
     'createBuild' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [BuildId], []),
@@ -445,6 +462,7 @@ export const idlFactory = ({ IDL }) => {
     'getFeed' : IDL.Func([PostType], [IDL.Vec(PostRecord)], ['query']),
     'getFollowers' : IDL.Func([UserId], [IDL.Vec(UserId)], ['query']),
     'getFollowing' : IDL.Func([UserId], [IDL.Vec(UserId)], ['query']),
+    'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardUser)], ['query']),
     'getLikeCount' : IDL.Func([PostId], [IDL.Nat], ['query']),
     'getListing' : IDL.Func(
         [MarketplaceListingId],

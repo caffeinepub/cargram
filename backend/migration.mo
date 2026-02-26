@@ -1,8 +1,13 @@
 import Map "mo:core/Map";
 import Set "mo:core/Set";
+import Time "mo:core/Time";
+import Principal "mo:core/Principal";
+import Int "mo:core/Int";
+import Nat "mo:core/Nat";
 import Storage "blob-storage/Storage";
 
 module {
+  // Data types for the migration module
   type UserId = Text;
   type PostId = Text;
   type CommentId = Text;
@@ -22,24 +27,14 @@ module {
     followingCount : Nat;
     createdAt : Int;
     profilePicData : ?Text;
+    coverPhotoData : ?Text;
   };
 
   type User = UserProfile;
 
   type PostType = { #feed; #reel; #build; #mechanic };
 
-  type OldPostRecord = {
-    id : PostId;
-    authorId : UserId;
-    image : ?Storage.ExternalBlob;
-    caption : Text;
-    tags : [Text];
-    postType : PostType;
-    createdAt : Int;
-    reelCategory : ?Text;
-  };
-
-  type NewPostRecord = {
+  type PostRecord = {
     id : PostId;
     authorId : UserId;
     image : ?Storage.ExternalBlob;
@@ -101,10 +96,11 @@ module {
     sold : Bool;
   };
 
+  // 1. Define old persistable actor type (without persistent stores)
   type OldActor = {
     principalProfiles : Map.Map<Principal, UserProfile>;
     users : Map.Map<UserId, User>;
-    posts : Map.Map<PostId, OldPostRecord>;
+    posts : Map.Map<PostId, PostRecord>;
     comments : Map.Map<CommentId, Comment>;
     messages : Map.Map<MessageId, Message>;
     events : Map.Map<EventId, Event>;
@@ -114,10 +110,11 @@ module {
     likes : Map.Map<PostId, Set.Set<UserId>>;
   };
 
+  // 2. Define new persistable actor type (with persistent stores)
   type NewActor = {
     principalProfiles : Map.Map<Principal, UserProfile>;
     users : Map.Map<UserId, User>;
-    posts : Map.Map<PostId, NewPostRecord>;
+    posts : Map.Map<PostId, PostRecord>;
     comments : Map.Map<CommentId, Comment>;
     messages : Map.Map<MessageId, Message>;
     events : Map.Map<EventId, Event>;
@@ -127,15 +124,8 @@ module {
     likes : Map.Map<PostId, Set.Set<UserId>>;
   };
 
+  // 3. Define migration function in module
   public func run(old : OldActor) : NewActor {
-    let newPosts = old.posts.map<PostId, OldPostRecord, NewPostRecord>(
-      func(_postId, oldPost) {
-        { oldPost with mediaData = null };
-      }
-    );
-    {
-      old with posts = newPosts
-    };
+    old;
   };
 };
-

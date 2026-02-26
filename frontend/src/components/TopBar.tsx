@@ -7,6 +7,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/reels': 'REELS',
   '/discover': 'DISCOVER',
   '/events': 'EVENTS',
+  '/leaderboard': 'RACE BOARD',
   '/profile': 'PROFILE',
   '/messages': 'MESSAGES',
   '/mechanics': 'MECHANICS',
@@ -32,6 +33,7 @@ export default function TopBar() {
     if (pathname.startsWith('/marketplace')) return 'MARKETPLACE';
     if (pathname.startsWith('/tuner-shop')) return 'ALTERED IMPORTS';
     if (pathname.startsWith('/streettube')) return 'STREETTUBE';
+    if (pathname.startsWith('/leaderboard')) return 'RACE BOARD';
     return 'REVGRID';
   };
 

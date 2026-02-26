@@ -1,37 +1,72 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T13:52:29.387Z",
+  "generatedAt": "2026-02-26T14:53:08.803Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-153",
-        "summary": "Save the newly uploaded BullBoost Performance logo image as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png, replacing the existing file at that path. Update the BullBoost banner in frontend/src/components/Layout.tsx to display this new image. The banner must remain a clickable anchor tag linking to https://bullboostperformance.com/?ref=xprbexxu with target='_blank' and rel='noopener noreferrer', displayed alongside the existing eBay and Enjuku Racing sponsor banners in the horizontal sponsor row.",
+        "id": "REQ-1",
+        "summary": "Audit the backend Motoko actor to ensure posts are stored in stable variables so they persist across canister upgrades and redeployments. Confirm that the posts map/state uses `stable` keyword and is not reset on canister reinstall or upgrade.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Audit and fix the frontend React Query configuration to ensure the query cache does not discard post data prematurely on page reload or navigation. Verify that staleTime, cacheTime, and refetch strategies for the feed and post queries are set appropriately so posts are re-fetched from the backend (not lost) when the page loads or refreshes.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
-          "frontend/src/components/Layout.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/ReelsPage.tsx",
+          "frontend/src/pages/MechanicsPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
-          "frontend/src/components/Layout.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/ReelsPage.tsx",
+          "frontend/src/pages/MechanicsPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Investigate and fix any logic in the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) or the backend createPost endpoint that could cause posts to be silently dropped, overwritten, or stored in a non-stable (transient) data structure.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/CreateFeedPostPage.tsx",
+          "frontend/src/pages/CreateReelPage.tsx",
+          "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/CreateFeedPostPage.tsx",
+          "frontend/src/pages/CreateReelPage.tsx",
+          "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
-    "frontend/src/components/Layout.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/CreateFeedPostPage.tsx",
+    "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+    "frontend/src/pages/CreateReelPage.tsx",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MechanicsPage.tsx",
+    "frontend/src/pages/ReelsPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

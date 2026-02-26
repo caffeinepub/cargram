@@ -1,223 +1,164 @@
-import { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, Camera, Upload, X, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useCreatePost } from '../hooks/useQueries';
 import { PostType } from '../backend';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ImagePlus, X, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-// NOTE: The ICP ingress message limit is ~2 MB per call; the 10 MB limit here applies to
-// file selection/preview only. Actual encoded payload must remain within ICP limits.
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export default function CreateFeedPostPage() {
   const navigate = useNavigate();
-  const [caption, setCaption] = useState('');
-  const [tagsInput, setTagsInput] = useState('');
-  const [mediaData, setMediaData] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string>('');
-  const [fileError, setFileError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const createPost = useCreatePost();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [caption, setCaption] = useState('');
+  const [tags, setTags] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
     setFileError(null);
-
-    const isImage = file.type.startsWith('image/');
-    if (!isImage) {
-      toast.error('Please select an image file');
-      if (fileInputRef.current) fileInputRef.current.value = '';
+    if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError('File too large — please select a file under 10 MB');
       return;
     }
-
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      const errorMsg = `File too large (${sizeMB} MB) — please select a file under 10 MB`;
-      setFileError(errorMsg);
-      toast.error(errorMsg);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-
-    setFileName(file.name);
-
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setMediaData(result);
-    };
-    reader.onerror = () => {
-      toast.error('Failed to read file');
-      setFileError('Failed to read file');
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string;
+      setImagePreview(result);
+      setImageBase64(result);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleClearMedia = () => {
-    setMediaData(null);
-    setFileName('');
-    setFileError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+
     if (!caption.trim()) {
-      toast.error('Caption is required');
-      return;
-    }
-    if (fileError) {
-      toast.error('Please fix the file error before submitting');
+      setSubmitError('Please enter a caption.');
       return;
     }
 
-    const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+    const tagList = tags
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
 
-    // Embed image data in caption JSON if present
-    const encodedCaption = mediaData
-      ? JSON.stringify({ caption: caption.trim(), mediaData })
+    // Embed image in caption JSON if present
+    const captionPayload = imageBase64
+      ? JSON.stringify({ caption: caption.trim(), mediaUrl: imageBase64 })
       : caption.trim();
 
     try {
       await createPost.mutateAsync({
-        caption: encodedCaption,
-        tags,
+        caption: captionPayload,
+        tags: tagList,
         postType: PostType.feed,
+        reelCategory: null,
+        mediaData: null,
       });
-      toast.success('Post created!');
+      toast.success('Post created successfully!');
       navigate({ to: '/' });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '';
-      toast.error(message.includes('size') || message.includes('limit')
-        ? 'File too large for upload — try a smaller image'
-        : 'Failed to create post. Please try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create post';
+      setSubmitError(message);
+      // toast is already shown by the mutation's onError, but we also set local state
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={() => navigate({ to: '/' })} className="text-foreground">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h2 className="font-heading text-lg font-bold text-foreground">NEW POST</h2>
-      </div>
+    <div className="max-w-lg mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold mb-6">Create Post</h1>
 
-      <form onSubmit={handleSubmit} className="p-4 space-y-5">
-        {/* Image Upload / Preview */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Image Upload */}
         <div className="space-y-2">
-          <Label className="text-foreground font-medium">Photo (optional)</Label>
-          <p className="text-xs text-muted-foreground">Max file size: 10 MB</p>
-
-          {!mediaData ? (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full aspect-square rounded-xl bg-secondary border-2 border-dashed border-border flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-secondary/80 transition-colors cursor-pointer"
-            >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <Camera className="w-7 h-7 text-primary" />
-              </div>
-              <div className="text-center px-4">
-                <p className="text-sm font-semibold text-foreground">Tap to add a photo</p>
-                <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP supported</p>
-              </div>
-            </button>
-          ) : (
-            <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-black">
-              <img
-                src={mediaData}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
+          <Label>Photo (optional)</Label>
+          {imagePreview ? (
+            <div className="relative rounded-xl overflow-hidden">
+              <img src={imagePreview} alt="Preview" className="w-full max-h-72 object-cover" />
               <button
                 type="button"
-                onClick={handleClearMedia}
-                className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                onClick={() => { setImagePreview(null); setImageBase64(null); }}
+                className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1"
               >
                 <X className="w-4 h-4" />
               </button>
-              <div className="absolute bottom-2 left-2 right-2">
-                <p className="text-white text-xs bg-black/50 rounded px-2 py-1 truncate">{fileName}</p>
-              </div>
             </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
+              <ImagePlus className="w-8 h-8 text-muted-foreground mb-2" />
+              <span className="text-sm text-muted-foreground">Click to upload a photo</span>
+              <span className="text-xs text-muted-foreground mt-1">Max 10 MB</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </label>
           )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-
-          {!mediaData && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full border-border text-foreground"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Choose Photo
-            </Button>
-          )}
-
           {fileError && (
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
-              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>{fileError}</span>
-            </div>
+            <p className="text-destructive text-sm flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" /> {fileError}
+            </p>
           )}
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-foreground font-medium">Caption *</Label>
+        {/* Caption */}
+        <div className="space-y-2">
+          <Label htmlFor="caption">Caption *</Label>
           <Textarea
+            id="caption"
+            placeholder="What's on your mind?"
             value={caption}
-            onChange={e => setCaption(e.target.value)}
-            placeholder="Write a caption for your post..."
-            className="bg-secondary border-border text-foreground resize-none"
+            onChange={(e) => setCaption(e.target.value)}
             rows={4}
             required
           />
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-foreground font-medium">Tags</Label>
+        {/* Tags */}
+        <div className="space-y-2">
+          <Label htmlFor="tags">Tags (comma-separated)</Label>
           <Input
-            value={tagsInput}
-            onChange={e => setTagsInput(e.target.value)}
-            placeholder="e.g. jdm, stance, turbo (comma separated)"
-            className="bg-secondary border-border text-foreground"
+            id="tags"
+            placeholder="jdm, stance, build"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
           />
         </div>
 
-        {createPost.isError && (
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
-            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-            <span>Failed to create post. Please try again or use a smaller image.</span>
+        {/* Submit Error */}
+        {submitError && (
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+            <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+            <p className="text-destructive text-sm">{submitError}</p>
           </div>
         )}
 
+        {/* Submit */}
         <Button
           type="submit"
-          disabled={createPost.isPending || !caption.trim() || !!fileError}
-          className="w-full bg-primary text-primary-foreground font-heading font-bold tracking-wider h-12"
+          className="w-full"
+          disabled={createPost.isPending || !caption.trim()}
         >
           {createPost.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Posting...</>
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Posting...
+            </>
           ) : (
-            'SHARE POST'
+            'Post'
           )}
         </Button>
       </form>

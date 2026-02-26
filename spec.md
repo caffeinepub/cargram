@@ -1,10 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the BullBoost Performance banner image in the sponsor row with the newly uploaded logo.
+**Goal:** Fix post persistence so that posts survive page refreshes, browser reloads, and canister upgrades in the RevGrid application.
 
 **Planned changes:**
-- Save the cropped/resized BullBoost Performance logo as `frontend/public/assets/generated/bullboost-logo.dim_760x200.png`
-- Update the BullBoost banner in `Layout.tsx` to use the new image, keeping it as a clickable link to `https://bullboostperformance.com/?ref=xprbexxu` with `target="_blank"` and `rel="noopener noreferrer"`
+- Audit and update the backend Motoko actor (`backend/main.mo`) to ensure posts and all core state (users, comments, messages, events, builds, marketplace listings) are stored in `stable` variables so data survives canister upgrades and redeployments.
+- Audit and fix the frontend React Query configuration (staleTime, cacheTime, refetch strategies) for feed and post queries so posts are properly re-fetched from the backend on page load or refresh.
+- Investigate and fix the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) and the backend `createPost` endpoint to prevent posts from being silently dropped, overwritten, or stored in transient (non-stable) structures.
+- Ensure post IDs are never reused or overwritten by subsequent creates.
+- Add error surfacing on post creation mutations so failures are shown to the user instead of being silently discarded.
 
-**User-visible outcome:** The BullBoost Performance sponsor banner displays the correct new logo, shown alongside the eBay and Enjuku Racing banners in the horizontal sponsor row.
+**User-visible outcome:** Posts created by users remain visible in the feed after refreshing the browser, navigating away and back, or after a canister upgrade — no posts are lost between sessions.

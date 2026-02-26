@@ -1,43 +1,76 @@
 {
   "kind": "build_request",
-  "title": "Replace BullBoost Performance banner image with newly uploaded logo",
+  "title": "Fix post persistence across page loads and refreshes",
   "projectName": "RevGrid",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-153",
-      "text": "Save the newly uploaded BullBoost Performance logo image as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png, replacing the existing file at that path. Update the BullBoost banner in frontend/src/components/Layout.tsx to display this new image. The banner must remain a clickable anchor tag linking to https://bullboostperformance.com/?ref=xprbexxu with target='_blank' and rel='noopener noreferrer', displayed alongside the existing eBay and Enjuku Racing sponsor banners in the horizontal sponsor row.",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Audit the backend Motoko actor to ensure posts are stored in stable variables so they persist across canister upgrades and redeployments. Confirm that the posts map/state uses `stable` keyword and is not reset on canister reinstall or upgrade.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-6"
         ],
         "quotes": [
-          "Fix the bull boost image and use this one instead"
+          "posts don't get erased after loading the site again or refreshing the site"
         ]
       },
       "acceptanceCriteria": [
-        "The new BullBoost Performance logo (white text on black background, 1600x900 source) is saved as frontend/public/assets/generated/bullboost-logo.dim_760x200.png",
-        "The BullBoost banner in Layout.tsx renders the new image instead of the old one",
-        "Clicking the BullBoost banner opens https://bullboostperformance.com/?ref=xprbexxu in a new tab",
-        "The banner row still displays all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side",
-        "The banner is styled consistently with the app's dark automotive theme"
+        "Post data is declared in stable variables in backend/main.mo so state survives upgrades.",
+        "All other core state (users, comments, messages, events, builds, marketplace listings) is also stored in stable variables.",
+        "After a canister upgrade or redeployment, all previously created posts remain accessible via the feed endpoint."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Audit and fix the frontend React Query configuration to ensure the query cache does not discard post data prematurely on page reload or navigation. Verify that staleTime, cacheTime, and refetch strategies for the feed and post queries are set appropriately so posts are re-fetched from the backend (not lost) when the page loads or refreshes.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "posts don't get erased after loading the site again or refreshing the site"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Refreshing the browser or navigating away and back to the feed still shows all previously created posts.",
+        "The feed query in useQueries.ts correctly re-fetches from the backend actor on mount after a page reload.",
+        "No posts visible before refresh are missing after refresh, assuming the backend state is intact."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Investigate and fix any logic in the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) or the backend createPost endpoint that could cause posts to be silently dropped, overwritten, or stored in a non-stable (transient) data structure.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Make sure everything is stable"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A post created by a user is retrievable via the feed endpoint after a canister upgrade or page refresh.",
+        "No post IDs are reused or overwritten by subsequent creates.",
+        "Error handling on post creation mutations surfaces failures to the user rather than silently discarding the post."
       ]
     }
   ],
   "constraints": [
-    "The BullBoost affiliate link https://bullboostperformance.com/?ref=xprbexxu must not be changed",
-    "The existing eBay and Enjuku Racing banners must not be affected"
+    "Do not alter frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui.",
+    "All Motoko logic must remain in a single actor in backend/main.mo.",
+    "Generate backend/migration.mo only if stable variable schema changes require data migration."
   ],
   "nonGoals": [
-    "Changing the layout or position of the sponsor banner row",
-    "Modifying any other sponsor banners",
-    "Any backend changes"
+    "Adding new post features or UI changes unrelated to persistence.",
+    "Changing authentication flow.",
+    "Modifying the AI mechanic answer feature."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": [
-      "Crop and resize the uploaded Bull Boost Performance logo (black background, white script 'Bull Boost' + 'PERFORMANCE' text) to banner dimensions (bullboost-logo.dim_760x200.png > bullboost-logo.dim_760x200.png)"
-    ]
+    "edits": []
   }
 }

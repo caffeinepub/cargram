@@ -2,10 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-save-the-newly-uploaded-bullboost-performance-logo-image-as-a-static-asset-at-frontend-public-assets-generated-bullboost-logo-dim-760x200-png-replacing-the-existing-file-at-that-path-update-the-bullboost-banner-in-frontend-src-components-layout-tsx-to-display-this-new-image-the-banner-must-remain-a-clickable-anchor-tag-linking-to-https-bullboostperformance-com-ref-xprbexxu-with-target-blank-and-rel-noopener-noreferrer-displayed-alongside-the-existing-ebay-and-enjuku-racing-sponsor-banners-in-the-horizontal-sponsor-row",
-      "featureTitle": "Save the newly uploaded BullBoost Performance logo image as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png, replacing the existing file at that path. Update the BullBoost banner in frontend/src/components/Layout.tsx to display this new image. The banner must remain a clickable anchor tag linking to https://bullboostperformance.com/?ref=xprbexxu with target='_blank' and rel='noopener noreferrer', displayed alongside the existing eBay and Enjuku Racing sponsor banners in the horizontal sponsor row.",
+      "featureId": "feature-audit-and-fix-the-frontend-react-query-configuration-to-ensure-the-query-cache-does-not-discard-post-data-prematurely-on-page-reload-or-navigation-verify-that-staletime-cachetime-and-refetch-strategies-for-the-feed-and-post-queries-are-set-appropriately-so-posts-are-re-fetched-from-the-backend-not-lost-when-the-page-loads-or-refreshes",
+      "featureTitle": "Audit and fix the frontend React Query configuration to ensure the query cache does not discard post data prematurely on page reload or navigation. Verify that staleTime, cacheTime, and refetch strategies for the feed and post queries are set appropriately so posts are re-fetched from the backend (not lost) when the page loads or refreshes.",
       "files": [
-        "frontend/src/components/Layout.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/HomePage.tsx",
+        "frontend/src/pages/MechanicsPage.tsx",
+        "frontend/src/pages/ReelsPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,7 +20,30 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-153"
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-investigate-and-fix-any-logic-in-the-post-creation-flow-createfeedpostpage-createreelpage-createmechanicquestionpage-or-the-backend-createpost-endpoint-that-could-cause-posts-to-be-silently-dropped-overwritten-or-stored-in-a-non-stable-transient-data-structure",
+      "featureTitle": "Investigate and fix any logic in the post creation flow (CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage) or the backend createPost endpoint that could cause posts to be silently dropped, overwritten, or stored in a non-stable (transient) data structure.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/CreateFeedPostPage.tsx",
+        "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+        "frontend/src/pages/CreateReelPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

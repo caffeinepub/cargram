@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Home, Film, Compass, Calendar, User, Plus } from 'lucide-react';
+import { Home, Film, Compass, Calendar, User, Plus, Trophy } from 'lucide-react';
 import CreatePostSheet from './CreatePostSheet';
 
 const NAV_ITEMS = [
@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { path: '/reels' as const, icon: Film, label: 'Reels' },
   { path: '/discover' as const, icon: Compass, label: 'Discover' },
   { path: null, icon: Plus, label: 'Create' },
-  { path: '/events' as const, icon: Calendar, label: 'Events' },
+  { path: '/leaderboard' as const, icon: Trophy, label: 'Racers' },
   { path: '/profile' as const, icon: User, label: 'Profile' },
 ];
 

@@ -1,13 +1,105 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Send, Loader2, Wrench } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Wrench, Bot, AlertCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useGetPost, useGetComments, useAddComment, useGetCallerUserProfile } from '../hooks/useQueries';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useGetPost, useGetComments, useAddComment, useGetCallerUserProfile, useAskMechanicAI } from '../hooks/useQueries';
 import { formatDistanceToNow } from '../lib/utils';
 import { toast } from 'sonner';
+
+function AIAnswerCard({ question }: { question: string }) {
+  const { data: aiAnswer, isLoading, isError } = useAskMechanicAI(question);
+
+  if (isLoading) {
+    return (
+      <div className="mx-4 my-4 rounded-xl border-2 border-amber-500/40 bg-amber-500/5 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <Bot className="w-4 h-4 text-amber-500" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-amber-500 font-heading tracking-wide">AI ANSWER</span>
+              <Badge className="text-[10px] h-4 px-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 border">
+                <Sparkles className="w-2.5 h-2.5 mr-1" />
+                Powered by RevGrid AI
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">Generating expert automotive answer...</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full bg-amber-500/10" />
+          <Skeleton className="h-4 w-5/6 bg-amber-500/10" />
+          <Skeleton className="h-4 w-4/5 bg-amber-500/10" />
+          <Skeleton className="h-4 w-full bg-amber-500/10" />
+          <Skeleton className="h-4 w-3/4 bg-amber-500/10" />
+          <Skeleton className="h-4 w-5/6 bg-amber-500/10" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-4 my-4 rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-destructive" />
+          <p className="text-sm text-destructive font-medium">AI answer unavailable right now. Check community answers below.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!aiAnswer) return null;
+
+  // Strip the prefix header from the backend response and render the HTML content
+  const htmlContent = aiAnswer
+    .replace(/^Automotive AI Response for Question: \n/, '')
+    .replace(/<h2>Car Building Topics: <\/h2>[\s\S]*?<\/h2>/, '')
+    .trim();
+
+  // Extract just the detailed answer section
+  const detailedAnswerMatch = aiAnswer.match(/<h2>Detailed Answer: <\/h2>([\s\S]*)/);
+  const displayContent = detailedAnswerMatch ? detailedAnswerMatch[1].trim() : htmlContent;
+
+  return (
+    <div className="mx-4 my-4 rounded-xl border-2 border-amber-500/50 bg-gradient-to-br from-amber-500/8 to-amber-600/4 shadow-lg shadow-amber-500/10">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-amber-500/20">
+        <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 ring-2 ring-amber-500/30">
+          <Bot className="w-5 h-5 text-amber-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-bold text-amber-500 font-heading tracking-wider">AI ANSWER</span>
+            <Badge className="text-[10px] h-4 px-1.5 bg-amber-500/20 text-amber-400 border-amber-500/40 border">
+              <Sparkles className="w-2.5 h-2.5 mr-1" />
+              RevGrid AI
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground">Expert automotive knowledge</p>
+        </div>
+      </div>
+
+      {/* AI Answer Content */}
+      <div
+        className="px-4 py-3 text-sm text-foreground leading-relaxed ai-answer-content"
+        dangerouslySetInnerHTML={{ __html: displayContent }}
+      />
+
+      {/* Footer disclaimer */}
+      <div className="px-4 pb-3 pt-1 border-t border-amber-500/10">
+        <p className="text-[10px] text-muted-foreground/60 italic">
+          AI-generated answer. Always consult a certified mechanic for safety-critical repairs.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function MechanicThreadPage() {
   const { postId } = useParams({ from: '/mechanics/$postId' });
@@ -94,8 +186,23 @@ export default function MechanicThreadPage() {
         )}
       </div>
 
+      {/* AI Answer Section */}
+      <AIAnswerCard question={post.caption} />
+
+      {/* Community Answers divider */}
+      <div className="px-4 pb-2">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <Wrench className="w-3 h-3" />
+            Community Answers
+          </span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+      </div>
+
       {/* Answers */}
-      <div className="flex-1 px-4 py-3 space-y-4">
+      <div className="flex-1 px-4 py-2 space-y-4">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           {comments.length} {comments.length === 1 ? 'Answer' : 'Answers'}
         </p>
@@ -107,7 +214,7 @@ export default function MechanicThreadPage() {
         ) : comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 gap-3">
             <Wrench className="w-8 h-8 text-muted-foreground" />
-            <p className="text-muted-foreground text-sm">No answers yet. Be the first to help!</p>
+            <p className="text-muted-foreground text-sm">No community answers yet. Be the first to help!</p>
           </div>
         ) : (
           comments.map(comment => (

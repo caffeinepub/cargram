@@ -22,6 +22,13 @@ export interface Comment {
     text: string;
     postId: PostId;
 }
+export interface LeaderboardUser {
+    postCount: bigint;
+    username: string;
+    displayName: string;
+    followersCount: bigint;
+    avatar?: ExternalBlob;
+}
 export type EventId = string;
 export interface User {
     id: UserId;
@@ -120,6 +127,7 @@ export enum Variant_new_used {
 }
 export interface backendInterface {
     addComment(postId: PostId, text: string): Promise<CommentId>;
+    askAutomotiveAssistant(question: string): Promise<string>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     attendEvent(eventId: EventId): Promise<void>;
     createBuild(title: string, description: string, specs: string): Promise<BuildId>;
@@ -143,6 +151,7 @@ export interface backendInterface {
     getFeed(postType: PostType): Promise<Array<PostRecord>>;
     getFollowers(userId: UserId): Promise<Array<UserId>>;
     getFollowing(userId: UserId): Promise<Array<UserId>>;
+    getLeaderboard(): Promise<Array<LeaderboardUser>>;
     getLikeCount(postId: PostId): Promise<bigint>;
     getListing(listingId: MarketplaceListingId): Promise<MarketplaceListing | null>;
     getMessages(conversationId: string): Promise<Array<Message>>;

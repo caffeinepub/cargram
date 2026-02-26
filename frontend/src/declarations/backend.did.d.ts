@@ -40,6 +40,13 @@ export interface Event {
 }
 export type EventId = string;
 export type ExternalBlob = Uint8Array;
+export interface LeaderboardUser {
+  'postCount' : bigint,
+  'username' : string,
+  'displayName' : string,
+  'followersCount' : bigint,
+  'avatar' : [] | [ExternalBlob],
+}
 export interface MarketplaceListing {
   'id' : MarketplaceListingId,
   'title' : string,
@@ -137,6 +144,7 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addComment' : ActorMethod<[PostId, string], CommentId>,
+  'askAutomotiveAssistant' : ActorMethod<[string], string>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'attendEvent' : ActorMethod<[EventId], undefined>,
   'createBuild' : ActorMethod<[string, string, string], BuildId>,
@@ -174,6 +182,7 @@ export interface _SERVICE {
   'getFeed' : ActorMethod<[PostType], Array<PostRecord>>,
   'getFollowers' : ActorMethod<[UserId], Array<UserId>>,
   'getFollowing' : ActorMethod<[UserId], Array<UserId>>,
+  'getLeaderboard' : ActorMethod<[], Array<LeaderboardUser>>,
   'getLikeCount' : ActorMethod<[PostId], bigint>,
   'getListing' : ActorMethod<[MarketplaceListingId], [] | [MarketplaceListing]>,
   'getMessages' : ActorMethod<[string], Array<Message>>,

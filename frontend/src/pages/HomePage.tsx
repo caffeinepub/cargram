@@ -1,121 +1,113 @@
-import { useRef, useCallback, useEffect } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useInfiniteFeed } from '../hooks/useQueries';
 import PostCard from '../components/PostCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car, Loader2 } from 'lucide-react';
-import { type PostRecord } from '../backend';
-
-function PostCardWrapper({ post }: { post: PostRecord }) {
-  return <PostCard post={post} />;
-}
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   const {
     data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
     fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
     refetch,
   } = useInfiniteFeed();
 
-  // Flatten all pages into a single list
-  const posts = data?.pages.flat() ?? [];
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Sentinel element ref for IntersectionObserver
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage]
+  );
 
-  // Observe the sentinel to trigger next page fetch
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: '200px',
+      threshold: 0,
+    });
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [handleObserver]);
 
-  const refreshing = useRef(false);
-  const handleRefresh = useCallback(async () => {
-    if (refreshing.current) return;
-    refreshing.current = true;
-    await refetch();
-    refreshing.current = false;
-  }, [refetch]);
+  const allPosts = data?.pages.flat() ?? [];
 
   if (isLoading) {
     return (
-      <div className="space-y-4 p-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Skeleton className="w-10 h-10 rounded-full bg-secondary" />
-              <div className="space-y-1">
-                <Skeleton className="w-24 h-3 bg-secondary" />
-                <Skeleton className="w-16 h-2 bg-secondary" />
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="rounded-xl overflow-hidden border border-border bg-card">
+            <div className="p-4 flex items-center gap-3">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
               </div>
             </div>
-            <Skeleton className="w-full aspect-square bg-secondary" />
+            <Skeleton className="w-full h-64" />
+            <div className="p-4 space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
           </div>
         ))}
       </div>
     );
   }
 
-  if (posts.length === 0) {
+  if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8">
-        <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center">
-          <Car className="w-10 h-10 text-primary" />
-        </div>
-        <h2 className="font-heading text-2xl font-bold text-foreground">NO POSTS YET</h2>
-        <p className="text-muted-foreground text-center text-sm">
-          Be the first to share your ride! Tap the + button to create a post.
-        </p>
+      <div className="max-w-lg mx-auto px-4 py-12 flex flex-col items-center gap-4 text-center">
+        <AlertCircle className="w-12 h-12 text-destructive" />
+        <p className="text-foreground font-semibold">Failed to load feed</p>
+        <p className="text-muted-foreground text-sm">{(error as Error)?.message ?? 'Unknown error'}</p>
+        <Button onClick={() => refetch()} variant="outline" className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="flex justify-end px-4 py-2">
-        <button
-          onClick={handleRefresh}
-          className="text-xs text-primary font-medium"
-        >
-          Refresh
-        </button>
-      </div>
-
-      {posts.map(post => (
-        <PostCardWrapper key={post.id} post={post} />
-      ))}
-
-      {/* Sentinel element — triggers next page fetch when visible */}
-      <div ref={sentinelRef} className="h-4" />
-
-      {/* Loading indicator for next page */}
-      {isFetchingNextPage && (
-        <div className="flex items-center justify-center py-6 gap-2 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin text-primary" />
-          <span className="text-sm">Loading more posts…</span>
+    <div className="max-w-lg mx-auto px-4 py-6">
+      {allPosts.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="text-muted-foreground text-lg">No posts yet.</p>
+          <p className="text-muted-foreground text-sm mt-2">Be the first to share something!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {allPosts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
         </div>
       )}
 
-      {/* End of feed indicator */}
-      {!hasNextPage && posts.length > 0 && (
-        <div className="flex items-center justify-center py-6">
-          <p className="text-xs text-muted-foreground">You're all caught up 🏁</p>
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-4" />
+
+      {isFetchingNextPage && (
+        <div className="flex justify-center py-4">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
+      )}
+
+      {!hasNextPage && allPosts.length > 0 && (
+        <p className="text-center text-muted-foreground text-sm py-6">
+          You've reached the end of the feed
+        </p>
       )}
     </div>
   );

@@ -28,6 +28,7 @@ import CreateListingPage from './pages/CreateListingPage';
 import AboutPage from './pages/AboutPage';
 import TunerShopPage from './pages/TunerShopPage';
 import StreetTubePage from './pages/StreetTubePage';
+import LeaderboardPage from './pages/LeaderboardPage';
 import AuthGate from './components/AuthGate';
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
@@ -106,6 +107,8 @@ const eventsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/event
 const eventsCreateRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events/create', component: CreateEventPage });
 const eventDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events/$eventId', component: EventDetailPage });
 
+const leaderboardRoute = createRoute({ getParentRoute: () => rootRoute, path: '/leaderboard', component: LeaderboardPage });
+
 const profileRoute = createRoute({ getParentRoute: () => rootRoute, path: '/profile', component: ProfilePage });
 const profileUserRoute = createRoute({ getParentRoute: () => rootRoute, path: '/profile/$userId', component: ProfilePage });
 const followersRoute = createRoute({ getParentRoute: () => rootRoute, path: '/profile/$userId/followers', component: FollowersPage });
@@ -140,6 +143,7 @@ const routeTree = rootRoute.addChildren([
   eventsRoute,
   eventsCreateRoute,
   eventDetailRoute,
+  leaderboardRoute,
   profileRoute,
   profileUserRoute,
   followersRoute,

@@ -1,129 +1,154 @@
+import React from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Calendar, MapPin, Users, Loader2, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useGetEvent, useAttendEvent } from '../hooks/useQueries';
-import { formatDateTime } from '../lib/utils';
-import { toast } from 'sonner';
-import { useState } from 'react';
+import { Calendar, MapPin, Users, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function EventDetailPage() {
   const { eventId } = useParams({ from: '/events/$eventId' });
   const navigate = useNavigate();
-  const [attended, setAttended] = useState(false);
-
-  const { data: event, isLoading } = useGetEvent(eventId);
+  const { data: event, isLoading, isError, error } = useGetEvent(eventId);
   const attendEvent = useAttendEvent();
 
-  const handleAttend = async () => {
-    if (attended) return;
-    try {
-      await attendEvent.mutateAsync(eventId);
-      setAttended(true);
-      toast.success("You're attending! 🚗");
-    } catch {
-      toast.error('Failed to mark attendance');
-    }
+  const formatDate = (timestamp: bigint) => {
+    const date = new Date(Number(timestamp));
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!event) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8">
-        <p className="text-muted-foreground">Event not found</p>
-        <Button onClick={() => navigate({ to: '/events' })} variant="outline">Back to Events</Button>
-      </div>
-    );
-  }
-
-  const attendeeCount = Number(event.attendeesCount) + (attended ? 1 : 0);
-
   return (
-    <div className="max-w-lg mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={() => navigate({ to: '/events' })} className="text-foreground">
+    <div className="min-h-screen bg-background pb-24">
+      {/* Back button */}
+      <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-3">
+        <button
+          onClick={() => navigate({ to: '/events' })}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
           <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h2 className="font-heading text-lg font-bold text-foreground truncate">{event.title}</h2>
+        </button>
+        <h2 className="font-bold text-foreground">Event Details</h2>
       </div>
 
-      {/* Event Image */}
-      <div className="w-full aspect-video bg-secondary overflow-hidden">
-        {event.image ? (
-          <img src={event.image.getDirectURL()} alt={event.title} className="w-full h-full object-cover" />
-        ) : (
-          <img
-            src="/assets/generated/events-hero.dim_1200x400.png"
-            alt="event"
-            className="w-full h-full object-cover opacity-70"
-          />
-        )}
-      </div>
+      {/* Loading state */}
+      {isLoading && (
+        <div className="p-4 space-y-4">
+          <Skeleton className="w-full h-48 rounded-xl" />
+          <Skeleton className="h-7 w-3/4" />
+          <Skeleton className="h-5 w-1/2" />
+          <Skeleton className="h-5 w-2/3" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      )}
 
-      {/* Event Details */}
-      <div className="p-4 space-y-4">
-        <h3 className="font-heading text-2xl font-bold text-foreground">{event.title}</h3>
+      {/* Error state */}
+      {isError && !isLoading && (
+        <div className="p-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error instanceof Error ? error.message : 'Failed to load event details.'}
+            </AlertDescription>
+          </Alert>
+          <Button
+            variant="outline"
+            className="mt-4 border-border"
+            onClick={() => navigate({ to: '/events' })}
+          >
+            Back to Events
+          </Button>
+        </div>
+      )}
 
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
-            <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">Date & Time</p>
-              <p className="text-sm font-medium text-foreground">{formatDateTime(event.date)}</p>
+      {/* Not found state */}
+      {!isLoading && !isError && !event && (
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <Calendar className="w-16 h-16 text-muted-foreground mb-4 opacity-40" />
+          <h3 className="text-lg font-bold text-foreground mb-2">Event Not Found</h3>
+          <p className="text-muted-foreground text-sm mb-6">
+            This event may have been removed or the link is invalid.
+          </p>
+          <Button
+            onClick={() => navigate({ to: '/events' })}
+            className="bg-primary text-primary-foreground"
+          >
+            Browse Events
+          </Button>
+        </div>
+      )}
+
+      {/* Event content */}
+      {!isLoading && !isError && event && (
+        <div>
+          {/* Hero image */}
+          <div className="relative h-48 bg-muted">
+            <img
+              src="/assets/generated/events-hero.dim_1200x400.png"
+              alt={event.title}
+              className="w-full h-full object-cover opacity-70"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <h1 className="text-white text-2xl font-black leading-tight">{event.title}</h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
-            <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">Location</p>
-              <p className="text-sm font-medium text-foreground">{event.location}</p>
+          <div className="p-4 space-y-4">
+            {/* Meta info */}
+            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+              <div className="flex items-center gap-3 text-sm">
+                <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="text-foreground">{formatDate(event.date)}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="text-foreground">{event.location}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Users className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="text-foreground">{Number(event.attendeesCount)} attending</span>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
-            <Users className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">Attendees</p>
-              <p className="text-sm font-medium text-foreground">{attendeeCount} people attending</p>
+            {/* Description */}
+            {event.description && (
+              <div className="bg-card rounded-xl border border-border p-4">
+                <h3 className="font-bold text-foreground mb-2">About This Event</h3>
+                <p className="text-foreground/80 text-sm leading-relaxed">{event.description}</p>
+              </div>
+            )}
+
+            {/* Organizer */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <h3 className="font-bold text-foreground mb-1">Organizer</h3>
+              <p className="text-muted-foreground text-sm">@{event.organizerId}</p>
             </div>
+
+            {/* Attend button */}
+            <Button
+              className="w-full bg-primary text-primary-foreground font-bold py-3"
+              disabled={attendEvent.isPending}
+              onClick={() => attendEvent.mutate(event.id)}
+            >
+              {attendEvent.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Joining…
+                </>
+              ) : (
+                "I'm Attending"
+              )}
+            </Button>
           </div>
         </div>
-
-        {event.description && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">About</p>
-            <p className="text-sm text-foreground leading-relaxed">{event.description}</p>
-          </div>
-        )}
-
-        <p className="text-xs text-muted-foreground">Organized by @{event.organizerId}</p>
-
-        <Button
-          onClick={handleAttend}
-          disabled={attended || attendEvent.isPending}
-          className={`w-full h-12 font-heading font-bold tracking-wider ${
-            attended
-              ? 'bg-green-600/20 text-green-400 border border-green-600/30'
-              : 'bg-primary text-primary-foreground'
-          }`}
-        >
-          {attendEvent.isPending ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : attended ? (
-            <><CheckCircle className="w-5 h-5 mr-2" /> YOU&apos;RE ATTENDING</>
-          ) : (
-            "I'M ATTENDING"
-          )}
-        </Button>
-      </div>
+      )}
     </div>
   );
 }

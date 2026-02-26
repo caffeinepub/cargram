@@ -1,304 +1,232 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { Heart, MessageCircle, Trash2, Volume2, VolumeX, Search, Loader2, Film } from 'lucide-react';
-import { PostRecord } from '../backend';
-import { useGetFeed, useGetLikeCount, useLikePost, useUnlikePost, useGetCallerUserProfile, useDeletePost, useGetUser } from '../hooks/useQueries';
-import { PostType } from '../backend';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useGetFeed, useDeletePost, useLikePost, useUnlikePost, useGetLikeCount, useGetCallerUserProfile } from '../hooks/useQueries';
+import { PostType, type PostRecord } from '../backend';
 import CommentsSheet from '../components/CommentsSheet';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-
-/**
- * Parse a reel's caption field which may be a JSON-encoded object
- * containing { caption, mediaData } or a plain string caption.
- */
-function parseReelCaption(raw: string): { caption: string; mediaData: string | null } {
-  try {
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object' && 'caption' in parsed) {
-      return {
-        caption: parsed.caption ?? '',
-        mediaData: parsed.mediaData ?? null,
-      };
-    }
-  } catch {
-    // Not JSON, treat as plain caption
-  }
-  return { caption: raw, mediaData: null };
-}
+import { Heart, Trash2, MessageCircle, Volume2, VolumeX, RefreshCw } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface ReelItemProps {
-  reel: PostRecord;
+  post: PostRecord;
   isActive: boolean;
-  onDeleteRequest: (id: string) => void;
+  currentUserId?: string;
 }
 
-function ReelItem({ reel, isActive, onDeleteRequest }: ReelItemProps) {
-  const navigate = useNavigate();
-  const [liked, setLiked] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(false);
+function ReelItem({ post, isActive, currentUserId }: ReelItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
 
-  const { data: likeCount } = useGetLikeCount(reel.id);
-  const { data: currentUserProfile } = useGetCallerUserProfile();
-  const { data: authorUser } = useGetUser(reel.authorId);
+  const { data: likeCount } = useGetLikeCount(post.id);
   const likePost = useLikePost();
   const unlikePost = useUnlikePost();
+  const deletePost = useDeletePost();
 
-  const isAuthor = currentUserProfile?.username === reel.authorId;
+  // Parse media from caption JSON
+  let mediaUrl: string | null = null;
+  let caption = post.caption;
+  try {
+    const parsed = JSON.parse(post.caption);
+    if (parsed.mediaUrl) mediaUrl = parsed.mediaUrl;
+    if (parsed.mediaData) mediaUrl = parsed.mediaData;
+    if (parsed.caption) caption = parsed.caption;
+  } catch {
+    // not JSON, use caption as-is
+  }
 
-  const authorAvatarUrl = authorUser?.profilePicData
-    ? `data:image/jpeg;base64,${authorUser.profilePicData}`
-    : '/assets/generated/default-avatar.dim_128x128.png';
+  // Also check mediaData field
+  if (!mediaUrl && post.mediaData) {
+    mediaUrl = post.mediaData;
+  }
 
-  // Parse caption to extract media data
-  const { caption, mediaData: embeddedMediaData } = parseReelCaption(reel.caption);
-
-  // Determine media source: prefer embedded base64, fall back to ExternalBlob URL
-  const externalMediaUrl = reel.image ? reel.image.getDirectURL() : null;
-  const mediaSource = embeddedMediaData ?? externalMediaUrl;
-
-  const isVideo = embeddedMediaData
-    ? embeddedMediaData.startsWith('data:video/')
-    : (externalMediaUrl?.includes('.mp4') || externalMediaUrl?.includes('.webm') || externalMediaUrl?.includes('.mov')) ?? false;
+  const isVideo = !!(mediaUrl && (mediaUrl.startsWith('data:video') || mediaUrl.includes('video')));
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !isVideo) return;
 
     if (isActive) {
-      video.muted = false;
-      video.play().catch(() => {
-        // Autoplay with sound blocked — fall back to muted
-        video.muted = true;
-        setMuted(true);
-        video.play().catch(() => {});
-      });
+      video.muted = isMuted;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // If unmuted autoplay fails, try muted
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
+      }
     } else {
       video.pause();
+      video.currentTime = 0;
     }
-  }, [isActive]);
+  }, [isActive, isMuted, isVideo]);
 
   const handleLike = async () => {
-    if (liked) {
-      setLiked(false);
-      await unlikePost.mutateAsync(reel.id);
-    } else {
-      setLiked(true);
-      await likePost.mutateAsync(reel.id);
+    try {
+      if (liked) {
+        await unlikePost.mutateAsync(post.id);
+        setLiked(false);
+      } else {
+        await likePost.mutateAsync(post.id);
+        setLiked(true);
+      }
+    } catch {
+      toast.error('Failed to update like');
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deletePost.mutateAsync(post.id);
+      toast.success('Reel deleted');
+    } catch {
+      toast.error('Failed to delete reel');
+    }
+  };
+
+  const isOwner = currentUserId && post.authorId === currentUserId;
+
   return (
-    <>
-      <div className="relative w-full h-full bg-black flex items-center justify-center snap-start">
-        {/* Media */}
-        {mediaSource ? (
-          isVideo ? (
-            <video
-              ref={videoRef}
-              src={mediaSource}
-              className="w-full h-full object-cover"
-              loop
-              playsInline
-            />
-          ) : (
-            <img src={mediaSource} alt={caption} className="w-full h-full object-cover" />
-          )
+    <div className="relative w-full h-full flex items-center justify-center bg-black snap-start snap-always">
+      {mediaUrl ? (
+        isVideo ? (
+          <video
+            ref={videoRef}
+            src={mediaUrl}
+            className="w-full h-full object-cover"
+            loop
+            playsInline
+            muted={isMuted}
+          />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center">
-            <p className="text-white/40 text-lg">No media</p>
-          </div>
+          <img src={mediaUrl} alt={caption} className="w-full h-full object-cover" />
+        )
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-card">
+          <p className="text-muted-foreground text-center px-8">{caption}</p>
+        </div>
+      )}
+
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+
+      {/* Bottom info */}
+      <div className="absolute bottom-20 left-4 right-16 pointer-events-none">
+        <p className="text-white font-semibold text-sm">@{post.authorId}</p>
+        {caption && <p className="text-white/80 text-sm mt-1 line-clamp-2">{caption}</p>}
+        {post.reelCategory && (
+          <span className="inline-block mt-1 px-2 py-0.5 bg-primary/80 text-primary-foreground text-xs rounded-full">
+            {post.reelCategory}
+          </span>
         )}
-
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none" />
-
-        {/* Top Controls */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate({ to: '/reels-search' })}
-            className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
-          >
-            <Search className="w-6 h-6" />
-          </button>
-
-          {isVideo && (
-            <button
-              onClick={() => {
-                const video = videoRef.current;
-                if (video) {
-                  video.muted = !muted;
-                }
-                setMuted(!muted);
-              }}
-              className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
-            >
-              {muted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-            </button>
-          )}
-        </div>
-
-        {/* Right Actions */}
-        <div className="absolute right-4 bottom-28 flex flex-col items-center gap-6">
-          <button
-            onClick={handleLike}
-            className={`flex flex-col items-center gap-1.5 transition-colors ${
-              liked ? 'text-red-500' : 'text-white'
-            }`}
-          >
-            <Heart className={`w-8 h-8 ${liked ? 'fill-current' : ''}`} />
-            <span className="text-sm font-semibold drop-shadow">{Number(likeCount ?? 0) + (liked ? 1 : 0)}</span>
-          </button>
-
-          <button
-            onClick={() => setCommentsOpen(true)}
-            className="flex flex-col items-center gap-1.5 text-white"
-          >
-            <MessageCircle className="w-8 h-8" />
-            <span className="text-sm font-semibold drop-shadow">Comment</span>
-          </button>
-
-          {isAuthor && (
-            <button
-              onClick={() => onDeleteRequest(reel.id)}
-              className="flex flex-col items-center gap-1.5 text-white hover:text-red-400 transition-colors"
-            >
-              <Trash2 className="w-8 h-8" />
-              <span className="text-sm font-semibold drop-shadow">Delete</span>
-            </button>
-          )}
-        </div>
-
-        {/* Bottom Author Info */}
-        <div className="absolute bottom-8 left-4 right-20">
-          <button
-            onClick={() => navigate({ to: `/profile/${reel.authorId}` })}
-            className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity"
-          >
-            <img
-              src={authorAvatarUrl}
-              alt={reel.authorId}
-              className="w-12 h-12 rounded-full object-cover border-2 border-white/70 shadow-lg"
-            />
-            <span className="text-white font-bold text-xl drop-shadow-lg">{reel.authorId}</span>
-          </button>
-
-          {reel.reelCategory && (
-            <span className="inline-block bg-primary/80 text-primary-foreground text-sm font-semibold px-3 py-1 rounded-full mb-2 drop-shadow">
-              {reel.reelCategory}
-            </span>
-          )}
-
-          {caption && (
-            <p className="text-white text-lg font-medium drop-shadow-lg leading-snug line-clamp-3">{caption}</p>
-          )}
-
-          {reel.tags && reel.tags.length > 0 && (
-            <p className="text-white/80 text-base mt-1.5 drop-shadow">
-              {reel.tags.map((t) => `#${t}`).join(' ')}
-            </p>
-          )}
-        </div>
       </div>
 
-      <CommentsSheet postId={reel.id} open={commentsOpen} onClose={() => setCommentsOpen(false)} />
-    </>
+      {/* Right actions */}
+      <div className="absolute right-3 bottom-24 flex flex-col items-center gap-5">
+        {isVideo && (
+          <button
+            onClick={() => setIsMuted((m) => !m)}
+            className="text-white drop-shadow-lg"
+          >
+            {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+          </button>
+        )}
+        <button onClick={handleLike} className="flex flex-col items-center gap-1">
+          <Heart
+            className={`w-7 h-7 drop-shadow-lg transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`}
+          />
+          <span className="text-white text-xs">{likeCount ? Number(likeCount) : 0}</span>
+        </button>
+        <button onClick={() => setCommentsOpen(true)} className="flex flex-col items-center gap-1">
+          <MessageCircle className="w-7 h-7 text-white drop-shadow-lg" />
+        </button>
+        {isOwner && (
+          <button onClick={handleDelete} className="text-white drop-shadow-lg">
+            <Trash2 className="w-6 h-6 text-red-400" />
+          </button>
+        )}
+      </div>
+
+      <CommentsSheet postId={post.id} open={commentsOpen} onClose={() => setCommentsOpen(false)} />
+    </div>
   );
 }
 
 export default function ReelsPage() {
+  const { data: reels, isLoading, isError, refetch } = useGetFeed(PostType.reel);
+  const { data: currentProfile } = useGetCallerUserProfile();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [deleteReelId, setDeleteReelId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: reels, isLoading } = useGetFeed(PostType.reel);
-  const deletePost = useDeletePost();
+  const currentUserId = currentProfile?.username;
+
+  const handleScroll = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const scrollTop = container.scrollTop;
+    const height = container.clientHeight;
+    const newIndex = Math.round(scrollTop / height);
+    setActiveIndex(newIndex);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const height = container.clientHeight;
-      const index = Math.round(scrollTop / height);
-      setActiveIndex(index);
-    };
-
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleDeleteConfirm = async () => {
-    if (!deleteReelId) return;
-    await deletePost.mutateAsync(deleteReelId);
-    setDeleteReelId(null);
-  };
+  }, [handleScroll]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-sm px-4">
+          <Skeleton className="w-full h-96 rounded-xl" />
+          <Skeleton className="w-3/4 h-4" />
+          <Skeleton className="w-1/2 h-4" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="h-[calc(100vh-8rem)] flex flex-col items-center justify-center gap-4">
+        <p className="text-destructive font-semibold">Failed to load reels</p>
+        <Button onClick={() => refetch()} variant="outline" className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </Button>
       </div>
     );
   }
 
   if (!reels || reels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-black text-white gap-4">
-        <Film className="w-12 h-12 text-white/40" />
-        <p className="text-white/60 text-lg">No reels yet. Be the first to post!</p>
+      <div className="h-[calc(100vh-8rem)] flex flex-col items-center justify-center gap-3 text-center px-6">
+        <p className="text-muted-foreground text-lg">No reels yet</p>
+        <p className="text-muted-foreground text-sm">Be the first to post a reel!</p>
       </div>
     );
   }
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        className="h-screen overflow-y-scroll snap-y snap-mandatory"
-        style={{ scrollbarWidth: 'none' }}
-      >
-        {reels.map((reel, index) => (
-          <div key={reel.id} className="h-screen w-full snap-start">
-            <ReelItem
-              reel={reel}
-              isActive={index === activeIndex}
-              onDeleteRequest={setDeleteReelId}
-            />
-          </div>
-        ))}
-      </div>
-
-      <AlertDialog open={!!deleteReelId} onOpenChange={(v) => !v && setDeleteReelId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Reel?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The reel will be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deletePost.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <div
+      ref={containerRef}
+      className="h-[calc(100vh-8rem)] overflow-y-scroll snap-y snap-mandatory"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      {reels.map((reel, index) => (
+        <div key={reel.id} className="h-[calc(100vh-8rem)] snap-start snap-always">
+          <ReelItem
+            post={reel}
+            isActive={index === activeIndex}
+            currentUserId={currentUserId}
+          />
+        </div>
+      ))}
+    </div>
   );
 }

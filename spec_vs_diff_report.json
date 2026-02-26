@@ -1,31 +1,39 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T13:52:29.380Z",
-  "summary": "The diff modifies frontend/src/components/Layout.tsx but the BullBoost banner still references the old image path '/assets/683892f33f52abb30a48532909b689c7.w1600.h900.jpg' rather than the new '/assets/generated/bullboost-logo.dim_760x200.png'. The static asset file at frontend/public/assets/generated/bullboost-logo.dim_760x200.png is not added in the diff. The affiliate link, target, and rel attributes are correctly preserved.",
+  "generatedAt": "2026-02-26T14:53:08.798Z",
+  "summary": "The diff addresses all three requirements. REQ-1 is handled by migrating backend state to persistent stores via migration.mo and the (with migration = Migration.run) actor declaration in backend/main.mo. REQ-2 is addressed in useQueries.ts with staleTime: 0 and refetchOnMount: true for feed/post queries. REQ-3 is addressed by error handling in CreateFeedPostPage, CreateReelPage, CreateMechanicQuestionPage, and throwing on null backend response in useCreatePost. However, there are concerns about REQ-1's stable variable implementation.",
   "missing_requirements": [
     {
-      "id": "REQ-153",
-      "requirement": "Save the newly uploaded BullBoost Performance logo image as a static asset at frontend/public/assets/generated/bullboost-logo.dim_760x200.png, replacing the existing file at that path.",
-      "reason": "No file was added or modified at frontend/public/assets/generated/bullboost-logo.dim_760x200.png in the diff. The 'ADDED FILES: none' section confirms no new static asset was created.",
+      "id": "REQ-1",
+      "requirement": "Post data is declared in stable variables in backend/main.mo so state survives upgrades; uses the stable keyword.",
+      "reason": "The diff shows backend/main.mo uses let (not stable var) for all data stores such as posts, users, comments, etc. The persistence mechanism relies on the Motoko actor migration pattern (with migration = Migration.run) rather than explicit stable var declarations. The AC explicitly requires the stable keyword on variable declarations, which is absent from the diff evidence.",
       "evidence": [
-        "frontend/public/assets/generated/bullboost-logo.dim_760x200.png"
-      ]
-    },
-    {
-      "id": "REQ-153",
-      "requirement": "The BullBoost banner in Layout.tsx renders the new image (bullboost-logo.dim_760x200.png) instead of the old one.",
-      "reason": "Layout.tsx still references the old image path '/assets/683892f33f52abb30a48532909b689c7.w1600.h900.jpg' for the BullBoost banner instead of '/assets/generated/bullboost-logo.dim_760x200.png'.",
-      "evidence": [
-        "frontend/src/components/Layout.tsx"
+        "backend/main.mo"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.95,
+  "hallucinated_features": [
+    {
+      "description": "backend/migration.mo defines OldActor and NewActor types that are structurally identical, and the migration function simply returns the old actor unchanged. This is a no-op migration module.",
+      "reason": "The build request says to generate backend/migration.mo only if stable variable schema changes require data migration. Since the schema did not change between OldActor and NewActor, generating this file may not have been required per the constraints.",
+      "evidence": [
+        "backend/migration.mo"
+      ]
+    }
+  ],
+  "confidence": 0.72,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/Layout.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/CreateFeedPostPage.tsx",
+    "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+    "frontend/src/pages/CreateReelPage.tsx",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MechanicsPage.tsx",
+    "frontend/src/pages/ReelsPage.tsx",
     "project_state.json"
   ]
 }
