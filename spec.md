@@ -1,9 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Google Search Console site verification meta tag to the frontend's `index.html`.
+**Goal:** Replace the text-based eBay affiliate banner with an image banner and display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row.
 
 **Planned changes:**
-- Add `<meta name="google-site-verification" content="ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag">` inside the `<head>` section of `frontend/index.html`
+- Create a new eBay banner image by compositing the slammed orange Honda Civic rear photo with the RevGrid logo overlaid, saved as `ebay-banner.dim_940x313.jpg`
+- Replace the existing text-based eBay affiliate banner in `Layout.tsx` with the new image banner linked to the eBay affiliate URL
+- Arrange all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in one horizontal row, each as a clickable image linking to their respective URLs in a new tab
+- Style the banner row with the app's dark asphalt/amber automotive theme
 
-**User-visible outcome:** The site will be verifiable via Google Search Console using the HTML meta tag method, with no other changes to the page.
+**User-visible outcome:** Users see a horizontal strip with all three sponsor banners displayed as images side-by-side on every authenticated page, replacing the previous text-based eBay banner.

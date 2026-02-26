@@ -1,14 +1,21 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T12:41:12.645Z",
-  "summary": "REQ-127 is fully implemented. The frontend/index.html file contains the exact meta name='google-site-verification' content='ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag' tag inside the head section. All existing SEO metadata tags (description, Open Graph, Twitter Card, keywords, theme-color, robots) are present and intact, and the page title and other head elements are preserved. No backend changes were made.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-26T13:46:23.247Z",
+  "summary": "REQ-152 is well-implemented in Layout.tsx with all three banners displayed side-by-side, correct URLs, image sources, and dark theme styling. REQ-151 requires the actual image file to be saved at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg, but no file was added in the diff (ADDED FILES: none), so this requirement is not fulfilled by the diff.",
+  "missing_requirements": [
+    {
+      "id": "REQ-151",
+      "requirement": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg.",
+      "reason": "The diff shows no added files. The image asset frontend/public/assets/generated/ebay-banner.dim_940x313.jpg was not added in the diff, meaning the file does not exist and is not accessible from the frontend at that path.",
+      "evidence": []
+    }
+  ],
   "hallucinated_features": [],
-  "confidence": 0.98,
+  "confidence": 0.92,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/index.html",
+    "frontend/src/components/Layout.tsx",
     "project_state.json"
   ]
 }

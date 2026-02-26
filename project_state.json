@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 75,
+  "projectStateVersion": 85,
   "summary": "A full-featured car enthusiast social media app inspired by Instagram/TikTok, built exclusively for car culture under the brand 'RevGrid'. Includes a feed, reels, follow/unfollow system, direct messaging, user profiles, mechanics help section, build showcases with photos, a marketplace for buying/selling car parts, car meet events, likes, comments, a discovery page, the ability for users to delete their own posts and reels, and an About RevGrid page with platform description, support/donation info, and contact details.",
   "architectural_notes": [
     "Social media platform exclusively for car culture — Instagram-inspired UI/UX",
@@ -23,6 +23,7 @@
     "Landing page login button is unresponsive — clicking it does nothing and does not trigger Internet Identity authentication"
   ],
   "isFixRequest": false,
+  "imageRequirements": "## Edit Images\n- Composite the uploaded slammed orange Honda Civic rear photo with the RevGrid logo (amber/orange text, dark asphalt style) overlaid in the lower-right or center area, add a dark amber-tinted gradient overlay so the logo is readable, final output sized as a wide banner (free-photo-of-rear-end-of-a-car.jpeg > ebay-banner.dim_940x313.jpg)",
   "existing_features": [
     {
       "id": "feature-design-and-apply-a-cohesive-visual-theme-throughout-the-entire-app-dark-asphalt-inspired-backgrounds-bold-amber-orange-accent-colors-high-contrast-white-text-racing-stripe-decorative-elements-and-a-gritty-automotive-aesthetic-apply-consistently-across-all-pages-navigation-cards-and-modals",
@@ -605,6 +606,126 @@
       "title": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
       "reqIds": [
         "REQ-127"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-streettube-page-at-frontend-src-pages-streettubepage-tsx-the-page-must-be-a-self-contained-youtube-inspired-underground-street-racing-video-community-it-must-include-1-a-fixed-top-header-bar-with-a-hamburger-menu-button-the-streettube-brand-logo-play-circle-icon-text-styled-with-the-red-accent-color-ff0000-a-search-input-bar-with-a-search-button-and-contextual-user-section-buttons-sign-in-sign-up-when-unauthenticated-a-create-upload-button-notification-bell-icon-and-user-avatar-initial-when-authenticated-2-a-collapsible-left-sidebar-with-navigation-items-home-trending-subscriptions-and-a-library-section-containing-history-and-liked-videos-plus-a-dynamic-subscriptions-list-3-a-horizontally-scrollable-category-chip-bar-at-the-top-of-the-main-content-area-with-chips-for-all-street-racing-drag-racing-roll-racing-highway-runs-car-meet-build-4-a-responsive-video-grid-repeat-auto-fill-minmax-320px-displaying-video-cards-with-a-16-9-thumbnail-captured-from-the-uploaded-video-via-canvas-duration-badge-channel-avatar-initial-letter-video-title-channel-name-view-count-and-relative-upload-date-5-a-full-screen-video-player-modal-with-an-html5-video-element-video-title-channel-info-subscriber-count-subscribe-subscribed-toggle-button-like-liked-toggle-button-with-count-share-and-save-action-buttons-view-count-upload-date-and-description-6-an-upload-video-modal-authenticated-users-only-with-a-drag-and-drop-click-file-input-video-max-100-mb-title-input-description-textarea-category-selector-street-racing-drag-racing-roll-racing-highway-runs-car-meet-build-other-and-an-upload-submit-button-7-an-auth-modal-supporting-sign-in-and-sign-up-modes-sign-up-requires-a-channel-name-email-and-password-sign-in-requires-email-and-password-all-user-video-subscription-like-history-data-must-be-persisted-to-localstorage-under-the-keys-streettube-users-streettube-videos-streettube-subscriptions-streettube-likes-streettube-history-streettube-currentuser-auth-state-must-persist-across-page-reloads-videos-uploaded-by-a-user-must-appear-in-their-profile-view-profile-view-shows-channel-name-email-video-count-subscriber-count-join-date-and-the-user-s-uploaded-videos-sidebar-subscription-list-dynamically-shows-subscribed-channels-watch-history-records-the-last-50-watched-videos-all-ui-must-use-the-streettube-dark-theme-background-0f0f0f-secondary-background-1f1f1f-tertiary-background-272727-red-accent-ff0000-white-text-ffffff-secondary-text-aaaaaa-border-303030",
+      "title": "Create a StreetTube page at `frontend/src/pages/StreetTubePage.tsx`. The page must be a self-contained YouTube-inspired underground street racing video community. It must include: (1) a fixed top header bar with a hamburger menu button, the 'StreetTube' brand logo (play-circle icon + text, styled with the red accent color #ff0000), a search input bar with a search button, and contextual user section buttons (Sign In / Sign Up when unauthenticated; a Create/upload button, notification bell icon, and user avatar initial when authenticated); (2) a collapsible left sidebar with navigation items: Home, Trending, Subscriptions, and a Library section containing History and Liked Videos, plus a dynamic Subscriptions list; (3) a horizontally scrollable category chip bar at the top of the main content area with chips for: All, Street Racing, Drag Racing, Roll Racing, Highway Runs, Car Meet, Build; (4) a responsive video grid (repeat auto-fill, minmax 320px) displaying video cards with a 16:9 thumbnail (captured from the uploaded video via canvas), duration badge, channel avatar (initial letter), video title, channel name, view count, and relative upload date; (5) a full-screen video player modal with an HTML5 video element, video title, channel info, subscriber count, Subscribe/Subscribed toggle button, Like/Liked toggle button with count, Share and Save action buttons, view count, upload date, and description; (6) an Upload Video modal (authenticated users only) with a drag-and-drop/click file input (video/*, max 100 MB), title input, description textarea, category selector (Street Racing, Drag Racing, Roll Racing, Highway Runs, Car Meet, Build, Other), and an Upload submit button; (7) an Auth modal supporting Sign In and Sign Up modes — Sign Up requires a Channel Name, email, and password; Sign In requires email and password. All user/video/subscription/like/history data must be persisted to localStorage under the keys: streettube_users, streettube_videos, streettube_subscriptions, streettube_likes, streettube_history, streettube_currentUser. Auth state must persist across page reloads. Videos uploaded by a user must appear in their profile view. Profile view shows channel name, email, video count, subscriber count, join date, and the user's uploaded videos. Sidebar subscription list dynamically shows subscribed channels. Watch history records the last 50 watched videos. All UI must use the StreetTube dark theme: background #0f0f0f, secondary background #1f1f1f, tertiary background #272727, red accent #ff0000, white text #ffffff, secondary text #aaaaaa, border #303030.",
+      "reqIds": [
+        "REQ-128"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-streettube-page-in-frontend-src-app-tsx-as-a-new-authenticated-route-at-streettube-pointing-to-streettubepage-tsx-add-a-streettube-entry-point-accessible-from-the-app-either-as-a-link-in-the-profile-page-frontend-src-pages-profilepage-tsx-when-viewing-the-current-user-s-own-profile-alongside-the-existing-about-revgrid-and-tuner-shop-links-or-as-a-menu-item-in-the-topbar-frontend-src-components-topbar-tsx-the-entry-point-must-be-clearly-labelled-streettube-and-navigate-to-streettube",
+      "title": "Register the StreetTube page in `frontend/src/App.tsx` as a new authenticated route at `/streettube` pointing to `StreetTubePage.tsx`. Add a 'StreetTube' entry point accessible from the app — either as a link in the Profile page (`frontend/src/pages/ProfilePage.tsx`) when viewing the current user's own profile (alongside the existing 'About RevGrid' and 'Tuner Shop' links), or as a menu item in the TopBar (`frontend/src/components/TopBar.tsx`). The entry point must be clearly labelled 'StreetTube' and navigate to `/streettube`.",
+      "reqIds": [
+        "REQ-129"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-streettube-page-frontend-src-pages-streettubepage-tsx-to-remove-the-current-100-mb-file-size-cap-on-video-uploads-and-replace-it-with-support-for-large-video-files-multiple-gb-hours-long-content-the-upload-file-input-must-accept-video-files-of-any-size-instead-of-base64-encoding-or-storing-the-raw-file-bytes-in-localstorage-which-would-crash-the-browser-for-large-files-store-uploaded-videos-as-object-urls-url-createobjecturl-in-memory-and-persist-video-metadata-title-description-category-duration-thumbnail-channelid-upload-date-view-count-etc-to-localstorage-under-the-existing-streettube-videos-key-the-object-url-is-used-as-the-playback-src-in-the-video-player-modal-for-the-current-session-display-a-progress-indicator-a-styled-progress-bar-using-the-streettube-red-accent-ff0000-during-the-upload-processing-step-thumbnail-capture-via-canvas-metadata-extraction-on-completion-dismiss-the-upload-modal-and-show-the-new-video-card-in-the-grid-the-existing-drag-and-drop-click-file-input-ui-title-input-description-textarea-and-category-selector-must-remain-intact",
+      "title": "Update the StreetTube page (frontend/src/pages/StreetTubePage.tsx) to remove the current 100 MB file size cap on video uploads and replace it with support for large video files (multiple GB / hours-long content). The upload file input must accept video/* files of any size. Instead of base64-encoding or storing the raw file bytes in localStorage (which would crash the browser for large files), store uploaded videos as object URLs (URL.createObjectURL) in memory and persist video metadata (title, description, category, duration, thumbnail, channelId, upload date, view count, etc.) to localStorage under the existing streettube_videos key. The object URL is used as the playback src in the video player modal for the current session. Display a progress indicator (a styled progress bar using the StreetTube red accent #ff0000) during the upload/processing step (thumbnail capture via canvas, metadata extraction). On completion, dismiss the upload modal and show the new video card in the grid. The existing drag-and-drop/click file input UI, title input, description textarea, and category selector must remain intact.",
+      "reqIds": [
+        "REQ-130"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-video-comments-system-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-inside-the-video-player-modal-add-a-comments-section-below-the-video-description-display-a-scrollable-list-of-comments-showing-the-commenter-s-channel-avatar-initial-letter-channel-name-comment-text-and-relative-timestamp-include-a-text-input-at-the-bottom-to-post-a-new-comment-authenticated-users-only-store-all-comments-in-localstorage-under-the-key-streettube-comments-as-an-array-keyed-by-videoid-comments-must-persist-across-page-reloads-the-section-must-be-styled-using-the-streettube-dark-theme-background-0f0f0f-secondary-1f1f1f-red-accent-ff0000-white-text-ffffff-secondary-text-aaaaaa-border-303030",
+      "title": "Add a video comments system to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). Inside the video player modal, add a 'Comments' section below the video description. Display a scrollable list of comments showing the commenter's channel avatar (initial letter), channel name, comment text, and relative timestamp. Include a text input at the bottom to post a new comment (authenticated users only). Store all comments in localStorage under the key `streettube_comments` as an array keyed by videoId. Comments must persist across page reloads. The section must be styled using the StreetTube dark theme (background #0f0f0f, secondary #1f1f1f, red accent #ff0000, white text #ffffff, secondary text #aaaaaa, border #303030).",
+      "reqIds": [
+        "REQ-141"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-channel-profile-view-page-modal-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-when-a-user-clicks-on-a-channel-name-or-avatar-in-a-video-card-player-modal-or-comment-open-a-channel-profile-panel-modal-showing-channel-name-avatar-initial-letter-in-a-large-circle-subscriber-count-video-count-join-date-a-subscribe-subscribed-toggle-button-and-a-grid-of-all-videos-uploaded-by-that-channel-clicking-a-video-in-the-grid-opens-the-video-player-modal-the-channel-profile-must-be-styled-with-the-streettube-dark-theme-and-be-accessible-from-all-surfaces-where-a-channel-name-avatar-is-displayed",
+      "title": "Add a channel profile view page/modal to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). When a user clicks on a channel name or avatar (in a video card, player modal, or comment), open a channel profile panel/modal showing: channel name, avatar (initial letter in a large circle), subscriber count, video count, join date, a Subscribe/Subscribed toggle button, and a grid of all videos uploaded by that channel. Clicking a video in the grid opens the video player modal. The channel profile must be styled with the StreetTube dark theme and be accessible from all surfaces where a channel name/avatar is displayed.",
+      "reqIds": [
+        "REQ-142"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-video-share-functionality-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-in-the-video-player-modal-wire-up-the-existing-share-action-button-so-that-clicking-it-copies-a-shareable-link-e-g-the-current-page-url-with-a-v-videoid-query-parameter-appended-to-the-clipboard-and-shows-a-brief-link-copied-confirmation-toast-snackbar-styled-with-the-streettube-red-accent-ff0000-on-page-load-detect-the-v-videoid-query-parameter-and-automatically-open-the-video-player-modal-for-that-video-if-it-exists-in-localstorage",
+      "title": "Add a video share functionality to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). In the video player modal, wire up the existing 'Share' action button so that clicking it copies a shareable link (e.g., the current page URL with a `?v=<videoId>` query parameter appended) to the clipboard and shows a brief 'Link copied!' confirmation toast/snackbar styled with the StreetTube red accent (#ff0000). On page load, detect the `?v=<videoId>` query parameter and automatically open the video player modal for that video if it exists in localStorage.",
+      "reqIds": [
+        "REQ-143"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-save-playlist-feature-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-wire-up-the-existing-save-action-button-in-the-video-player-modal-so-that-clicking-it-toggles-saving-the-video-to-a-watch-later-playlist-for-the-authenticated-user-persist-saved-video-ids-in-localstorage-under-the-key-streettube-watchlater-as-an-array-keyed-by-userid-add-a-watch-later-entry-to-the-library-section-in-the-left-sidebar-clicking-it-shows-a-grid-of-saved-videos-the-save-button-in-the-player-modal-must-visually-reflect-the-saved-unsaved-state-unauthenticated-users-clicking-save-see-a-prompt-to-sign-in",
+      "title": "Add a Save/Playlist feature to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). Wire up the existing 'Save' action button in the video player modal so that clicking it toggles saving the video to a 'Watch Later' playlist for the authenticated user. Persist saved video IDs in localStorage under the key `streettube_watchlater` as an array keyed by userId. Add a 'Watch Later' entry to the Library section in the left sidebar. Clicking it shows a grid of saved videos. The Save button in the player modal must visually reflect the saved/unsaved state. Unauthenticated users clicking Save see a prompt to sign in.",
+      "reqIds": [
+        "REQ-144"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-trending-videos-section-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-when-the-user-selects-trending-from-the-left-sidebar-navigation-display-the-top-20-most-viewed-videos-sorted-by-viewcount-descending-in-the-main-content-grid-the-trending-view-must-use-the-same-video-card-layout-as-the-home-view-16-9-thumbnail-duration-badge-channel-avatar-title-channel-name-view-count-upload-date-if-fewer-than-20-videos-exist-show-all-available-the-active-sidebar-item-must-be-highlighted-when-trending-is-selected",
+      "title": "Add a trending videos section to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). When the user selects 'Trending' from the left sidebar navigation, display the top 20 most-viewed videos (sorted by viewCount descending) in the main content grid. The Trending view must use the same video card layout as the Home view (16:9 thumbnail, duration badge, channel avatar, title, channel name, view count, upload date). If fewer than 20 videos exist, show all available. The active sidebar item must be highlighted when Trending is selected.",
+      "reqIds": [
+        "REQ-145"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-video-search-results-view-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-when-the-user-submits-a-search-query-via-the-header-search-bar-display-a-search-results-view-in-the-main-content-area-showing-all-videos-whose-title-description-channel-name-or-category-contains-the-query-string-case-insensitive-each-result-is-displayed-as-a-wider-horizontal-list-card-not-the-square-grid-card-showing-a-16-9-thumbnail-on-the-left-and-on-the-right-the-video-title-channel-avatar-name-view-count-upload-date-and-a-snippet-of-the-description-up-to-120-characters-clicking-a-result-card-opens-the-video-player-modal-show-an-empty-state-message-no-results-found-for-query-if-no-videos-match-the-search-results-view-must-be-styled-with-the-streettube-dark-theme",
+      "title": "Add a video search results view to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). When the user submits a search query via the header search bar, display a search results view in the main content area showing all videos whose title, description, channel name, or category contains the query string (case-insensitive). Each result is displayed as a wider horizontal list card (not the square grid card) showing: a 16:9 thumbnail on the left, and on the right — the video title, channel avatar + name, view count, upload date, and a snippet of the description (up to 120 characters). Clicking a result card opens the video player modal. Show an empty state message ('No results found for \"<query>\"') if no videos match. The search results view must be styled with the StreetTube dark theme.",
+      "reqIds": [
+        "REQ-146"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-notification-system-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-wire-up-the-existing-notification-bell-icon-in-the-header-for-authenticated-users-track-the-following-events-as-notifications-and-persist-them-in-localstorage-under-streettube-notifications-keyed-by-userid-1-a-new-video-is-uploaded-by-a-subscribed-channel-2-someone-likes-the-user-s-video-3-someone-comments-on-the-user-s-video-display-a-red-badge-count-on-the-bell-icon-when-there-are-unread-notifications-clicking-the-bell-icon-opens-a-notification-dropdown-panel-listing-recent-notifications-up-to-20-newest-first-with-the-event-type-relevant-video-title-channel-name-and-a-relative-timestamp-clicking-a-notification-opens-the-relevant-video-or-channel-mark-all-notifications-as-read-when-the-panel-is-opened",
+      "title": "Add a notification system to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). Wire up the existing notification bell icon in the header for authenticated users. Track the following events as notifications and persist them in localStorage under `streettube_notifications` keyed by userId: (1) a new video is uploaded by a subscribed channel, (2) someone likes the user's video, (3) someone comments on the user's video. Display a red badge count on the bell icon when there are unread notifications. Clicking the bell icon opens a notification dropdown/panel listing recent notifications (up to 20, newest first) with the event type, relevant video title/channel name, and a relative timestamp. Clicking a notification opens the relevant video or channel. Mark all notifications as read when the panel is opened.",
+      "reqIds": [
+        "REQ-147"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-video-edit-delete-feature-for-video-owners-on-the-streettube-page-frontend-src-pages-streettubepage-tsx-in-the-video-player-modal-when-the-authenticated-user-is-the-video-s-uploader-show-a-three-dot-menu-button-near-the-video-title-clicking-it-reveals-two-options-edit-opens-an-inline-form-to-update-the-title-description-and-category-pre-filled-with-current-values-and-save-changes-back-to-localstorage-and-delete-shows-a-confirmation-prompt-on-confirmation-removes-the-video-from-localstorage-under-streettube-videos-removes-the-video-from-all-localstorage-structures-it-appears-in-likes-history-watchlater-closes-the-modal-and-removes-the-video-card-from-the-grid-these-actions-must-only-be-available-to-the-video-s-owner",
+      "title": "Add a video edit/delete feature for video owners on the StreetTube page (frontend/src/pages/StreetTubePage.tsx). In the video player modal, when the authenticated user is the video's uploader, show a three-dot menu (⋮) button near the video title. Clicking it reveals two options: 'Edit' (opens an inline form to update the title, description, and category — pre-filled with current values — and save changes back to localStorage) and 'Delete' (shows a confirmation prompt; on confirmation, removes the video from localStorage under `streettube_videos`, removes the video from all localStorage structures it appears in — likes, history, watchlater — closes the modal, and removes the video card from the grid). These actions must only be available to the video's owner.",
+      "reqIds": [
+        "REQ-148"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-streettube-video-upload-flow-on-the-streettube-page-frontend-src-pages-streettubepage-tsx-with-thumbnail-customization-and-tag-support-after-a-video-file-is-selected-and-the-auto-generated-thumbnail-is-captured-from-the-video-via-canvas-add-a-change-thumbnail-option-that-allows-the-user-to-seek-to-a-specific-timestamp-in-the-video-via-a-range-slider-showing-the-video-timeline-and-capture-a-new-thumbnail-frame-additionally-add-a-tags-keywords-text-input-to-the-upload-form-comma-separated-e-g-jdm-turbo-honda-that-is-stored-alongside-the-video-metadata-in-localstorage-display-the-tags-as-small-pill-badges-on-the-video-card-in-the-grid-and-inside-the-player-modal-tags-must-be-searchable-via-the-header-search-bar",
+      "title": "Improve the StreetTube video upload flow on the StreetTube page (frontend/src/pages/StreetTubePage.tsx) with thumbnail customization and tag support. After a video file is selected and the auto-generated thumbnail is captured from the video via canvas, add a 'Change Thumbnail' option that allows the user to seek to a specific timestamp in the video (via a range slider showing the video timeline) and capture a new thumbnail frame. Additionally, add a tags/keywords text input to the upload form (comma-separated, e.g., 'JDM, turbo, Honda') that is stored alongside the video metadata in localStorage. Display the tags as small pill badges on the video card in the grid and inside the player modal. Tags must be searchable via the header search bar.",
+      "reqIds": [
+        "REQ-149"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dark-light-theme-toggle-to-the-streettube-page-frontend-src-pages-streettubepage-tsx-add-a-sun-moon-icon-toggle-button-in-the-header-bar-to-the-left-of-the-notification-bell-toggling-it-switches-the-entire-streettube-page-ui-between-the-existing-dark-theme-background-0f0f0f-and-a-light-theme-background-ffffff-secondary-f5f5f5-text-0f0f0f-secondary-text-606060-border-e0e0e0-red-accent-ff0000-unchanged-persist-the-selected-theme-preference-in-localstorage-under-the-key-streettube-theme-dark-or-light-apply-the-saved-preference-on-page-load-all-modals-sidebars-cards-and-overlays-must-respect-the-active-theme",
+      "title": "Add a dark/light theme toggle to the StreetTube page (frontend/src/pages/StreetTubePage.tsx). Add a sun/moon icon toggle button in the header bar (to the left of the notification bell). Toggling it switches the entire StreetTube page UI between the existing dark theme (background #0f0f0f) and a light theme (background #ffffff, secondary #f5f5f5, text #0f0f0f, secondary text #606060, border #e0e0e0, red accent #ff0000 unchanged). Persist the selected theme preference in localStorage under the key `streettube_theme` ('dark' or 'light'). Apply the saved preference on page load. All modals, sidebars, cards, and overlays must respect the active theme.",
+      "reqIds": [
+        "REQ-150"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-save-the-uploaded-car-photo-rear-of-a-slammed-orange-honda-civic-as-a-static-asset-at-frontend-public-assets-generated-ebay-banner-dim-940x313-jpg-this-image-will-be-used-as-the-base-for-the-ebay-affiliate-banner-after-the-revgrid-logo-is-incorporated-into-it",
+      "title": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg. This image will be used as the base for the eBay affiliate banner after the RevGrid logo is incorporated into it.",
+      "reqIds": [
+        "REQ-151"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-layout-tsx-replace-the-existing-text-based-ebay-affiliate-banner-with-an-image-based-banner-that-displays-the-generated-ebay-banner-image-frontend-public-assets-generated-ebay-banner-dim-940x313-jpg-the-banner-must-be-wrapped-in-an-anchor-tag-linking-to-https-ebay-com-inf-revreel-mkcid-1-mkrid-711-53200-19255-0-siteid-0-campid-5339143418-toolid-80008-mkevt-1-with-target-blank-and-rel-noopener-noreferrer-display-all-three-sponsor-banners-ebay-bullboost-enjuku-racing-side-by-side-in-a-single-horizontal-row-each-as-a-clickable-image-banner-style-the-row-consistently-with-the-app-s-dark-automotive-theme-dark-asphalt-background-equal-width-or-proportional-columns-slim-clickable-strip-the-banners-must-remain-in-their-existing-placement-position-between-the-topbar-and-main-content-area-or-above-the-bottomnav",
+      "title": "In frontend/src/components/Layout.tsx, replace the existing text-based eBay affiliate banner with an image-based banner that displays the generated eBay banner image (frontend/public/assets/generated/ebay-banner.dim_940x313.jpg). The banner must be wrapped in an anchor tag linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 with target='_blank' and rel='noopener noreferrer'. Display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row, each as a clickable image banner. Style the row consistently with the app's dark automotive theme (dark/asphalt background, equal-width or proportional columns, slim clickable strip). The banners must remain in their existing placement position (between the TopBar and main content area or above the BottomNav).",
+      "reqIds": [
+        "REQ-152"
       ],
       "version": 1
     }
@@ -1333,6 +1454,104 @@
     {
       "id": "AR-129",
       "summary": "Add Google site verification meta tag or DNS TXT record: google-site-verification=ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag — add as a <meta name=\"google-site-verification\"> tag in frontend/index.html",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-130",
+      "summary": "Add a StreetTube page to the app — a YouTube-inspired underground street racing video community page with video upload, categories (Street Racing, Drag, Roll Racing, Highway Runs, Car Meet, Build), video player modal, likes, subscriptions, watch history, and user auth (sign in/sign up). Based on provided HTML code.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-131",
+      "summary": "Update the StreetTube page (frontend/src/pages/StreetTubePage.tsx) to support video uploads of content hours long — remove or significantly increase the current 100 MB file size cap, implement chunked/streaming upload handling so large video files (multiple GB) can be uploaded without timing out or crashing the browser, show a progress indicator during upload, and store large videos using a suitable strategy (e.g., object URLs, IndexedDB, or chunked localStorage) so they can be played back in the video player modal.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-132",
+      "summary": "Audit and fix the AuthGate component (frontend/src/components/AuthGate.tsx) to ensure it never hangs indefinitely on a loading spinner. Add a finite timeout (e.g., 8 seconds) to the Internet Identity initialization sequence. If the timeout is reached before auth resolves, forcefully set the loading state to false and fall back to the unauthenticated LandingPage state. Ensure the introComplete state always starts as false on every app load so all users — authenticated or not — see the flash intro before entering the app.",
+      "reqIds": [
+        "REQ-131"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-133",
+      "summary": "Audit and fix the useActor hook (frontend/src/hooks/useActor.ts) to ensure actor creation never stalls or fails silently. Wrap all async initialization in try/catch, log errors to the console, and ensure the hook always returns a defined state (including an anonymous actor fallback) rather than remaining in an unresolved pending state. Ensure missing or invalid canister IDs and network errors are caught and do not block the app from rendering.",
+      "reqIds": [
+        "REQ-132"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-134",
+      "summary": "Audit all route registrations in frontend/src/App.tsx and verify every route references a component that exists and is correctly imported. Fix any broken imports, missing page components (e.g., HashtagPage, BookmarksPage, ListingDetailPage), or route misconfigurations that would cause a runtime error or blank screen during initial render. Ensure lazy-loaded or dynamically imported components have correct error boundaries or Suspense fallbacks.",
+      "reqIds": [
+        "REQ-133"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-135",
+      "summary": "Add or verify a top-level React ErrorBoundary wrapping the entire app in frontend/src/App.tsx. The boundary must catch any uncaught render errors and display a user-friendly fallback UI (e.g., 'Something went wrong — please refresh the page') styled with the app's dark asphalt/amber theme instead of a blank white screen or perpetual spinner.",
+      "reqIds": [
+        "REQ-134"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-136",
+      "summary": "Diagnose and fix the Internet Identity login button on the LandingPage (frontend/src/components/LandingPage.tsx) to reliably trigger the Internet Identity authentication popup on both desktop and mobile. Ensure: (1) the `login` function from `useInternetIdentity` is not null/undefined at click time, (2) no conditional guards (intro not complete, actor not ready, isLoading state) silently block the handler, (3) the button shows a loading state while login is in progress, (4) the button exits loading/disabled state after a failed or cancelled attempt so users can retry, (5) on successful login the app transitions into the authenticated main app.",
+      "reqIds": [
+        "REQ-135"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-137",
+      "summary": "Audit the backend main.mo actor for any startup-time traps — such as top-level expressions, initializer code, or pre/post-upgrade hooks — that could cause the canister to fail to respond to queries and leave the frontend hanging on load. Ensure the actor initializes cleanly without trapping. Replace any Debug.trap, assert, or Array out-of-bounds access in initialization paths with safe alternatives that return structured errors.",
+      "reqIds": [
+        "REQ-136"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-138",
+      "summary": "Fix the useCreatePost mutation in frontend/src/hooks/useQueries.ts to ensure it always resolves — either with a success or a structured error — and never leaves the app in a perpetual loading state. Ensure: (1) the actor.createPost call is properly awaited, (2) the returned Result is inspected and an error is thrown if it is an #err variant, (3) onSuccess triggers cache invalidation and navigation, (4) onError displays a user-facing error message, (5) isPending/isLoading always exits in both success and error paths.",
+      "reqIds": [
+        "REQ-137"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-139",
+      "summary": "Audit the backend createPost function in backend/main.mo for any conditions that cause it to trap rather than return a structured Result. Replace all Debug.trap calls, assertion failures, out-of-bounds array accesses, and unguarded Optional accesses with graceful #err variants. The function must return a Result<Post, Text> for every possible input, including large mediaData payloads.",
+      "reqIds": [
+        "REQ-138"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-140",
+      "summary": "Ensure the Discover page route at '/discover' is correctly registered in frontend/src/App.tsx and that the DiscoverPage component renders without runtime errors. Fix any broken imports, missing hooks, or undefined data references in frontend/src/pages/DiscoverPage.tsx that prevent the page from loading. Verify the Discover tab in BottomNav correctly navigates to '/discover'.",
+      "reqIds": [
+        "REQ-139"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-141",
+      "summary": "Audit all React Query hooks in frontend/src/hooks/useQueries.ts for any that can stall indefinitely — particularly hooks that call actor methods before the actor is ready. Ensure every query hook has a defined `enabled` guard (e.g., `enabled: !!actor`) so queries are not dispatched with an undefined actor, preventing unresolved promises that freeze the UI. Ensure all mutation hooks handle both success and error states and reset loading state in all outcomes.",
+      "reqIds": [
+        "REQ-140"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-142",
+      "summary": "Replace the eBay affiliate text/banner with a picture-based banner (matching the style of the BullBoost/Enjuku affiliate image banners). Create a new eBay banner image with the RevGrid logo incorporated into it. Display all three sponsor banners (eBay, BullBoost, Enjuku) next to each other side-by-side in the Layout component.",
       "reqIds": [],
       "status": "pending"
     }

@@ -1,21 +1,41 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Google site verification meta tag to index.html",
+  "title": "Replace eBay text banner with image banner and display all three sponsor banners side-by-side",
   "requirements": [
     {
-      "id": "REQ-127",
-      "summary": "Add Google site verification meta tag to frontend/index.html",
+      "id": "REQ-151",
+      "summary": "Save the uploaded car photo as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg for use as the eBay affiliate banner base",
       "acceptanceCriteria": [
-        "The `<head>` section of `frontend/index.html` contains exactly `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">`.",
-        "All existing SEO metadata tags (description, Open Graph, Twitter Card, keywords, theme-color, robots) remain intact and unmodified.",
-        "The page title and all other existing head elements are preserved."
+        "The uploaded car photo is saved as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg",
+        "The file is accessible from the frontend at that path"
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/public/assets/generated/ebay-banner.dim_940x313.jpg",
+          "operation": "create",
+          "description": "Save the edited image (slammed orange Honda Civic rear photo with RevGrid logo overlay and dark amber gradient) as a static banner asset. This file will be referenced in the Layout component as the eBay affiliate banner image. The image editing (logo composite, gradient overlay) is handled by the image generation system based on imageRequirements.edits in the BuildRequest."
+        }
+      ]
+    },
+    {
+      "id": "REQ-152",
+      "summary": "Replace the eBay text banner with an image banner and display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row",
+      "acceptanceCriteria": [
+        "The eBay banner is displayed as an image (not text) in the Layout component",
+        "The eBay image banner links to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 opening in a new tab",
+        "The BullBoost banner image (bullboost-logo.dim_760x200.png) is displayed alongside the eBay banner",
+        "The Enjuku Racing banner image (enjuku-racing-banner.dim_940x627.jpg) is displayed alongside the eBay and BullBoost banners",
+        "All three banners are displayed side-by-side in the same horizontal row",
+        "The row is styled with the app's dark asphalt/amber automotive theme",
+        "All three banners are individually clickable and open their respective links in a new tab",
+        "The banner row appears on every authenticated page inside the Layout component"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Layout.tsx",
           "operation": "modify",
-          "description": "Add the Google site verification meta tag `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` inside the `<head>` section. Insert it after the existing viewport meta tag and before the Open Graph tags. Preserve all existing meta tags, title, and other head elements exactly as they are."
+          "description": "Replace the existing text-based eBay affiliate banner with an image-based banner strip containing all three sponsor banners displayed side-by-side. Create a horizontal row with three clickable image banners: (1) eBay banner using frontend/public/assets/generated/ebay-banner.dim_940x313.jpg linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1, (2) BullBoost banner using the existing bullboost-logo asset linking to https://bullboostperformance.com/?ref=xprbexxu, and (3) Enjuku Racing banner using frontend/public/assets/generated/enjuku-racing-banner.dim_940x627.jpg linking to https://enjukuracing.com. Each banner must be wrapped in an anchor tag with target='_blank' and rel='noopener noreferrer'. Style the row with the app's dark asphalt background (bg-asphalt-800 or similar), ensure the images are contained with object-fit, and maintain equal width or proportional columns for visual balance. Position the banner row between the TopBar and the main Outlet content area. Use Tailwind utility classes consistent with the existing dark automotive theme."
         }
       ]
     }

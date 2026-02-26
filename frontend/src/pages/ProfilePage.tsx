@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { useGetCallerUserProfile, useGetUser, useGetFeed, useGetAllPosts, useGetFollowers, useGetFollowing, useIsFollowing, useFollowUser, useUnfollowUser, useDeletePost } from '../hooks/useQueries';
+import { useGetCallerUserProfile, useGetUser, useGetAllPosts, useGetFollowers, useGetFollowing, useIsFollowing, useFollowUser, useUnfollowUser, useDeletePost } from '../hooks/useQueries';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { PostType } from '../backend';
 import PostCard from '../components/PostCard';
 import EditProfileModal from '../components/EditProfileModal';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Settings, Grid, Film, Wrench, MessageCircle, UserPlus, UserMinus, Loader2 } from 'lucide-react';
+import { Settings, Grid, Film, Wrench, MessageCircle, UserPlus, UserMinus, Loader2, PlayCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -170,6 +170,17 @@ export default function ProfilePage() {
         )}
         {displayUser.bio && (
           <p className="mt-1 text-sm text-foreground">{displayUser.bio}</p>
+        )}
+
+        {/* StreetTube link — own profile only */}
+        {isOwnProfile && (
+          <button
+            onClick={() => navigate({ to: '/streettube' })}
+            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            <PlayCircle className="w-4 h-4 text-red-500" />
+            <span>StreetTube</span>
+          </button>
         )}
       </div>
 

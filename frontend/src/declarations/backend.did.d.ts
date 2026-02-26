@@ -136,26 +136,11 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  /**
-   * / Add a comment; authorId is derived from the caller's stored profile
-   */
   'addComment' : ActorMethod<[PostId, string], CommentId>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  /**
-   * / Mark attendance for an event (authenticated users only)
-   */
   'attendEvent' : ActorMethod<[EventId], undefined>,
-  /**
-   * / Create a build showcase (authenticated users only)
-   */
   'createBuild' : ActorMethod<[string, string, string], BuildId>,
-  /**
-   * / Create an event (authenticated users only)
-   */
   'createEvent' : ActorMethod<[string, string, string, bigint], EventId>,
-  /**
-   * / Create a marketplace listing
-   */
   'createListing' : ActorMethod<
     [
       string,
@@ -168,148 +153,45 @@ export interface _SERVICE {
     ],
     MarketplaceListingId
   >,
-  /**
-   * / Create a post; authorId is derived from the caller's stored profile
-   * / Allows up to 2MB of mediaData (base64-encoded image data as Text).
-   */
   'createPost' : ActorMethod<
     [string, Array<string>, PostType, [] | [string], [] | [string]],
-    PostId
+    [] | [PostRecord]
   >,
-  /**
-   * / Create a user record (authenticated users only)
-   */
   'createUser' : ActorMethod<[string, string, string, string], UserId>,
-  /**
-   * / Delete a listing (author only)
-   */
   'deleteListing' : ActorMethod<[MarketplaceListingId], undefined>,
-  /**
-   * / Delete post (author only)
-   */
   'deletePost' : ActorMethod<[PostId], undefined>,
-  /**
-   * / Follow another user; followerId is derived from the caller's profile
-   */
   'followUser' : ActorMethod<[UserId], undefined>,
-  /**
-   * / Get all build showcases (public read)
-   */
   'getAllBuilds' : ActorMethod<[], Array<BuildShowcase>>,
-  /**
-   * / Get all events (public read)
-   */
   'getAllEvents' : ActorMethod<[], Array<Event>>,
-  /**
-   * / Get all listings (public read)
-   */
   'getAllListings' : ActorMethod<[], Array<MarketplaceListing>>,
-  /**
-   * / Get all posts (public read)
-   */
   'getAllPosts' : ActorMethod<[], Array<PostRecord>>,
-  /**
-   * / Get a single build showcase (public read)
-   */
   'getBuild' : ActorMethod<[BuildId], [] | [BuildShowcase]>,
-  /**
-   * / Get the caller's own profile
-   */
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  /**
-   * / Get total comment count for a post (public read)
-   */
   'getCommentCount' : ActorMethod<[PostId], bigint>,
-  /**
-   * / Get all comments for a post (public read)
-   */
   'getComments' : ActorMethod<[PostId], Array<Comment>>,
-  /**
-   * / Get a single event (public read)
-   */
   'getEvent' : ActorMethod<[EventId], [] | [Event]>,
-  /**
-   * / Get feed by post type (public read)
-   */
   'getFeed' : ActorMethod<[PostType], Array<PostRecord>>,
-  /**
-   * / Get the list of users that follow userId (public read)
-   */
   'getFollowers' : ActorMethod<[UserId], Array<UserId>>,
-  /**
-   * / Get the list of users that userId is following (public read)
-   */
   'getFollowing' : ActorMethod<[UserId], Array<UserId>>,
-  /**
-   * / Get like count for a post (public read)
-   */
   'getLikeCount' : ActorMethod<[PostId], bigint>,
-  /**
-   * / Get a single listing (public read)
-   */
   'getListing' : ActorMethod<[MarketplaceListingId], [] | [MarketplaceListing]>,
-  /**
-   * / Get messages in a conversation; caller must be one of the participants
-   */
   'getMessages' : ActorMethod<[string], Array<Message>>,
-  /**
-   * / Get a single post (public read)
-   */
   'getPost' : ActorMethod<[PostId], [] | [PostRecord]>,
-  /**
-   * / Get a user by userId (public read)
-   */
   'getUser' : ActorMethod<[UserId], [] | [User]>,
-  /**
-   * / Get any user's profile by principal (public read — this is a social platform)
-   */
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  /**
-   * / Check if caller follows a specific user
-   */
   'isFollowing' : ActorMethod<[UserId], boolean>,
-  /**
-   * / Like a post; userId is derived from the caller's profile
-   */
   'likePost' : ActorMethod<[PostId], undefined>,
-  /**
-   * / Mark a listing as sold (author only)
-   */
   'markListingAsSold' : ActorMethod<[MarketplaceListingId], undefined>,
-  /**
-   * / Save/update the caller's own profile
-   */
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  /**
-   * / Search listings by title, description, or category (public read)
-   */
   'searchListings' : ActorMethod<[string], Array<MarketplaceListing>>,
-  /**
-   * / Search reels by category or username (public read — content discovery is open on this social platform)
-   */
   'searchReels' : ActorMethod<[string], Array<PostRecord>>,
-  /**
-   * / Search users by username or display name (public read)
-   */
   'searchUsers' : ActorMethod<[string], Array<User>>,
-  /**
-   * / Send a message; senderId is derived from the caller's profile
-   */
   'sendMessage' : ActorMethod<[UserId, string], MessageId>,
-  /**
-   * / Unfollow a user; followerId is derived from the caller's profile
-   */
   'unfollowUser' : ActorMethod<[UserId], undefined>,
-  /**
-   * / Unlike a post; userId is derived from the caller's profile
-   */
   'unlikePost' : ActorMethod<[PostId], undefined>,
   'updateCoverPhoto' : ActorMethod<[[] | [string]], undefined>,
-  /**
-   * / Update a listing (author only)
-   */
   'updateListing' : ActorMethod<
     [
       MarketplaceListingId,
@@ -323,9 +205,6 @@ export interface _SERVICE {
     ],
     undefined
   >,
-  /**
-   * / Update the caller's profile picture (base64-encoded image data)
-   */
   'updateProfilePic' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

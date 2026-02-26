@@ -2,10 +2,28 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-meta-name-google-site-verification-content-ajqpdh5gawtpw4gtsstghaocxr99ggbnovtx1vckcag-tag-inside-the-head-section-of-frontend-index-html-to-enable-google-search-console-site-verification",
-      "featureTitle": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
+      "featureId": "feature-save-the-uploaded-car-photo-rear-of-a-slammed-orange-honda-civic-as-a-static-asset-at-frontend-public-assets-generated-ebay-banner-dim-940x313-jpg-this-image-will-be-used-as-the-base-for-the-ebay-affiliate-banner-after-the-revgrid-logo-is-incorporated-into-it",
+      "featureTitle": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg. This image will be used as the base for the eBay affiliate banner after the RevGrid logo is incorporated into it.",
+      "files": [],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-151"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-frontend-src-components-layout-tsx-replace-the-existing-text-based-ebay-affiliate-banner-with-an-image-based-banner-that-displays-the-generated-ebay-banner-image-frontend-public-assets-generated-ebay-banner-dim-940x313-jpg-the-banner-must-be-wrapped-in-an-anchor-tag-linking-to-https-ebay-com-inf-revreel-mkcid-1-mkrid-711-53200-19255-0-siteid-0-campid-5339143418-toolid-80008-mkevt-1-with-target-blank-and-rel-noopener-noreferrer-display-all-three-sponsor-banners-ebay-bullboost-enjuku-racing-side-by-side-in-a-single-horizontal-row-each-as-a-clickable-image-banner-style-the-row-consistently-with-the-app-s-dark-automotive-theme-dark-asphalt-background-equal-width-or-proportional-columns-slim-clickable-strip-the-banners-must-remain-in-their-existing-placement-position-between-the-topbar-and-main-content-area-or-above-the-bottomnav",
+      "featureTitle": "In frontend/src/components/Layout.tsx, replace the existing text-based eBay affiliate banner with an image-based banner that displays the generated eBay banner image (frontend/public/assets/generated/ebay-banner.dim_940x313.jpg). The banner must be wrapped in an anchor tag linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 with target='_blank' and rel='noopener noreferrer'. Display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row, each as a clickable image banner. Style the row consistently with the app's dark automotive theme (dark/asphalt background, equal-width or proportional columns, slim clickable strip). The banners must remain in their existing placement position (between the TopBar and main content area or above the BottomNav).",
       "files": [
-        "frontend/index.html"
+        "frontend/src/components/Layout.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,7 +35,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-127"
+        "REQ-152"
       ],
       "confidence": "high"
     }

@@ -37,6 +37,17 @@ export const PostType = IDL.Variant({
 });
 export const UserId = IDL.Text;
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const PostRecord = IDL.Record({
+  'id' : PostId,
+  'postType' : PostType,
+  'authorId' : UserId,
+  'createdAt' : IDL.Int,
+  'tags' : IDL.Vec(IDL.Text),
+  'reelCategory' : IDL.Opt(IDL.Text),
+  'mediaData' : IDL.Opt(IDL.Text),
+  'caption' : IDL.Text,
+  'image' : IDL.Opt(ExternalBlob),
+});
 export const BuildShowcase = IDL.Record({
   'id' : BuildId,
   'title' : IDL.Text,
@@ -67,17 +78,6 @@ export const MarketplaceListing = IDL.Record({
   'category' : IDL.Text,
   'price' : IDL.Text,
   'condition' : IDL.Variant({ 'new' : IDL.Null, 'used' : IDL.Null }),
-});
-export const PostRecord = IDL.Record({
-  'id' : PostId,
-  'postType' : PostType,
-  'authorId' : UserId,
-  'createdAt' : IDL.Int,
-  'tags' : IDL.Vec(IDL.Text),
-  'reelCategory' : IDL.Opt(IDL.Text),
-  'mediaData' : IDL.Opt(IDL.Text),
-  'caption' : IDL.Text,
-  'image' : IDL.Opt(ExternalBlob),
 });
 export const UserProfile = IDL.Record({
   'id' : UserId,
@@ -178,7 +178,7 @@ export const idlService = IDL.Service({
         IDL.Opt(IDL.Text),
         IDL.Opt(IDL.Text),
       ],
-      [PostId],
+      [IDL.Opt(PostRecord)],
       [],
     ),
   'createUser' : IDL.Func(
@@ -280,6 +280,17 @@ export const idlFactory = ({ IDL }) => {
   });
   const UserId = IDL.Text;
   const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const PostRecord = IDL.Record({
+    'id' : PostId,
+    'postType' : PostType,
+    'authorId' : UserId,
+    'createdAt' : IDL.Int,
+    'tags' : IDL.Vec(IDL.Text),
+    'reelCategory' : IDL.Opt(IDL.Text),
+    'mediaData' : IDL.Opt(IDL.Text),
+    'caption' : IDL.Text,
+    'image' : IDL.Opt(ExternalBlob),
+  });
   const BuildShowcase = IDL.Record({
     'id' : BuildId,
     'title' : IDL.Text,
@@ -310,17 +321,6 @@ export const idlFactory = ({ IDL }) => {
     'category' : IDL.Text,
     'price' : IDL.Text,
     'condition' : IDL.Variant({ 'new' : IDL.Null, 'used' : IDL.Null }),
-  });
-  const PostRecord = IDL.Record({
-    'id' : PostId,
-    'postType' : PostType,
-    'authorId' : UserId,
-    'createdAt' : IDL.Int,
-    'tags' : IDL.Vec(IDL.Text),
-    'reelCategory' : IDL.Opt(IDL.Text),
-    'mediaData' : IDL.Opt(IDL.Text),
-    'caption' : IDL.Text,
-    'image' : IDL.Opt(ExternalBlob),
   });
   const UserProfile = IDL.Record({
     'id' : UserId,
@@ -421,7 +421,7 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(IDL.Text),
           IDL.Opt(IDL.Text),
         ],
-        [PostId],
+        [IDL.Opt(PostRecord)],
         [],
       ),
     'createUser' : IDL.Func(

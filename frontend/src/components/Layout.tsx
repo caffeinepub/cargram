@@ -1,7 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 import BottomNav from './BottomNav';
 import TopBar from './TopBar';
-import { ShoppingCart, ExternalLink } from 'lucide-react';
 
 const AFFILIATE_URL =
   'https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1';
@@ -10,57 +9,54 @@ const BULLBOOST_URL = 'https://bullboostperformance.com/?ref=xprbexxu';
 
 const ENJUKU_URL = 'https://enjukuracing.com';
 
-function AftermarketBanner() {
+function SponsorBannerRow() {
   return (
-    <a
-      href={AFFILIATE_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 px-4 py-2 bg-asphalt-900 border-b border-amber-500/30 hover:bg-asphalt-800 transition-colors group"
-    >
-      <ShoppingCart className="w-4 h-4 text-amber-400 flex-shrink-0" />
-      <span className="text-xs font-semibold tracking-wide text-amber-400 group-hover:text-amber-300 transition-colors uppercase">
-        Shop Aftermarket Parts
-      </span>
-      <span className="hidden sm:inline text-xs text-muted-foreground group-hover:text-amber-300/70 transition-colors">
-        — Find the best deals on eBay
-      </span>
-      <ExternalLink className="w-3 h-3 text-amber-500/60 group-hover:text-amber-400 transition-colors flex-shrink-0" />
-    </a>
-  );
-}
+    <div className="flex items-stretch w-full bg-black border-b border-amber-500/20 overflow-hidden">
+      {/* eBay Banner */}
+      <a
+        href={AFFILIATE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 flex items-center justify-center overflow-hidden hover:opacity-90 transition-opacity"
+        style={{ minWidth: 0 }}
+      >
+        <img
+          src="/assets/generated/ebay-banner.dim_940x313.jpg"
+          alt="Shop Aftermarket Parts on eBay"
+          className="w-full h-16 object-cover object-center"
+        />
+      </a>
 
-function BullBoostBanner() {
-  return (
-    <a
-      href={BULLBOOST_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center px-4 py-2 bg-black border-b border-red-700/40 hover:bg-neutral-950 transition-colors group"
-    >
-      <img
-        src="/assets/generated/bullboost-logo.dim_760x200.png"
-        alt="Bull Boost Performance"
-        className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
-      />
-    </a>
-  );
-}
+      {/* BullBoost Banner */}
+      <a
+        href={BULLBOOST_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 flex items-center justify-center bg-black hover:opacity-90 transition-opacity border-l border-amber-500/10 overflow-hidden"
+        style={{ minWidth: 0 }}
+      >
+        <img
+          src="/assets/generated/bullboost-logo.dim_760x200.png"
+          alt="Bull Boost Performance"
+          className="w-full h-16 object-contain object-center px-2"
+        />
+      </a>
 
-function EnjukuRacingBanner() {
-  return (
-    <a
-      href={ENJUKU_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center px-4 py-0 bg-black border-b border-red-800/50 hover:bg-neutral-950 transition-colors group overflow-hidden"
-    >
-      <img
-        src="/assets/generated/enjuku-racing-banner.dim_940x627.jpg"
-        alt="Enjuku Racing"
-        className="h-16 w-auto object-contain group-hover:opacity-90 transition-opacity"
-      />
-    </a>
+      {/* Enjuku Racing Banner */}
+      <a
+        href={ENJUKU_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 flex items-center justify-center bg-black hover:opacity-90 transition-opacity border-l border-amber-500/10 overflow-hidden"
+        style={{ minWidth: 0 }}
+      >
+        <img
+          src="/assets/generated/enjuku-racing-banner.dim_940x627.jpg"
+          alt="Enjuku Racing"
+          className="w-full h-16 object-cover object-center"
+        />
+      </a>
+    </div>
   );
 }
 
@@ -69,9 +65,7 @@ export default function Layout() {
     <div className="min-h-screen bg-background flex flex-col">
       <TopBar />
       <div className="pt-14">
-        <AftermarketBanner />
-        <BullBoostBanner />
-        <EnjukuRacingBanner />
+        <SponsorBannerRow />
         <main className="flex-1 pb-20">
           <Outlet />
         </main>

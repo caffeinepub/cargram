@@ -1,24 +1,35 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T12:41:12.654Z",
+  "generatedAt": "2026-02-26T13:46:23.256Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-127",
-        "summary": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
+        "id": "REQ-151",
+        "summary": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg. This image will be used as the base for the eBay affiliate banner after the RevGrid logo is incorporated into it.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/index.html"
+          "frontend/public/assets/generated/ebay-banner.dim_940x313.jpg"
         ],
         "matchedFiles": [
-          "frontend/index.html"
+          "frontend/public/assets/generated/ebay-banner.dim_940x313.jpg"
+        ]
+      },
+      {
+        "id": "REQ-152",
+        "summary": "In frontend/src/components/Layout.tsx, replace the existing text-based eBay affiliate banner with an image-based banner that displays the generated eBay banner image (frontend/public/assets/generated/ebay-banner.dim_940x313.jpg). The banner must be wrapped in an anchor tag linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 with target='_blank' and rel='noopener noreferrer'. Display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row, each as a clickable image banner. Style the row consistently with the app's dark automotive theme (dark/asphalt background, equal-width or proportional columns, slim clickable strip). The banners must remain in their existing placement position (between the TopBar and main content area or above the BottomNav).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/Layout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Layout.tsx"
         ]
       }
     ]
@@ -28,7 +39,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/public/assets/generated/ebay-banner.dim_940x313.jpg",
+    "frontend/src/components/Layout.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

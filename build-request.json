@@ -1,38 +1,65 @@
 {
   "kind": "build_request",
-  "title": "Add Google site verification meta tag to index.html",
+  "title": "Replace eBay text banner with image banner and display all three sponsor banners side-by-side",
   "projectName": "RevGrid",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-127",
-      "text": "Add a `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">` tag inside the `<head>` section of `frontend/index.html` to enable Google Search Console site verification.",
+      "id": "REQ-151",
+      "text": "Save the uploaded car photo (rear of a slammed orange Honda Civic) as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg. This image will be used as the base for the eBay affiliate banner after the RevGrid logo is incorporated into it.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-1"
         ],
         "quotes": [
-          "Put this in the dns configuration google-site-verification=ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag"
+          "use this pic for the eBay link with our revgrid logo incorporated into it matching"
         ]
       },
       "acceptanceCriteria": [
-        "The `<head>` section of `frontend/index.html` contains exactly `<meta name=\"google-site-verification\" content=\"ajqPDh5gAwTpW4GTSstghaOCXr99GgBnovTx1Vckcag\">`.",
-        "All existing SEO metadata tags (description, Open Graph, Twitter Card, keywords, theme-color, robots) remain intact and unmodified.",
-        "The page title and all other existing head elements are preserved."
+        "The uploaded car photo is saved as a static asset at frontend/public/assets/generated/ebay-banner.dim_940x313.jpg",
+        "The file is accessible from the frontend at that path"
+      ]
+    },
+    {
+      "id": "REQ-152",
+      "text": "In frontend/src/components/Layout.tsx, replace the existing text-based eBay affiliate banner with an image-based banner that displays the generated eBay banner image (frontend/public/assets/generated/ebay-banner.dim_940x313.jpg). The banner must be wrapped in an anchor tag linking to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 with target='_blank' and rel='noopener noreferrer'. Display all three sponsor banners (eBay, BullBoost, Enjuku Racing) side-by-side in a single horizontal row, each as a clickable image banner. Style the row consistently with the app's dark automotive theme (dark/asphalt background, equal-width or proportional columns, slim clickable strip). The banners must remain in their existing placement position (between the TopBar and main content area or above the BottomNav).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Make the eBay link picture like the affiliate links put them next to each other and use this pic for the eBay link with our revgrid logo incorporated into it matching"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The eBay banner is displayed as an image (not text) in the Layout component",
+        "The eBay image banner links to https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1 opening in a new tab",
+        "The BullBoost banner image (bullboost-logo.dim_760x200.png) is displayed alongside the eBay banner",
+        "The Enjuku Racing banner image (enjuku-racing-banner.dim_940x627.jpg) is displayed alongside the eBay and BullBoost banners",
+        "All three banners are displayed side-by-side in the same horizontal row",
+        "The row is styled with the app's dark asphalt/amber automotive theme",
+        "All three banners are individually clickable and open their respective links in a new tab",
+        "The banner row appears on every authenticated page inside the Layout component"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any other tags or content in frontend/index.html beyond adding the google-site-verification meta tag.",
-    "Do not make any backend changes."
+    "Do not change any files listed under frontend.immutablePaths",
+    "The eBay affiliate URL must remain exactly: https://ebay.com/inf/revreel?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339143418&toolid=80008&mkevt=1",
+    "The BullBoost link must remain: https://bullboostperformance.com/?ref=xprbexxu",
+    "The Enjuku Racing link must remain: https://enjukuracing.com"
   ],
   "nonGoals": [
-    "Adding a DNS TXT record — the requirement is fulfilled via the HTML meta tag approach.",
-    "Any other SEO or metadata changes beyond the single verification tag."
+    "Changing the BullBoost or Enjuku Racing banner images",
+    "Adding new sponsor banners beyond the three existing ones",
+    "Modifying the backend"
   ],
   "imageRequirements": {
     "required": [],
-    "edits": []
+    "edits": [
+      "Composite the uploaded slammed orange Honda Civic rear photo with the RevGrid logo (amber/orange text, dark asphalt style) overlaid in the lower-right or center area, add a dark amber-tinted gradient overlay so the logo is readable, final output sized as a wide banner (free-photo-of-rear-end-of-a-car.jpeg > ebay-banner.dim_940x313.jpg)"
+    ]
   }
 }
