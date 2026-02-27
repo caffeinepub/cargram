@@ -1,55 +1,58 @@
 {
   "kind": "build_request",
-  "title": "Add dedicated PWA install/download page at /install route",
+  "title": "Fix blank screen load issue and add guest view mode",
   "projectName": "RevGrid",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a `/install` route to the TanStack Router configuration in `frontend/src/App.tsx` that renders the existing `InstallPage` component from `frontend/src/pages/InstallPage.tsx`.",
+      "text": "Diagnose and fix the blank white screen that prevents RevGrid from loading in production. Audit the root App.tsx, AuthGate.tsx, and routing/lazy-load setup to identify and resolve any initialization errors, missing fallbacks, or failed async imports that cause a blank screen on first load.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-1"
         ],
         "quotes": [
-          "Install the dedicated download/install page please"
+          "It still doesn't load please fix it"
         ]
       },
       "acceptanceCriteria": [
-        "Navigating to /install in the browser renders the InstallPage component without errors.",
-        "The /install route is nested under the root layout so TopBar and BottomNav are visible.",
-        "The route is accessible from any browser without authentication if appropriate, or within the AuthGate flow consistent with other routes."
+        "The app renders visible content on first load in production without a blank white screen",
+        "Lazy-loaded page components have proper Suspense fallbacks so no chunk failure silently renders nothing",
+        "ErrorBoundary catches and displays a user-facing error message instead of a blank screen if a critical render error occurs",
+        "The app loads correctly for both authenticated users and unauthenticated visitors"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a visible entry point to the `/install` page from within the app — for example, a menu item or button in the TopBar or BottomNav (or an 'Install App' option in a settings/about area) — so users can easily discover and navigate to the install page.",
+      "text": "Implement a guest view mode so that unauthenticated visitors can browse all pages and see all content (feed posts, reels, builds, events, marketplace listings, mechanic questions, leaderboard, profiles, etc.) without being redirected to the landing page or blocked by the AuthGate. Guests must not be able to use any interactive features.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-1"
         ],
         "quotes": [
-          "Install the dedicated download/install page please"
+          "add a feature where you can see everything on the site as a guest but you just can't use any of the features"
         ]
       },
       "acceptanceCriteria": [
-        "There is at least one in-app navigation element (link, button, or menu item) that routes the user to /install.",
-        "The entry point is labeled clearly, e.g. 'Install App' or 'Download App'.",
-        "Clicking the entry point navigates to /install without a full page reload."
+        "Unauthenticated (guest) users can view all public pages: feed, reels, builds, events, marketplace, mechanics, leaderboard, discover, and user profiles",
+        "The AuthGate no longer blocks the entire app for unauthenticated users — it only blocks action-requiring flows",
+        "All interactive controls that require authentication (like/unlike, comment, follow/unfollow, create post/build/reel/event/listing, send message, attend event) are visually disabled or show a 'Sign in to use this feature' prompt when clicked by a guest",
+        "Guests are shown a persistent but non-intrusive banner or prompt encouraging them to log in with Internet Identity",
+        "Navigating directly to creation pages (e.g. /create-post, /create-reel) as a guest redirects to the landing page or shows a login prompt instead of a blank or broken page"
       ]
     }
   ],
   "constraints": [
-    "Do not modify files listed in frontend.immutablePaths.",
-    "Reuse the existing InstallPage component at frontend/src/pages/InstallPage.tsx — do not recreate it.",
-    "Keep all routing within the existing TanStack Router setup in frontend/src/App.tsx."
+    "Do not modify files listed in frontend.immutablePaths: useInternetIdentity.ts, useActor.ts, main.tsx, and frontend/src/components/ui",
+    "Guest mode must use the existing anonymous actor from useActor.ts (already supports unauthenticated calls) — do not add new backend endpoints",
+    "All read/query backend calls must remain available to anonymous actors — do not add new access restrictions"
   ],
   "nonGoals": [
-    "Creating a new InstallPage component from scratch.",
-    "Changing the PWA manifest or service worker configuration.",
-    "Adding backend changes."
+    "Adding new backend data or access control logic for guest users",
+    "Changing the design or visual theme of the app",
+    "Implementing partial feature access for guests (it is all-or-nothing: read-only browse vs. full authenticated access)"
   ],
   "imageRequirements": {
     "required": [],

@@ -1,63 +1,124 @@
-import { useState } from 'react';
-import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Home, Film, Compass, Calendar, User, Plus, Trophy } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from '@tanstack/react-router';
+import { Home, Film, Search, Plus, Trophy, User } from 'lucide-react';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useGuestCheck } from '../hooks/useGuestCheck';
 import CreatePostSheet from './CreatePostSheet';
-
-const NAV_ITEMS = [
-  { path: '/' as const, icon: Home, label: 'Home' },
-  { path: '/reels' as const, icon: Film, label: 'Reels' },
-  { path: '/discover' as const, icon: Compass, label: 'Discover' },
-  { path: null, icon: Plus, label: 'Create' },
-  { path: '/leaderboard' as const, icon: Trophy, label: 'Racers' },
-  { path: '/profile' as const, icon: User, label: 'Profile' },
-];
 
 export default function BottomNav() {
   const navigate = useNavigate();
-  const routerState = useRouterState();
-  const pathname = routerState.location.pathname;
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const location = useLocation();
+  const { identity } = useInternetIdentity();
+  const { isGuest, requireAuth } = useGuestCheck();
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
 
-  const isActive = (path: string | null) => {
-    if (!path) return false;
-    if (path === '/') return pathname === '/';
-    return pathname.startsWith(path);
+  const isActive = (path: string) => location.pathname === path;
+
+  const navItems = [
+    { icon: Home, label: 'Home', path: '/' },
+    { icon: Film, label: 'Reels', path: '/reels' },
+    { icon: Search, label: 'Discover', path: '/discover' },
+    null, // placeholder for center create button
+    { icon: Trophy, label: 'Racers', path: '/leaderboard' },
+    { icon: User, label: 'Profile', path: identity ? `/profile/${(identity as any)?.getPrincipal?.()?.toString?.() || ''}` : '/discover' },
+  ];
+
+  const handleCreateClick = () => {
+    if (isGuest) {
+      requireAuth('Sign in to create content');
+      return;
+    }
+    setCreateSheetOpen(true);
+  };
+
+  const handleProfileClick = () => {
+    if (isGuest) {
+      requireAuth('Sign in to view your profile');
+      return;
+    }
+    // Navigate to profile - the profile page will handle getting the current user
+    navigate({ to: '/discover' });
   };
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 h-16 bg-background/95 backdrop-blur-sm border-t border-border flex items-center justify-around px-1">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path);
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border">
+        <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto">
+          {/* Home */}
+          <button
+            onClick={() => navigate({ to: '/' })}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+              isActive('/') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-[10px]">Home</span>
+          </button>
 
-          if (item.path === null) {
-            return (
-              <button
-                key="create"
-                onClick={() => setSheetOpen(true)}
-                className="flex flex-col items-center justify-center w-12 h-12 -mt-5 rounded-full bg-primary shadow-amber amber-glow transition-transform active:scale-95"
-              >
-                <Plus className="w-6 h-6 text-primary-foreground" />
-              </button>
-            );
-          }
+          {/* Reels */}
+          <button
+            onClick={() => navigate({ to: '/reels' })}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+              isActive('/reels') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Film className="w-5 h-5" />
+            <span className="text-[10px]">Reels</span>
+          </button>
 
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate({ to: item.path! })}
-              className={`flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-lg transition-colors ${
-                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Icon className={`w-5 h-5 ${active ? 'fill-primary/20' : ''}`} />
-              <span className="text-[9px] font-medium">{item.label}</span>
-            </button>
-          );
-        })}
+          {/* Discover */}
+          <button
+            onClick={() => navigate({ to: '/discover' })}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+              isActive('/discover') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Search className="w-5 h-5" />
+            <span className="text-[10px]">Discover</span>
+          </button>
+
+          {/* Create (center floating button) */}
+          <button
+            onClick={handleCreateClick}
+            className="flex flex-col items-center gap-0.5 -mt-4"
+          >
+            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity active:scale-95">
+              <Plus className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <span className="text-[10px] text-muted-foreground mt-0.5">Create</span>
+          </button>
+
+          {/* Leaderboard */}
+          <button
+            onClick={() => navigate({ to: '/leaderboard' })}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+              isActive('/leaderboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Trophy className="w-5 h-5" />
+            <span className="text-[10px]">Racers</span>
+          </button>
+
+          {/* Profile */}
+          <button
+            onClick={() => {
+              if (isGuest) {
+                requireAuth('Sign in to view your profile');
+                return;
+              }
+              navigate({ to: '/discover' });
+            }}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors text-muted-foreground hover:text-foreground`}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-[10px]">Profile</span>
+          </button>
+        </div>
       </nav>
-      <CreatePostSheet open={sheetOpen} onOpenChange={setSheetOpen} />
+
+      {!isGuest && (
+        <CreatePostSheet open={createSheetOpen} onOpenChange={setCreateSheetOpen} />
+      )}
     </>
   );
 }

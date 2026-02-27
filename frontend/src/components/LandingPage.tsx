@@ -1,234 +1,179 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useLandingMusic } from '../hooks/useLandingMusic';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface LandingPageProps {
-  isAuthenticated: boolean;
-  onIntroComplete?: () => void;
-  onLoginSuccess?: () => void;
-  skipIntroImmediately?: boolean;
+  onLoginSuccess: () => void;
 }
 
-const introSlides = [
-  '/assets/generated/intro-car-1.dim_1920x1080.jpg',
-  '/assets/generated/intro-car-2.dim_1920x1080.jpg',
-  '/assets/generated/intro-car-3.dim_1920x1080.jpg',
-  '/assets/generated/intro-car-4.dim_1920x1080.jpg',
+const slides = [
+  {
+    image: '/assets/generated/intro-car-1.dim_1920x1080.jpg',
+    title: 'WELCOME TO REVGRID',
+    subtitle: 'The Ultimate Car Community',
+  },
+  {
+    image: '/assets/generated/intro-car-2.dim_1920x1080.jpg',
+    title: 'SHARE YOUR BUILD',
+    subtitle: 'Show off your ride to the world',
+  },
+  {
+    image: '/assets/generated/intro-car-3.dim_1920x1080.jpg',
+    title: 'CONNECT WITH RACERS',
+    subtitle: 'Find your crew, join the grid',
+  },
+  {
+    image: '/assets/generated/intro-car-4.dim_1920x1080.jpg',
+    title: 'JOIN THE GRID',
+    subtitle: 'Your journey starts here',
+  },
 ];
 
-export default function LandingPage({
-  isAuthenticated,
-  onIntroComplete,
-  onLoginSuccess,
-  skipIntroImmediately = false,
-}: LandingPageProps) {
-  const { login, loginStatus } = useInternetIdentity();
-  const { isMuted, isPlaying, toggleMute, startPlayback, fadeOutAndStop } = useLandingMusic();
-
-  const [phase, setPhase] = useState<'intro' | 'login'>(
-    skipIntroImmediately ? 'login' : 'intro'
-  );
+export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
+  const { login, loginStatus, identity } = useInternetIdentity();
+  const queryClient = useQueryClient();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const introTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Start music when component mounts
+  // Auto-advance slides
   useEffect(() => {
-    if (!skipIntroImmediately) {
-      startPlayback();
-    }
-    return () => {
-      if (introTimerRef.current) clearTimeout(introTimerRef.current);
-    };
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(timer);
   }, []);
 
-  // Auto-advance slides during intro
+  // Handle successful login
   useEffect(() => {
-    if (phase !== 'intro') return;
-
-    const SLIDE_DURATION = 1800;
-    const TOTAL_SLIDES = introSlides.length;
-
-    if (currentSlide < TOTAL_SLIDES - 1) {
-      introTimerRef.current = setTimeout(() => {
-        setCurrentSlide((s) => s + 1);
-      }, SLIDE_DURATION);
-    } else {
-      // Last slide — transition to login
-      introTimerRef.current = setTimeout(() => {
-        setPhase('login');
-      }, SLIDE_DURATION);
+    if (identity) {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      onLoginSuccess();
     }
+  }, [identity, onLoginSuccess, queryClient]);
 
-    return () => {
-      if (introTimerRef.current) clearTimeout(introTimerRef.current);
-    };
-  }, [phase, currentSlide]);
-
-  // If skipIntroImmediately changes to true after mount, jump to login phase
-  useEffect(() => {
-    if (skipIntroImmediately && phase === 'intro') {
-      setPhase('login');
-    }
-  }, [skipIntroImmediately]);
-
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
+    setIsLoggingIn(true);
     setLoginError('');
     try {
       await login();
-      // Fade out music on successful login
-      fadeOutAndStop();
-      // Notify parent that login succeeded
-      onLoginSuccess?.();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed';
-      if (message === 'User is already authenticated') {
-        fadeOutAndStop();
-        onLoginSuccess?.();
-      } else {
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err?.message !== 'User is already authenticated') {
         setLoginError('Login failed. Please try again.');
       }
+    } finally {
+      setIsLoggingIn(false);
     }
-  };
+  }, [login]);
 
-  const handleSkipIntro = () => {
-    if (introTimerRef.current) clearTimeout(introTimerRef.current);
-    setPhase('login');
-    onIntroComplete?.();
-  };
+  const isProcessing = isLoggingIn || loginStatus === 'logging-in';
 
-  // ── Intro slideshow phase ──────────────────────────────────────────────────
-  if (phase === 'intro') {
-    return (
-      <div className="relative min-h-screen bg-black overflow-hidden">
-        {/* Slides */}
-        {introSlides.map((src, i) => (
-          <div
-            key={src}
-            className="absolute inset-0 transition-opacity duration-700"
-            style={{ opacity: i === currentSlide ? 1 : 0 }}
-          >
-            <img
-              src={src}
-              alt=""
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
-        ))}
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-black">
+      {/* Slideshow */}
+      {slides.map((slide, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-1000 ${
+            index === currentSlide ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+      ))}
 
-        {/* Logo overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        {/* Logo */}
+        <div className="mb-8">
           <img
             src="/assets/generated/revgrid-logo.dim_256x256.png"
             alt="RevGrid"
-            className="w-24 h-24 mb-4 drop-shadow-2xl"
+            className="w-24 h-24 mx-auto mb-4"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
           />
-          <h1 className="text-4xl font-black tracking-widest text-white drop-shadow-lg uppercase">
-            RevGrid
+          <h1 className="text-5xl font-black text-white tracking-wider">
+            REV<span className="text-primary">GRID</span>
           </h1>
-          <p className="text-white/70 text-sm tracking-widest mt-2 uppercase">
-            The Automotive Social Network
+        </div>
+
+        {/* Slide Text */}
+        <div className="mb-12 min-h-[80px]">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            {slides[currentSlide].title}
+          </h2>
+          <p className="text-white/70 text-lg">
+            {slides[currentSlide].subtitle}
           </p>
         </div>
 
-        {/* Slide dots */}
-        <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2 z-10">
-          {introSlides.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === currentSlide ? 'bg-primary w-6' : 'bg-white/40'
+        {/* Slide Indicators */}
+        <div className="flex gap-2 mb-10">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === currentSlide
+                  ? 'bg-primary w-6'
+                  : 'bg-white/40'
               }`}
             />
           ))}
         </div>
 
-        {/* Skip button */}
-        <button
-          onClick={handleSkipIntro}
-          className="absolute top-4 right-4 z-20 text-white/60 hover:text-white text-sm px-3 py-1 rounded border border-white/20 hover:border-white/50 transition-colors"
-        >
-          Skip
-        </button>
-
-        {/* Mute button */}
-        <button
-          onClick={toggleMute}
-          className="absolute bottom-4 right-4 z-20 text-white/60 hover:text-white text-sm px-3 py-1 rounded border border-white/20 hover:border-white/50 transition-colors"
-        >
-          {isMuted ? '🔇 Unmute' : '🔊 Mute'}
-        </button>
-      </div>
-    );
-  }
-
-  // ── Login phase ────────────────────────────────────────────────────────────
-  return (
-    <div className="relative min-h-screen bg-black overflow-hidden flex flex-col items-center justify-center">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <img
-          src="/assets/generated/landing-bg.dim_1920x1080.jpg"
-          alt=""
-          className="w-full h-full object-cover"
-          draggable={false}
-        />
-        <div className="absolute inset-0 bg-black/65" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center max-w-sm w-full">
-        <img
-          src="/assets/generated/revgrid-logo.dim_256x256.png"
-          alt="RevGrid"
-          className="w-20 h-20 drop-shadow-2xl"
-        />
-        <div>
-          <h1 className="text-4xl font-black tracking-widest text-white uppercase mb-2">
-            RevGrid
-          </h1>
-          <p className="text-white/70 text-sm tracking-wide">
-            The Automotive Social Network
-          </p>
-        </div>
-
-        <div className="w-full flex flex-col gap-3 mt-4">
+        {/* Login Button */}
+        <div className="w-full max-w-xs space-y-4">
           <button
             onClick={handleLogin}
-            disabled={loginStatus === 'logging-in'}
-            className="w-full py-3 px-6 bg-primary text-primary-foreground font-bold rounded-lg text-base tracking-wide uppercase transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            disabled={isProcessing}
+            className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-2xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
-            {loginStatus === 'logging-in' ? (
-              <>
-                <span className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Connecting…
-              </>
+            {isProcessing ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                Connecting...
+              </span>
             ) : (
-              'Login / Sign Up'
+              'Get Started 🚗'
             )}
           </button>
 
           {loginError && (
-            <p className="text-destructive text-sm text-center">{loginError}</p>
+            <p className="text-red-400 text-sm text-center">{loginError}</p>
           )}
-        </div>
 
-        <p className="text-white/40 text-xs mt-2">
-          Secure login powered by Internet Identity
-        </p>
+          <p className="text-white/50 text-xs text-center">
+            Powered by Internet Computer • Decentralized & Secure
+          </p>
+        </div>
       </div>
 
-      {/* Mute button */}
-      {isPlaying && (
-        <button
-          onClick={toggleMute}
-          className="absolute bottom-4 right-4 z-20 text-white/60 hover:text-white text-sm px-3 py-1 rounded border border-white/20 hover:border-white/50 transition-colors"
-        >
-          {isMuted ? '🔇 Unmute' : '🔊 Mute'}
-        </button>
-      )}
+      {/* Footer */}
+      <div className="absolute bottom-4 left-0 right-0 text-center z-10">
+        <p className="text-white/30 text-xs">
+          © {new Date().getFullYear()} RevGrid • Built with ❤️ using{' '}
+          <a
+            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-white/60 transition-colors"
+          >
+            caffeine.ai
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

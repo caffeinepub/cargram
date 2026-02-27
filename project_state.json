@@ -3,12 +3,22 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Site fails to load in production (reported at Version 50)"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-a-visible-entry-point-to-the-install-page-from-within-the-app-for-example-a-menu-item-or-button-in-the-topbar-or-bottomnav-or-an-install-app-option-in-a-settings-about-area-so-users-can-easily-discover-and-navigate-to-the-install-page",
-      "title": "Add a visible entry point to the `/install` page from within the app — for example, a menu item or button in the TopBar or BottomNav (or an 'Install App' option in a settings/about area) — so users can easily discover and navigate to the install page.",
+      "id": "feature-diagnose-and-fix-the-blank-white-screen-that-prevents-revgrid-from-loading-in-production-audit-the-root-app-tsx-authgate-tsx-and-routing-lazy-load-setup-to-identify-and-resolve-any-initialization-errors-missing-fallbacks-or-failed-async-imports-that-cause-a-blank-screen-on-first-load",
+      "title": "Diagnose and fix the blank white screen that prevents RevGrid from loading in production. Audit the root App.tsx, AuthGate.tsx, and routing/lazy-load setup to identify and resolve any initialization errors, missing fallbacks, or failed async imports that cause a blank screen on first load.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-guest-view-mode-so-that-unauthenticated-visitors-can-browse-all-pages-and-see-all-content-feed-posts-reels-builds-events-marketplace-listings-mechanic-questions-leaderboard-profiles-etc-without-being-redirected-to-the-landing-page-or-blocked-by-the-authgate-guests-must-not-be-able-to-use-any-interactive-features",
+      "title": "Implement a guest view mode so that unauthenticated visitors can browse all pages and see all content (feed posts, reels, builds, events, marketplace listings, mechanic questions, leaderboard, profiles, etc.) without being redirected to the landing page or blocked by the AuthGate. Guests must not be able to use any interactive features.",
       "reqIds": [
         "REQ-2"
       ],
@@ -18,16 +28,8 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a dedicated download/install page (e.g. /install or /download) for the PWA",
+      "summary": "Guest view mode: guests can see all content on the site but cannot use/interact with any features",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a `/install` route to the TanStack Router configuration in `frontend/src/App.tsx` that renders the existing `InstallPage` component from `frontend/src/pages/InstallPage.tsx`.",
-      "reqIds": [
-        "REQ-1"
-      ],
       "status": "pending"
     }
   ],

@@ -1,72 +1,76 @@
+import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Car, Plus, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useGetAllBuilds } from '../hooks/useQueries';
+import { useGuestCheck } from '../hooks/useGuestCheck';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Wrench } from 'lucide-react';
 
 export default function BuildsPage() {
   const navigate = useNavigate();
-  const { data: builds = [], isLoading } = useGetAllBuilds();
+  const { isGuest, requireAuth } = useGuestCheck();
+  const { data: builds = [], isLoading, isError } = useGetAllBuilds();
+
+  const handleCreate = () => {
+    if (!requireAuth('Sign in to create builds')) return;
+    navigate({ to: '/builds/create' });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-4">
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-48 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-12 text-center">
+        <p className="text-muted-foreground">Failed to load builds</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-lg mx-auto">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-        <div>
-          <h2 className="font-heading text-xl font-bold text-foreground">BUILD SHOWCASES</h2>
-          <p className="text-xs text-muted-foreground">Show off your ride</p>
-        </div>
-        <Button
-          onClick={() => navigate({ to: '/builds/create' })}
-          size="sm"
-          className="bg-primary text-primary-foreground font-bold"
+    <div className="max-w-lg mx-auto px-4 py-4">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-heading text-primary">Build Showcases</h1>
+        <button
+          onClick={handleCreate}
+          className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
         >
-          <Plus className="w-4 h-4 mr-1" /> New Build
-        </Button>
+          <Plus className="w-4 h-4" />
+          Create
+        </button>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        </div>
-      ) : builds.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-4 p-8">
-          <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-            <Car className="w-8 h-8 text-primary" />
-          </div>
-          <h3 className="font-heading text-xl font-bold text-foreground">NO BUILDS YET</h3>
-          <p className="text-muted-foreground text-center text-sm">Be the first to showcase your build!</p>
-          <Button
-            onClick={() => navigate({ to: '/builds/create' })}
-            className="bg-primary text-primary-foreground font-bold"
-          >
-            Create Build
-          </Button>
+      {builds.length === 0 ? (
+        <div className="text-center py-12">
+          <Wrench className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground">No builds yet. Share your build!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-0.5">
-          {builds.map(build => (
+        <div className="grid grid-cols-2 gap-3">
+          {builds.map((build) => (
             <button
               key={build.id}
               onClick={() => navigate({ to: '/builds/$buildId', params: { buildId: build.id } })}
-              className="aspect-square bg-secondary overflow-hidden relative group"
+              className="bg-card border border-border rounded-xl overflow-hidden text-left hover:border-primary transition-colors"
             >
-              {build.images[0] ? (
-                <img
-                  src={build.images[0].getDirectURL()}
-                  alt={build.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                />
-              ) : (
+              <div className="h-32 bg-muted flex items-center justify-center">
                 <img
                   src="/assets/generated/build-placeholder.dim_800x600.png"
-                  alt="build"
-                  className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity"
+                  alt={build.title}
+                  className="w-full h-full object-cover"
                 />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-2">
-                <p className="text-white text-xs font-bold truncate">{build.title}</p>
-                <p className="text-white/70 text-[10px] truncate">@{build.authorId}</p>
+              </div>
+              <div className="p-3">
+                <p className="font-semibold text-sm truncate">{build.title}</p>
+                <p className="text-xs text-muted-foreground truncate">@{build.authorId}</p>
               </div>
             </button>
           ))}

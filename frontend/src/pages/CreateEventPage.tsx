@@ -1,120 +1,90 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import AuthRequiredWrapper from '../components/AuthRequiredWrapper';
 import { useCreateEvent } from '../hooks/useQueries';
 import { toast } from 'sonner';
+import { Calendar, Loader2 } from 'lucide-react';
 
-export default function CreateEventPage() {
+function CreateEventContent() {
   const navigate = useNavigate();
+  const { mutate: createEvent, isPending } = useCreateEvent();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
-  const [dateStr, setDateStr] = useState('');
-  const createEvent = useCreateEvent();
+  const [date, setDate] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !location.trim() || !dateStr) {
-      toast.error('Title, location, and date are required');
+    if (!title.trim() || !date) {
+      toast.error('Please fill in title and date');
       return;
     }
-    const dateMs = new Date(dateStr).getTime();
-    if (isNaN(dateMs)) {
-      toast.error('Invalid date');
-      return;
-    }
-    const dateNs = BigInt(dateMs) * BigInt(1_000_000);
-    try {
-      const eventId = await createEvent.mutateAsync({
-        title: title.trim(),
-        description: description.trim(),
-        location: location.trim(),
-        date: dateNs,
-      });
-      toast.success('Event created!');
-      navigate({ to: '/events/$eventId', params: { eventId } });
-    } catch {
-      toast.error('Failed to create event');
-    }
+    const dateMs = BigInt(new Date(date).getTime()) * BigInt(1_000_000);
+    createEvent(
+      { title, description, location, date: dateMs },
+      {
+        onSuccess: () => {
+          toast.success('Event created!');
+          navigate({ to: '/events' });
+        },
+        onError: (err: any) => toast.error(err?.message || 'Failed to create event'),
+      }
+    );
   };
 
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={() => navigate({ to: '/events' })} className="text-foreground">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h2 className="font-heading text-lg font-bold text-foreground">CREATE EVENT</h2>
-      </div>
+    <div className="max-w-lg mx-auto px-4 py-6">
+      <h1 className="text-xl font-heading text-primary mb-6">Create Event</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Event title"
+          className="w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary"
+        />
 
-      <form onSubmit={handleSubmit} className="p-4 space-y-5">
-        <div className="w-full h-32 rounded-xl bg-secondary border-2 border-dashed border-border flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 text-muted-foreground">
-            <Calendar className="w-8 h-8 text-primary" />
-            <p className="text-sm font-medium">Car Meet Event</p>
-          </div>
-        </div>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Describe the event..."
+          rows={4}
+          className="w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary resize-none"
+        />
 
-        <div className="space-y-1">
-          <Label className="text-foreground font-medium">Event Title *</Label>
-          <Input
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="e.g. Sunday Morning Cars & Coffee"
-            className="bg-secondary border-border text-foreground"
-            required
-          />
-        </div>
+        <input
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Location"
+          className="w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary"
+        />
 
-        <div className="space-y-1">
-          <Label className="text-foreground font-medium">Location *</Label>
-          <Input
-            value={location}
-            onChange={e => setLocation(e.target.value)}
-            placeholder="e.g. Downtown Parking Garage, Los Angeles CA"
-            className="bg-secondary border-border text-foreground"
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-foreground font-medium">Date & Time *</Label>
-          <Input
+        <div>
+          <label className="text-sm text-muted-foreground mb-1 block">Date & Time</label>
+          <input
             type="datetime-local"
-            value={dateStr}
-            onChange={e => setDateStr(e.target.value)}
-            className="bg-secondary border-border text-foreground"
-            required
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-foreground font-medium">Description</Label>
-          <Textarea
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Tell people what to expect at this event..."
-            className="bg-secondary border-border text-foreground resize-none"
-            rows={4}
-          />
-        </div>
-
-        <Button
+        <button
           type="submit"
-          disabled={createEvent.isPending || !title.trim() || !location.trim() || !dateStr}
-          className="w-full bg-primary text-primary-foreground font-heading font-bold tracking-wider h-12"
+          disabled={isPending}
+          className="w-full bg-primary text-primary-foreground py-3 rounded-full font-medium flex items-center justify-center gap-2 disabled:opacity-50"
         >
-          {createEvent.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</>
-          ) : (
-            'CREATE EVENT'
-          )}
-        </Button>
+          {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+          {isPending ? 'Creating...' : 'Create Event'}
+        </button>
       </form>
     </div>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    <AuthRequiredWrapper message="Sign in to create events">
+      <CreateEventContent />
+    </AuthRequiredWrapper>
   );
 }

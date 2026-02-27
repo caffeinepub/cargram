@@ -1,20 +1,28 @@
 import React from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
 import { useGetEvent, useAttendEvent } from '../hooks/useQueries';
-import { Calendar, MapPin, Users, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useGuestCheck } from '../hooks/useGuestCheck';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar, MapPin, Users, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function EventDetailPage() {
   const { eventId } = useParams({ from: '/events/$eventId' });
-  const navigate = useNavigate();
-  const { data: event, isLoading, isError, error } = useGetEvent(eventId);
-  const attendEvent = useAttendEvent();
+  const { isGuest, requireAuth } = useGuestCheck();
+  const { data: event, isLoading, isError } = useGetEvent(eventId);
+  const { mutate: attendEvent, isPending } = useAttendEvent();
 
-  const formatDate = (timestamp: bigint) => {
-    const date = new Date(Number(timestamp));
-    return date.toLocaleDateString('en-US', {
+  const handleAttend = () => {
+    if (!requireAuth('Sign in to attend events')) return;
+    attendEvent(eventId, {
+      onSuccess: () => toast.success('You\'re attending!'),
+      onError: () => toast.error('Failed to register attendance'),
+    });
+  };
+
+  const formatDate = (date: bigint) => {
+    const ms = Number(date) / 1_000_000;
+    return new Date(ms).toLocaleDateString('en-US', {
       weekday: 'long',
       month: 'long',
       day: 'numeric',
@@ -24,131 +32,72 @@ export default function EventDetailPage() {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-20" />
+      </div>
+    );
+  }
+
+  if (isError || !event) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-12 text-center">
+        <p className="text-muted-foreground">Event not found</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Back button */}
-      <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-3">
-        <button
-          onClick={() => navigate({ to: '/events' })}
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h2 className="font-bold text-foreground">Event Details</h2>
+    <div className="max-w-lg mx-auto px-4 py-4">
+      {/* Hero */}
+      <div className="h-48 bg-muted rounded-xl overflow-hidden mb-4">
+        <img
+          src="/assets/generated/events-hero.dim_1200x400.png"
+          alt={event.title}
+          className="w-full h-full object-cover"
+        />
       </div>
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className="p-4 space-y-4">
-          <Skeleton className="w-full h-48 rounded-xl" />
-          <Skeleton className="h-7 w-3/4" />
-          <Skeleton className="h-5 w-1/2" />
-          <Skeleton className="h-5 w-2/3" />
-          <Skeleton className="h-20 w-full" />
-        </div>
-      )}
+      <h1 className="text-2xl font-heading text-primary mb-3">{event.title}</h1>
 
-      {/* Error state */}
-      {isError && !isLoading && (
-        <div className="p-4">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {error instanceof Error ? error.message : 'Failed to load event details.'}
-            </AlertDescription>
-          </Alert>
-          <Button
-            variant="outline"
-            className="mt-4 border-border"
-            onClick={() => navigate({ to: '/events' })}
-          >
-            Back to Events
-          </Button>
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="w-4 h-4" />
+          <span>{formatDate(event.date)}</span>
         </div>
-      )}
-
-      {/* Not found state */}
-      {!isLoading && !isError && !event && (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-          <Calendar className="w-16 h-16 text-muted-foreground mb-4 opacity-40" />
-          <h3 className="text-lg font-bold text-foreground mb-2">Event Not Found</h3>
-          <p className="text-muted-foreground text-sm mb-6">
-            This event may have been removed or the link is invalid.
-          </p>
-          <Button
-            onClick={() => navigate({ to: '/events' })}
-            className="bg-primary text-primary-foreground"
-          >
-            Browse Events
-          </Button>
-        </div>
-      )}
-
-      {/* Event content */}
-      {!isLoading && !isError && event && (
-        <div>
-          {/* Hero image */}
-          <div className="relative h-48 bg-muted">
-            <img
-              src="/assets/generated/events-hero.dim_1200x400.png"
-              alt={event.title}
-              className="w-full h-full object-cover opacity-70"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4">
-              <h1 className="text-white text-2xl font-black leading-tight">{event.title}</h1>
-            </div>
+        {event.location && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="w-4 h-4" />
+            <span>{event.location}</span>
           </div>
-
-          <div className="p-4 space-y-4">
-            {/* Meta info */}
-            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="text-foreground">{formatDate(event.date)}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="text-foreground">{event.location}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Users className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="text-foreground">{Number(event.attendeesCount)} attending</span>
-              </div>
-            </div>
-
-            {/* Description */}
-            {event.description && (
-              <div className="bg-card rounded-xl border border-border p-4">
-                <h3 className="font-bold text-foreground mb-2">About This Event</h3>
-                <p className="text-foreground/80 text-sm leading-relaxed">{event.description}</p>
-              </div>
-            )}
-
-            {/* Organizer */}
-            <div className="bg-card rounded-xl border border-border p-4">
-              <h3 className="font-bold text-foreground mb-1">Organizer</h3>
-              <p className="text-muted-foreground text-sm">@{event.organizerId}</p>
-            </div>
-
-            {/* Attend button */}
-            <Button
-              className="w-full bg-primary text-primary-foreground font-bold py-3"
-              disabled={attendEvent.isPending}
-              onClick={() => attendEvent.mutate(event.id)}
-            >
-              {attendEvent.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Joining…
-                </>
-              ) : (
-                "I'm Attending"
-              )}
-            </Button>
-          </div>
+        )}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Users className="w-4 h-4" />
+          <span>{event.attendeesCount.toString()} attending</span>
         </div>
+      </div>
+
+      {event.description && (
+        <p className="text-sm text-foreground/80 mb-6 leading-relaxed">{event.description}</p>
       )}
+
+      <button
+        onClick={handleAttend}
+        disabled={isPending}
+        className={`w-full py-3 rounded-full font-medium flex items-center justify-center gap-2 transition-opacity ${
+          isGuest
+            ? 'bg-muted text-muted-foreground'
+            : 'bg-primary text-primary-foreground hover:opacity-90'
+        } disabled:opacity-50`}
+        title={isGuest ? 'Sign in to attend events' : undefined}
+      >
+        {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+        {isGuest ? 'Sign in to Attend' : isPending ? 'Registering...' : 'Attend Event'}
+      </button>
     </div>
   );
 }

@@ -1,37 +1,205 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add dedicated PWA install/download page at /install route",
+  "title": "Fix blank screen load issue and add guest view mode",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add /install route to TanStack Router that renders the existing InstallPage component",
+      "summary": "Diagnose and fix the blank white screen that prevents RevGrid from loading in production",
       "acceptanceCriteria": [
-        "Navigating to /install in the browser renders the InstallPage component without errors.",
-        "The /install route is nested under the root layout so TopBar and BottomNav are visible.",
-        "The route is accessible from any browser without authentication if appropriate, or within the AuthGate flow consistent with other routes."
+        "The app renders visible content on first load in production without a blank white screen",
+        "Lazy-loaded page components have proper Suspense fallbacks so no chunk failure silently renders nothing",
+        "ErrorBoundary catches and displays a user-facing error message instead of a blank screen if a critical render error occurs",
+        "The app loads correctly for both authenticated users and unauthenticated visitors"
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a new /install route to the TanStack Router configuration that renders the InstallPage component from frontend/src/pages/InstallPage.tsx. Nest it under the root layout (wrapped in AuthGate) to ensure TopBar and BottomNav are visible, consistent with other app routes."
+          "description": "Add comprehensive Suspense fallback components for all lazy-loaded routes to prevent blank screens during chunk loading. Wrap the Router in an ErrorBoundary that displays a user-friendly error UI instead of a blank screen when critical errors occur. Ensure the root Suspense has a visible loading indicator."
+        },
+        {
+          "path": "frontend/src/components/AuthGate.tsx",
+          "operation": "modify",
+          "description": "Remove the blocking behavior that prevents unauthenticated users from accessing the app. Transform AuthGate from a full-page gate into a conditional wrapper that only blocks specific authenticated-only actions. Ensure the component always renders children for guest users while maintaining profile setup flow for authenticated users without profiles. Add error boundary handling for authentication failures."
+        },
+        {
+          "path": "frontend/src/components/ErrorBoundary.tsx",
+          "operation": "create",
+          "description": "Create a reusable ErrorBoundary component that catches React rendering errors and displays a user-friendly error UI with a reload button and error details (in development mode only). This prevents blank screens when component errors occur."
+        },
+        {
+          "path": "frontend/src/components/LoadingFallback.tsx",
+          "operation": "create",
+          "description": "Create a branded loading fallback component showing the RevGrid logo and a spinner, used as the Suspense fallback throughout the app to ensure users always see feedback during lazy loading or async operations."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add visible navigation entry point to the /install page within the app UI",
+      "summary": "Implement a guest view mode so unauthenticated visitors can browse all content without being blocked",
       "acceptanceCriteria": [
-        "There is at least one in-app navigation element (link, button, or menu item) that routes the user to /install.",
-        "The entry point is labeled clearly, e.g. 'Install App' or 'Download App'.",
-        "Clicking the entry point navigates to /install without a full page reload."
+        "Unauthenticated (guest) users can view all public pages: feed, reels, builds, events, marketplace, mechanics, leaderboard, discover, and user profiles",
+        "The AuthGate no longer blocks the entire app for unauthenticated users — it only blocks action-requiring flows",
+        "All interactive controls that require authentication (like/unlike, comment, follow/unfollow, create post/build/reel/event/listing, send message, attend event) are visually disabled or show a 'Sign in to use this feature' prompt when clicked by a guest",
+        "Guests are shown a persistent but non-intrusive banner or prompt encouraging them to log in with Internet Identity",
+        "Navigating directly to creation pages (e.g. /create-post, /create-reel) as a guest redirects to the landing page or shows a login prompt instead of a blank or broken page"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/TopBar.tsx",
+          "path": "frontend/src/components/GuestPromptBanner.tsx",
+          "operation": "create",
+          "description": "Create a sticky banner component displayed at the top of the app for unauthenticated users, showing a friendly message like 'Sign in to like, comment, and create content' with a login button. The banner should be dismissible and non-intrusive (slim design, semi-transparent background)."
+        },
+        {
+          "path": "frontend/src/components/AuthRequiredWrapper.tsx",
+          "operation": "create",
+          "description": "Create a wrapper component that checks authentication status and either renders children (if authenticated) or redirects to the landing page with a toast message (if guest). Use this to protect all creation pages and authenticated-only routes."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
           "operation": "modify",
-          "description": "Add an 'Install App' icon button to the TopBar navigation that routes to /install using a TanStack Router Link. Position it logically among existing navigation icons, ensuring clear visual affordance for users to discover the install page."
+          "description": "Add the GuestPromptBanner component at the top of the layout (below TopBar, above content), conditionally rendered only for unauthenticated users. Ensure the banner does not interfere with navigation or scrolling."
+        },
+        {
+          "path": "frontend/src/components/PostCard.tsx",
+          "operation": "modify",
+          "description": "Wrap like and comment action buttons with guest checks: if unauthenticated, disable the buttons and show a tooltip or toast message 'Sign in to like/comment' on click. Preserve existing functionality for authenticated users. Keep delete action restricted to post owner."
+        },
+        {
+          "path": "frontend/src/components/BottomNav.tsx",
+          "operation": "modify",
+          "description": "Keep all navigation links functional for guests. Wrap the center Create button with a guest check: if unauthenticated, show a toast 'Sign in to create content' and optionally open a login prompt instead of the CreatePostSheet."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Remove any authentication requirement checks that block rendering the feed for guests. Ensure the feed loads and displays posts for unauthenticated users using the anonymous actor from useActor. All posts should be visible; only interaction buttons will be disabled."
+        },
+        {
+          "path": "frontend/src/pages/ReelsPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view and scroll through reels. Disable like button and comment sheet trigger for unauthenticated users, showing a 'Sign in to interact' message on click. Keep video playback and mute controls functional."
+        },
+        {
+          "path": "frontend/src/pages/BuildsPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view the builds grid. Wrap the 'Create Build' button with a guest check: if unauthenticated, show a login prompt toast on click instead of navigating to the creation page."
+        },
+        {
+          "path": "frontend/src/pages/BuildDetailPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view build details and images. Disable the comment input form for unauthenticated users and show a placeholder 'Sign in to comment' message in the input area."
+        },
+        {
+          "path": "frontend/src/pages/EventsPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view the events list. Wrap the 'Create Event' button with a guest check: if unauthenticated, show a login prompt toast on click instead of opening the creation dialog."
+        },
+        {
+          "path": "frontend/src/pages/EventDetailPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view event details. Disable the 'Attend' button for unauthenticated users and show a tooltip or toast 'Sign in to attend events' on click."
+        },
+        {
+          "path": "frontend/src/pages/MarketplacePage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to browse marketplace listings and use category filters. Wrap the 'Create Listing' button with a guest check: if unauthenticated, show a login prompt toast on click instead of navigating to the creation page."
+        },
+        {
+          "path": "frontend/src/pages/MechanicsPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view mechanic help questions and AI-powered answers. Wrap the 'Ask Question' button with a guest check: if unauthenticated, show a login prompt toast on click instead of navigating to the creation page."
+        },
+        {
+          "path": "frontend/src/pages/MechanicThreadPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view the AI answer and community comments. Disable the comment input form for unauthenticated users and show a placeholder 'Sign in to comment' message in the input area."
+        },
+        {
+          "path": "frontend/src/pages/LeaderboardPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view the leaderboard. No modifications needed for interaction restrictions as this page is already read-only."
+        },
+        {
+          "path": "frontend/src/pages/DiscoverPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to search users and browse tabbed content (posts, builds, reels, mechanic questions, events). No authentication checks should block rendering. Interaction restrictions are handled by individual cards/components."
+        },
+        {
+          "path": "frontend/src/pages/ProfilePage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view any user profile, including stats and content tabs. Disable the follow/unfollow button for unauthenticated users and show a tooltip or toast 'Sign in to follow users' on click. Keep the edit profile button hidden for guests viewing any profile."
+        },
+        {
+          "path": "frontend/src/pages/ReelsSearchPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to search and browse reels. No authentication checks should block rendering. Interaction restrictions are handled by the reel player."
+        },
+        {
+          "path": "frontend/src/pages/MessagesPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire messages page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to send messages' message when attempting to access this page."
+        },
+        {
+          "path": "frontend/src/pages/FollowersPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view any user's followers list. No authentication checks should block rendering."
+        },
+        {
+          "path": "frontend/src/pages/FollowingPage.tsx",
+          "operation": "modify",
+          "description": "Allow guests to view any user's following list. No authentication checks should block rendering."
+        },
+        {
+          "path": "frontend/src/pages/CreateFeedPostPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to create posts' message when attempting to access this creation page directly."
+        },
+        {
+          "path": "frontend/src/pages/CreateReelPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to create reels' message when attempting to access this creation page directly."
+        },
+        {
+          "path": "frontend/src/pages/CreateBuildPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to create builds' message when attempting to access this creation page directly."
+        },
+        {
+          "path": "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to ask questions' message when attempting to access this creation page directly."
+        },
+        {
+          "path": "frontend/src/pages/CreateListingPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to create listings' message when attempting to access this creation page directly."
+        },
+        {
+          "path": "frontend/src/pages/CreateEventPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to create events' message when attempting to access this creation page directly."
+        },
+        {
+          "path": "frontend/src/pages/ChatThreadPage.tsx",
+          "operation": "modify",
+          "description": "Wrap the entire page with AuthRequiredWrapper so guests are redirected to the landing page with a 'Sign in to send messages' message when attempting to access chat threads directly."
+        },
+        {
+          "path": "frontend/src/components/CommentsSheet.tsx",
+          "operation": "modify",
+          "description": "Disable the comment input form for unauthenticated users and show a placeholder button 'Sign in to comment' that triggers a login prompt or toast message. Keep the comments list visible for guests."
+        },
+        {
+          "path": "frontend/src/components/CreatePostSheet.tsx",
+          "operation": "modify",
+          "description": "This component is only shown to authenticated users via the BottomNav Create button guard, so no changes are required here. If opened directly, all target pages are already protected by AuthRequiredWrapper."
+        },
+        {
+          "path": "frontend/src/hooks/useGuestCheck.ts",
+          "operation": "create",
+          "description": "Create a custom hook that returns the current authentication state and a helper function to show a 'Sign in required' toast/prompt. This hook encapsulates guest detection logic and provides a consistent UX pattern for all components that need to restrict guest interactions."
         }
       ]
     }

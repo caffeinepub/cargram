@@ -2,10 +2,56 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-visible-entry-point-to-the-install-page-from-within-the-app-for-example-a-menu-item-or-button-in-the-topbar-or-bottomnav-or-an-install-app-option-in-a-settings-about-area-so-users-can-easily-discover-and-navigate-to-the-install-page",
-      "featureTitle": "Add a visible entry point to the `/install` page from within the app — for example, a menu item or button in the TopBar or BottomNav (or an 'Install App' option in a settings/about area) — so users can easily discover and navigate to the install page.",
+      "featureId": "feature-diagnose-and-fix-the-blank-white-screen-that-prevents-revgrid-from-loading-in-production-audit-the-root-app-tsx-authgate-tsx-and-routing-lazy-load-setup-to-identify-and-resolve-any-initialization-errors-missing-fallbacks-or-failed-async-imports-that-cause-a-blank-screen-on-first-load",
+      "featureTitle": "Diagnose and fix the blank white screen that prevents RevGrid from loading in production. Audit the root App.tsx, AuthGate.tsx, and routing/lazy-load setup to identify and resolve any initialization errors, missing fallbacks, or failed async imports that cause a blank screen on first load.",
       "files": [
-        "frontend/src/components/TopBar.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/components/AuthGate.tsx",
+        "frontend/src/components/ErrorBoundary.tsx",
+        "frontend/src/components/LoadingFallback.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-guest-view-mode-so-that-unauthenticated-visitors-can-browse-all-pages-and-see-all-content-feed-posts-reels-builds-events-marketplace-listings-mechanic-questions-leaderboard-profiles-etc-without-being-redirected-to-the-landing-page-or-blocked-by-the-authgate-guests-must-not-be-able-to-use-any-interactive-features",
+      "featureTitle": "Implement a guest view mode so that unauthenticated visitors can browse all pages and see all content (feed posts, reels, builds, events, marketplace listings, mechanic questions, leaderboard, profiles, etc.) without being redirected to the landing page or blocked by the AuthGate. Guests must not be able to use any interactive features.",
+      "files": [
+        "frontend/src/components/AuthRequiredWrapper.tsx",
+        "frontend/src/components/BottomNav.tsx",
+        "frontend/src/components/CommentsSheet.tsx",
+        "frontend/src/components/GuestPromptBanner.tsx",
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/components/PostCard.tsx",
+        "frontend/src/hooks/useGuestCheck.ts",
+        "frontend/src/pages/BuildDetailPage.tsx",
+        "frontend/src/pages/BuildsPage.tsx",
+        "frontend/src/pages/ChatThreadPage.tsx",
+        "frontend/src/pages/CreateBuildPage.tsx",
+        "frontend/src/pages/CreateEventPage.tsx",
+        "frontend/src/pages/CreateFeedPostPage.tsx",
+        "frontend/src/pages/CreateListingPage.tsx",
+        "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+        "frontend/src/pages/CreateReelPage.tsx",
+        "frontend/src/pages/EventDetailPage.tsx",
+        "frontend/src/pages/EventsPage.tsx",
+        "frontend/src/pages/HomePage.tsx",
+        "frontend/src/pages/MarketplacePage.tsx",
+        "frontend/src/pages/MechanicThreadPage.tsx",
+        "frontend/src/pages/MechanicsPage.tsx",
+        "frontend/src/pages/MessagesPage.tsx",
+        "frontend/src/pages/ProfilePage.tsx"
       ],
       "components": [
         "authorization@4.0.0",

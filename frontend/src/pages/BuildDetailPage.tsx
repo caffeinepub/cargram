@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Send, Loader2, Car, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Car, ChevronLeft, ChevronRight, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useGetBuild, useGetComments, useAddComment, useGetCallerUserProfile, useGetUser } from '../hooks/useQueries';
+import { useGuestCheck } from '../hooks/useGuestCheck';
 import { formatDistanceToNow } from '../lib/utils';
 import { toast } from 'sonner';
 import ClickableUsername from '../components/ClickableUsername';
@@ -12,6 +13,7 @@ import ClickableUsername from '../components/ClickableUsername';
 export default function BuildDetailPage() {
   const { buildId } = useParams({ from: '/builds/$buildId' });
   const navigate = useNavigate();
+  const { isGuest, requireAuth } = useGuestCheck();
   const [commentText, setCommentText] = useState('');
   const [imageIndex, setImageIndex] = useState(0);
 
@@ -22,11 +24,8 @@ export default function BuildDetailPage() {
   const addComment = useAddComment();
 
   const handleAddComment = async () => {
+    if (!requireAuth('Sign in to comment')) return;
     if (!commentText.trim()) return;
-    if (!currentProfile) {
-      toast.error('You must be logged in to comment');
-      return;
-    }
     try {
       await addComment.mutateAsync({ postId: buildId, text: commentText.trim() });
       setCommentText('');
@@ -173,6 +172,7 @@ export default function BuildDetailPage() {
                 <p className="text-sm text-foreground">
                   <ClickableUsername
                     userId={comment.authorId}
+                    displayName={comment.authorId}
                     className="mr-1 text-sm"
                   />
                   {comment.text}
@@ -183,23 +183,33 @@ export default function BuildDetailPage() {
           ))}
         </div>
 
-        <div className="flex gap-2">
-          <Input
-            value={commentText}
-            onChange={e => setCommentText(e.target.value)}
-            placeholder="Add a comment..."
-            className="flex-1 bg-secondary border-border text-foreground"
-            onKeyDown={e => e.key === 'Enter' && handleAddComment()}
-          />
-          <Button
-            size="icon"
-            onClick={handleAddComment}
-            disabled={!commentText.trim() || addComment.isPending}
-            className="bg-primary text-primary-foreground"
+        {isGuest ? (
+          <button
+            onClick={() => requireAuth('Sign in to comment')}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-muted text-muted-foreground text-sm hover:bg-muted/80 transition-colors"
           >
-            {addComment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </Button>
-        </div>
+            <LogIn className="w-4 h-4" />
+            Sign in to comment
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              value={commentText}
+              onChange={e => setCommentText(e.target.value)}
+              placeholder="Add a comment..."
+              className="flex-1 bg-secondary border-border text-foreground"
+              onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+            />
+            <Button
+              size="icon"
+              onClick={handleAddComment}
+              disabled={!commentText.trim() || addComment.isPending}
+              className="bg-primary text-primary-foreground"
+            >
+              {addComment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,14 +1,65 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T21:42:27.583Z",
-  "summary": "Both REQ-1 and REQ-2 appear to be implemented. The diff shows App.tsx was modified to include the /install route rendering InstallPage, and TopBar.tsx was modified to add a Download icon button that navigates to /install with the title 'Install App'.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.92,
+  "generatedAt": "2026-02-27T03:44:49.155Z",
+  "summary": "The diff implements both REQ-1 (blank screen fix) and REQ-2 (guest view mode) with strong coverage. REQ-1 is addressed via ErrorBoundary, LoadingFallback, Suspense wrappers, and a revised AuthGate. REQ-2 is addressed via GuestPromptBanner, useGuestCheck hook, AuthRequiredWrapper for creation pages, and per-component guest checks. A few acceptance criteria have gaps: main.tsx is immutable and not shown so top-level ErrorBoundary wrapping cannot be confirmed; some interactive controls are only visually dimmed rather than fully disabled; and follow/unfollow gating in ProfilePage was not shown in the diff.",
+  "missing_requirements": [
+    {
+      "requirement": "ErrorBoundary catches and displays a user-facing error message instead of a blank screen if a critical render error occurs",
+      "reason": "main.tsx is listed as immutable and was not modified. ErrorBoundary is added and used in App.tsx's route errorComponent, but there is no evidence it wraps the top-level ReactDOM render call in main.tsx, which is the standard place to catch startup and provider-level errors.",
+      "evidence": [
+        "frontend/src/components/ErrorBoundary.tsx",
+        "frontend/src/App.tsx"
+      ]
+    },
+    {
+      "requirement": "Follow/unfollow interactive controls must be visually disabled or show a Sign in prompt for guests",
+      "reason": "ProfilePage.tsx was not included in the diff. There is no evidence that follow/unfollow buttons in profile pages have been gated for guest users using useGuestCheck or any equivalent mechanism.",
+      "evidence": []
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "A custom window event 'revgrid:request-login' is dispatched when a guest tries to use a feature, implying a global login trigger mechanism via the window event bus",
+      "reason": "The build request does not specify any custom event bus or window-level login dispatch mechanism. This pattern adds undocumented global side-effect behavior that was not requested.",
+      "evidence": [
+        "frontend/src/hooks/useGuestCheck.ts"
+      ]
+    }
+  ],
+  "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/TopBar.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/AuthGate.tsx",
+    "frontend/src/components/AuthRequiredWrapper.tsx",
+    "frontend/src/components/BottomNav.tsx",
+    "frontend/src/components/ClickableUsername.tsx",
+    "frontend/src/components/CommentsSheet.tsx",
+    "frontend/src/components/ErrorBoundary.tsx",
+    "frontend/src/components/GuestPromptBanner.tsx",
+    "frontend/src/components/Layout.tsx",
+    "frontend/src/components/LoadingFallback.tsx",
+    "frontend/src/components/PostCard.tsx",
+    "frontend/src/components/ProfileSetupForm.tsx",
+    "frontend/src/hooks/useGuestCheck.ts",
+    "frontend/src/pages/BuildDetailPage.tsx",
+    "frontend/src/pages/BuildsPage.tsx",
+    "frontend/src/pages/ChatThreadPage.tsx",
+    "frontend/src/pages/CreateBuildPage.tsx",
+    "frontend/src/pages/CreateEventPage.tsx",
+    "frontend/src/pages/CreateFeedPostPage.tsx",
+    "frontend/src/pages/CreateListingPage.tsx",
+    "frontend/src/pages/CreateMechanicQuestionPage.tsx",
+    "frontend/src/pages/CreateReelPage.tsx",
+    "frontend/src/pages/EventDetailPage.tsx",
+    "frontend/src/pages/EventsPage.tsx",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MarketplacePage.tsx",
+    "frontend/src/pages/MechanicThreadPage.tsx",
+    "frontend/src/pages/MechanicsPage.tsx",
+    "frontend/src/pages/MessagesPage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
     "project_state.json"
   ]
 }

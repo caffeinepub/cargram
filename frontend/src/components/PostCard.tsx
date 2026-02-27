@@ -1,181 +1,146 @@
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Trash2 } from 'lucide-react';
 import { PostRecord } from '../backend';
-import { useGetLikeCount, useLikePost, useUnlikePost, useGetCallerUserProfile, useGetUser } from '../hooks/useQueries';
+import { useGetLikeCount, useLikePost, useUnlikePost, useGetCallerUserProfile, useDeletePost } from '../hooks/useQueries';
+import { useGuestCheck } from '../hooks/useGuestCheck';
 import CommentsSheet from './CommentsSheet';
 import ClickableUsername from './ClickableUsername';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface PostCardProps {
   post: PostRecord;
-  onDeleteRequest?: (postId: string) => void;
 }
 
-export default function PostCard({ post, onDeleteRequest }: PostCardProps) {
-  const [commentsOpen, setCommentsOpen] = useState(false);
+export default function PostCard({ post }: PostCardProps) {
+  const { isGuest, requireAuth } = useGuestCheck();
+  const { data: currentProfile } = useGetCallerUserProfile();
+  const { data: likeCount = BigInt(0) } = useGetLikeCount(post.id);
+  const { mutate: likePost } = useLikePost();
+  const { mutate: unlikePost } = useUnlikePost();
+  const { mutate: deletePost } = useDeletePost();
   const [liked, setLiked] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
-  const { data: likeCount } = useGetLikeCount(post.id);
-  const { data: currentUserProfile } = useGetCallerUserProfile();
-  const { data: authorUser } = useGetUser(post.authorId);
-  const likePost = useLikePost();
-  const unlikePost = useUnlikePost();
+  const isOwner = currentProfile?.username === post.authorId;
 
-  const isAuthor = currentUserProfile?.username === post.authorId;
-
-  const authorAvatarUrl = authorUser?.profilePicData
-    ? `data:image/jpeg;base64,${authorUser.profilePicData}`
-    : '/assets/generated/default-avatar.dim_128x128.png';
-
-  const authorDisplayName = authorUser?.displayName || post.authorId;
-
-  const handleLike = async () => {
+  const handleLike = () => {
+    if (!requireAuth('Sign in to like posts')) return;
     if (liked) {
+      unlikePost(post.id);
       setLiked(false);
-      await unlikePost.mutateAsync(post.id);
     } else {
+      likePost(post.id);
       setLiked(true);
-      await likePost.mutateAsync(post.id);
     }
   };
 
-  const handleDeleteConfirm = () => {
-    setShowDeleteDialog(false);
-    if (onDeleteRequest) {
-      onDeleteRequest(post.id);
-    }
+  const handleComment = () => {
+    if (!requireAuth('Sign in to comment')) return;
+    setCommentsOpen(true);
   };
 
-  const imageUrl = post.image ? post.image.getDirectURL() : null;
+  const handleDelete = () => {
+    if (!currentProfile) return;
+    deletePost(post.id, {
+      onSuccess: () => toast.success('Post deleted'),
+      onError: () => toast.error('Failed to delete post'),
+    });
+  };
+
+  const formatTime = (createdAt: bigint) => {
+    const ms = Number(createdAt) / 1_000_000;
+    const diff = Date.now() - ms;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  };
 
   return (
-    <>
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        {/* Author Header */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <img
-              src={authorAvatarUrl}
-              alt={post.authorId}
-              className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0"
-            />
-            <div className="text-left">
-              <ClickableUsername
-                userId={post.authorId}
-                displayName={authorDisplayName}
-                className="text-sm leading-tight block"
-              />
-              {post.reelCategory && (
-                <p className="text-xs text-primary">{post.reelCategory}</p>
-              )}
-            </div>
-          </div>
-
-          {isAuthor && onDeleteRequest && (
-            <button
-              onClick={() => setShowDeleteDialog(true)}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
+    <article className="bg-card rounded-2xl overflow-hidden border border-border">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
+          {post.authorId.charAt(0).toUpperCase()}
         </div>
-
-        {/* Post Image */}
-        {imageUrl && (
-          <div className="aspect-square w-full bg-muted">
-            <img src={imageUrl} alt={post.caption} className="w-full h-full object-cover" />
-          </div>
-        )}
-
-        {/* Media (base64) */}
-        {!imageUrl && post.mediaData && (
-          <div className="aspect-square w-full bg-muted">
-            <img
-              src={`data:image/jpeg;base64,${post.mediaData}`}
-              alt={post.caption}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="px-4 py-2 flex items-center gap-3">
-          <button
-            onClick={handleLike}
-            className={`flex items-center gap-1.5 text-sm transition-colors ${
-              liked ? 'text-red-500' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-            <span>{Number(likeCount ?? 0) + (liked ? 1 : 0)}</span>
-          </button>
-
-          <button
-            onClick={() => setCommentsOpen(true)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span>Comment</span>
-          </button>
+        <div className="flex-1 min-w-0">
+          <ClickableUsername userId={post.authorId} displayName={post.authorId} className="font-semibold text-sm" />
+          <p className="text-xs text-muted-foreground">{formatTime(post.createdAt)}</p>
         </div>
-
-        {/* Caption */}
-        {post.caption && (
-          <div className="px-4 pb-3">
-            <p className="text-sm text-foreground">
-              <ClickableUsername
-                userId={post.authorId}
-                displayName={authorDisplayName}
-                className="mr-1"
-              />
-              {post.caption}
-            </p>
-          </div>
-        )}
-
-        {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="px-4 pb-3 flex flex-wrap gap-1">
-            {post.tags.map((tag, i) => (
-              <span key={i} className="text-xs text-primary">#{tag}</span>
-            ))}
-          </div>
+        {isOwner && (
+          <button
+            onClick={handleDelete}
+            className="text-muted-foreground hover:text-destructive transition-colors p-1 shrink-0"
+            aria-label="Delete post"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         )}
       </div>
 
-      <CommentsSheet postId={post.id} open={commentsOpen} onClose={() => setCommentsOpen(false)} />
+      {/* Media */}
+      {post.mediaData && (
+        <div className="w-full bg-muted">
+          <img
+            src={post.mediaData}
+            alt={post.caption}
+            className="w-full object-cover max-h-96"
+            loading="lazy"
+          />
+        </div>
+      )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Post?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The post will be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      {/* Actions */}
+      <div className="px-4 py-2 flex items-center gap-4">
+        <button
+          onClick={handleLike}
+          className={`flex items-center gap-1.5 transition-colors ${
+            liked ? 'text-red-500' : isGuest ? 'text-muted-foreground/50' : 'text-muted-foreground hover:text-red-500'
+          }`}
+          title={isGuest ? 'Sign in to like posts' : undefined}
+        >
+          <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+          <span className="text-sm">{likeCount.toString()}</span>
+        </button>
+
+        <button
+          onClick={handleComment}
+          className={`flex items-center gap-1.5 transition-colors ${
+            isGuest ? 'text-muted-foreground/50' : 'text-muted-foreground hover:text-primary'
+          }`}
+          title={isGuest ? 'Sign in to comment' : undefined}
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span className="text-sm">Comment</span>
+        </button>
+      </div>
+
+      {/* Caption */}
+      {post.caption && (
+        <div className="px-4 pb-3">
+          <p className="text-sm">
+            <ClickableUsername userId={post.authorId} displayName={post.authorId} className="font-semibold mr-1" />
+            {post.caption}
+          </p>
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {post.tags.map((tag) => (
+                <span key={tag} className="text-xs text-primary">#{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Comments Sheet - only open for authenticated users */}
+      {!isGuest && (
+        <CommentsSheet
+          postId={post.id}
+          open={commentsOpen}
+          onClose={() => setCommentsOpen(false)}
+        />
+      )}
+    </article>
   );
 }

@@ -1,18 +1,13 @@
 import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-interface ClickableUsernameProps {
+export interface ClickableUsernameProps {
   userId: string;
-  displayName?: string;
+  displayName: string;
   className?: string;
-  /** If true, renders as @username format */
   showAt?: boolean;
 }
 
-/**
- * Renders a user's display name (or username) as a clickable inline element
- * that navigates to their profile page.
- */
 export default function ClickableUsername({
   userId,
   displayName,
@@ -21,8 +16,6 @@ export default function ClickableUsername({
 }: ClickableUsernameProps) {
   const navigate = useNavigate();
 
-  const label = displayName || userId;
-
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate({ to: '/profile/$userId', params: { userId } });
@@ -30,11 +23,10 @@ export default function ClickableUsername({
 
   return (
     <button
-      type="button"
       onClick={handleClick}
-      className={`font-semibold text-foreground hover:text-primary hover:underline underline-offset-2 transition-colors cursor-pointer inline ${className}`}
+      className={`hover:underline text-primary transition-colors font-medium ${className}`}
     >
-      {showAt ? `@${label}` : label}
+      {showAt ? `@${displayName}` : displayName}
     </button>
   );
 }
